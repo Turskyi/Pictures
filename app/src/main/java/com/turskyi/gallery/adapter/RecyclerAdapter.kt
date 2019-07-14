@@ -14,7 +14,7 @@ import com.turskyi.gallery.DetailActivity
 
 class RecyclerAdapter(
     private val aContext: Context,
-    private val aFolderList: IntArray
+    private val aFolderList: Array<Int>
 ) : RecyclerView.Adapter<RecyclerAdapter.FolderViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
@@ -39,7 +39,7 @@ class RecyclerAdapter(
             return aFolderList.size
         }
 
-        class FolderViewHolder(itemView: View, private val aFolderList: IntArray) : RecyclerView.ViewHolder(itemView) {
+        class FolderViewHolder(itemView: View, private val aFolderList: Array<Int>) : RecyclerView.ViewHolder(itemView) {
 
             var aFolder: ImageView = itemView.findViewById(R.id.ivFolder)
 

@@ -68,7 +68,12 @@ class MainActivity : AppCompatActivity() {
             R.drawable.projector
         )
 
-        val recyclerAdapter = RecyclerAdapter(this@MainActivity, aFolderList)
+        val aRandomList = Array(30) {aFolderList.random()}
+
+        val recyclerAdapter = RecyclerAdapter(
+            this@MainActivity,
+            aRandomList
+        )
         aRecyclerView.adapter = recyclerAdapter
     }
 
