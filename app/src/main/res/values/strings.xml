@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">RecyclerView</string>
+    <string name="path">path</string>
+    <string name="quantity_of_columns">Quantity of columns</string>
+    <string name="minus">-</string>
+    <string name="number_of_columns">1</string>
+    <string name="plus">+</string>
+</resources>
