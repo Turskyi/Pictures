@@ -22,7 +22,7 @@ class RecyclerAdapter(
             R.layout.list_item,
             parent, false
         )
-        return FolderViewHolder(view,aFolderList)
+        return FolderViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
@@ -39,7 +39,7 @@ class RecyclerAdapter(
             return aFolderList.size
         }
 
-        class FolderViewHolder(itemView: View, private val aFolderList: Array<Int>) : RecyclerView.ViewHolder(itemView) {
+        class FolderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
             var aFolder: ImageView = itemView.findViewById(R.id.ivFolder)
 
