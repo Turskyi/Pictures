@@ -33,14 +33,6 @@ class RecyclerAdapter(
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
         holder.bindView(aFileList[position],aContext)
-
-//        holder.aFolder.setImageResource(aFileList[position])
-//        holder.aFolder.setOnClickListener {
-//            val anIntent = Intent(aContext, DetailActivity::class.java)
-//            anIntent.putExtra("Image", aFileList[holder.adapterPosition])
-//            aContext.startActivity(anIntent)
-//        }
-
     }
 
 
@@ -52,11 +44,9 @@ class RecyclerAdapter(
 
             aFile.setOnClickListener {
                 val anIntent = Intent(aContext, DetailActivity::class.java)
-                anIntent.putExtra("File", file.path)
+                anIntent.putExtra("File", file.name)
                 aContext.startActivity(anIntent)
             }
-
-
         }
     }
 }

@@ -22,15 +22,9 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var aRecyclerView: RecyclerView
 
-    private lateinit var  aFileList: IntArray
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//            != PackageManager.PERMISSION_GRANTED
-//        ) getPermission()
 
         val path = intent.getStringExtra("path")
         if (path != null) {
@@ -48,21 +42,6 @@ class MainActivity : AppCompatActivity() {
         aRecyclerView = findViewById(R.id.recycler_view)
 
         getNumberOfColumns()
-
-//        aFileList = intArrayOf(
-//            R.drawable.any_language,
-//            R.drawable.balcony,
-//            R.drawable.cabinet,
-//            R.drawable.edward_hopper_rooms_by_the_sea,
-//            R.drawable.gun,
-//            R.drawable.projector
-//        )
-//        val aRandomList = Array(30) { aFileList.random() }
-//        val recyclerAdapter = RecyclerAdapter(
-//            this@MainActivity,
-//            aRandomList
-//        )
-//        aRecyclerView.adapter = recyclerAdapter
 
         getPermission()
     }
@@ -143,11 +122,6 @@ class MainActivity : AppCompatActivity() {
         quantity_text_view.text = "$quantityOfColumns"
         getNumberOfColumns()
     }
-
-//    private fun restart() {
-//        val intent = Intent(this, MainActivity::class.java)
-//        startActivity(intent)
-//    }
 
     companion object {
         private const val PERMISSION_EXTERNAL_STORAGE = 10001

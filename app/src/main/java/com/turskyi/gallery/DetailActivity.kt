@@ -6,6 +6,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.turskyi.gallery.adapter.RecyclerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
@@ -16,8 +17,6 @@ class DetailActivity : AppCompatActivity() {
 
     lateinit var name: String
 
-    private lateinit var aFile: ImageView
-
 
     lateinit var aRecyclerView: RecyclerView
 
@@ -27,19 +26,8 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        aFile = findViewById(R.id.image_view_preview)
-//        val aBundle:Bundle? = intent.extras
-//        if (aBundle != null) {
-//            aFile.setImageResource(aBundle.getInt("File"))
-//        }
-
-//        name = findViewById(R.id.file_name)
-//        val aBundle:Bundle? = intent.extras
-//        if (aBundle != null) {
-//            name
-//        }
-
-        path = "/storage/emulated/0/${getFileName()}"
+        name = intent.getStringExtra("File")
+        path = "/storage/emulated/0/${this.name}"
 
         val path = intent.getStringExtra("path")
         if (path != null) {
@@ -58,6 +46,8 @@ class DetailActivity : AppCompatActivity() {
         aRecyclerView = findViewById(R.id.recycler_view)
 
         getNumberOfColumns()
+
+        readFiles()
 
     }
 
@@ -97,11 +87,27 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun getFileName(): String {
-        val filepath = Environment.getExternalStorageDirectory().getPath()
+        val filepath = Environment.getDataDirectory().path /*getExternalStorageDirectory().getPath()*/
         val file = File(filepath )
         if (!file.exists()) {
             file.mkdirs()
         }
         return file.getAbsolutePath() + "/"
+    }
+
+    private fun readFiles() {
+        val fileList: ArrayList<File> = ArrayList()
+
+        val f = File(path)
+
+        val files = f.listFiles()
+
+        for (inFile in files) {
+            if (inFile.isDirectory) {
+                fileList.add(File("${inFile.path}/", inFile.name))
+            }
+        }
+
+        recycler_view.adapter = RecyclerAdapter(this, fileList)
     }
 }
