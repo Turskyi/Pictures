@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">RecyclerView</string>
+    <string name="app_name">Gallery</string>
     <string name="path" tools:ignore="ExtraTranslation">path</string>
     <string name="quantity_of_columns">Quantity of columns</string>
     <string name="minus">-</string>

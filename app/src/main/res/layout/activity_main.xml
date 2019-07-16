@@ -25,7 +25,7 @@
             android:orientation="horizontal">
 
         <Button
-                android:id="@+id/decrement"
+                android:id="@+id/decrement_columns"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:text="@string/minus" />
@@ -41,14 +41,14 @@
                 android:textSize="16sp" />
 
         <Button
-                android:id="@+id/increment"
+                android:id="@+id/increment_columns"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:text="@string/plus" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv"
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
