@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
      * This method displays the given quantity value on the screen.
      */
     private fun displayQuantity(quantityOfColumns: Int) {
-        quantity_text_view.text = """$quantityOfColumns"""
+        quantity_text_view.text = "$quantityOfColumns"
         getNumbersOfColumns()
     }
 
