@@ -1,35 +1,51 @@
 package com.turskyi.gallery
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.turskyi.gallery.adapter.RecyclerAdapter
+import com.turskyi.gallery.adapters.LargeRecyclerAdapter
+import com.turskyi.gallery.adapters.RecyclerAdapter
+import com.turskyi.gallery.model.MyFile
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
-
 
 class MainActivity : AppCompatActivity() {
 
     private var path = "/storage/emulated/0/"
 
+//    lateinit var quantityOfColumns: Int
+
     private var quantityOfColumns: Int = 1
 
-    lateinit var aRecyclerView: RecyclerView
+    private lateinit var aRecyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val path = intent.getStringExtra("path")
-        if (path != null) {
-            this.path = path
-        }
+//        quantityOfColumns = 1
+
+        getPermission()
+
+        aRecyclerView = findViewById(R.id.recycler_view)
+
+        FileLiveSingleton.getInstance().getPath().observe(this, Observer<String> { path ->
+            if (path != null && path.isNotEmpty()) {
+                this.path = path
+                readFiles()
+            }
+        })
+//        /** First version */
+//        val path = intent.getStringExtra("path")
+//        if (path != null) {
+//            this.path = path
+//        }
 
         increment_columns.setOnClickListener {
             incrementColumns()
@@ -39,17 +55,10 @@ class MainActivity : AppCompatActivity() {
             decrementColumns()
         }
 
-        aRecyclerView = findViewById(R.id.recycler_view)
-
         getNumberOfColumns()
-
-        getPermission()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSION_EXTERNAL_STORAGE -> {
                 // If request is cancelled, the result arrays are empty.
@@ -72,8 +81,11 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * This method updates adapter.
+     */
     private fun readFiles() {
-        val fileList: ArrayList<File> = ArrayList()
+        val fileList: ArrayList<MyFile> = ArrayList()
 
         val f = File(path)
 
@@ -81,10 +93,14 @@ class MainActivity : AppCompatActivity() {
 
         for (inFile in files) {
             if (inFile.isDirectory) {
-                fileList.add(File("${inFile.path}/", inFile.name))
+                fileList.add(MyFile("${inFile.path}/", inFile.name, null))
+            } else if (inFile.extension in listOf("jpeg", "png","jpg")) {
+                fileList.add(MyFile("${inFile.absolutePath}/", inFile.name, inFile.extension))
             }
         }
-
+        if(quantityOfColumns == 1)
+        recycler_view.adapter = LargeRecyclerAdapter(this, fileList)
+        else
         recycler_view.adapter = RecyclerAdapter(this, fileList)
     }
 
@@ -102,6 +118,7 @@ class MainActivity : AppCompatActivity() {
         }
         quantityOfColumns += 1
         displayNumberOfColumns(quantityOfColumns)
+        readFiles()
     }
 
     /**
@@ -111,8 +128,10 @@ class MainActivity : AppCompatActivity() {
         if (quantityOfColumns == 1) {
             return
         }
+        else
         quantityOfColumns -= 1
         displayNumberOfColumns(quantityOfColumns)
+        readFiles()
     }
 
     /**
@@ -125,5 +144,9 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val PERMISSION_EXTERNAL_STORAGE = 10001
+    }
+
+    override fun onBackPressed() {
+        FileLiveSingleton.getInstance().setBackPath()
     }
 }

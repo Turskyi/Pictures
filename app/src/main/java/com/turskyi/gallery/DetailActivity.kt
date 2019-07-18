@@ -2,11 +2,11 @@ package com.turskyi.gallery
 
 import android.os.Bundle
 import android.os.Environment
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.turskyi.gallery.adapter.RecyclerAdapter
+import com.turskyi.gallery.adapters.RecyclerAdapter
+import com.turskyi.gallery.model.MyFile
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
@@ -92,11 +92,11 @@ class DetailActivity : AppCompatActivity() {
         if (!file.exists()) {
             file.mkdirs()
         }
-        return file.getAbsolutePath() + "/"
+        return file.absolutePath + "/"
     }
 
     private fun readFiles() {
-        val fileList: ArrayList<File> = ArrayList()
+        val fileList: ArrayList<MyFile> = ArrayList()
 
         val f = File(path)
 
@@ -104,7 +104,7 @@ class DetailActivity : AppCompatActivity() {
 
         for (inFile in files) {
             if (inFile.isDirectory) {
-                fileList.add(File("${inFile.path}/", inFile.name))
+                fileList.add(MyFile("${inFile.path}/", inFile.name, null))
             }
         }
 
