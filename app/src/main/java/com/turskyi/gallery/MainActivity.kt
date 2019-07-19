@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
     private fun readFiles() {
 
         toolbar_title.text = path
-        if (path == "/storage/"){
+        if (path.endsWith("/storage/") ){
             toolbar_title.text = title
         }
 
