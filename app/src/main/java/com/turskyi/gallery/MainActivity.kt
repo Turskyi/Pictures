@@ -3,7 +3,6 @@ package com.turskyi.gallery
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
@@ -17,7 +16,7 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
-    private var path = "/storage/emulated/0/"
+    private var path = "/storage/"
 
 //    lateinit var quantityOfColumns: Int
 
@@ -29,8 +28,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        quantityOfColumns = 1
-
         getPermission()
 
         aRecyclerView = findViewById(R.id.recycler_view)
@@ -41,11 +38,6 @@ class MainActivity : AppCompatActivity() {
                 readFiles()
             }
         })
-//        /** First version */
-//        val path = intent.getStringExtra("path")
-//        if (path != null) {
-//            this.path = path
-//        }
 
         increment_columns.setOnClickListener {
             incrementColumns()
@@ -64,7 +56,6 @@ class MainActivity : AppCompatActivity() {
                 // If request is cancelled, the result arrays are empty.
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     readFiles()
-                    Toast.makeText(this, "permission allowed", Toast.LENGTH_SHORT).show()
                 } else {
                     getPermission()
                 }
@@ -94,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         for (inFile in files) {
             if (inFile.isDirectory) {
                 fileList.add(MyFile("${inFile.path}/", inFile.name, null))
-            } else if (inFile.extension in listOf("jpeg", "png","jpg")) {
+            } else if (inFile.extension in listOf("jpeg", "png","jpg", "JPG")) {
                 fileList.add(MyFile("${inFile.absolutePath}/", inFile.name, inFile.extension))
             }
         }

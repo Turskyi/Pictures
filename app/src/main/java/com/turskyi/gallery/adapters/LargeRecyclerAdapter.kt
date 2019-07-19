@@ -1,6 +1,7 @@
 package com.turskyi.gallery.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.turskyi.gallery.DetailActivity
 import com.turskyi.gallery.FileLiveSingleton
 import com.turskyi.gallery.R
 import com.turskyi.gallery.model.MyFile
@@ -39,17 +41,17 @@ class LargeRecyclerAdapter(private val aContext: Context, private val aFileList:
                 FileLiveSingleton.getInstance().setPath(aFile.path)
             }
 
-            if(aFile.extension in listOf("jpeg", "png","jpg")) {
+            if(aFile.extension in listOf("jpeg", "png","jpg", "JPG")) {
                 val aBitmap = BitmapFactory.decodeFile(aFile.path)
                 aFileIV.setImageBitmap(aBitmap)
-            }
 
-            //to use for opening the picture
-//            aFileIV.setOnClickListener {
-//                val anIntent = Intent(aContext, DetailActivity::class.java)
-//                anIntent.putExtra("File", aFile.name)
-//                aContext.startActivity(anIntent)
-//            }
+                //to use for opening the picture
+                aFileIV.setOnClickListener {
+                    val anIntent = Intent(aContext, DetailActivity::class.java)
+                    anIntent.putExtra("File", aFile.path)
+                    aContext.startActivity(anIntent)
+                }
+            }
         }
     }
 }
