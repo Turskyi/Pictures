@@ -10,7 +10,6 @@ class DetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
-
             aFileIV = findViewById(R.id.image_view_zoom)
             val aBundle: Bundle? = intent.extras
             if (aBundle != null) {

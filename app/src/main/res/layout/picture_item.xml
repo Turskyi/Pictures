@@ -8,7 +8,7 @@
         android:layout_height="wrap_content">
 
     <ImageView
-            android:id="@+id/small_image_view_preview"
+            android:id="@+id/folder_image_view_preview"
             android:src="@drawable/ic_folder"
             android:scaleType="fitStart"
             android:layout_width="match_parent"

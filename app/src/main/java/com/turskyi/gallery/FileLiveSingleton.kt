@@ -1,6 +1,10 @@
 package com.turskyi.gallery
 
+import android.content.Intent
+import android.graphics.BitmapFactory
+import android.widget.ImageView
 import androidx.lifecycle.MutableLiveData
+import com.turskyi.gallery.model.MyFile
 
 class FileLiveSingleton {
 

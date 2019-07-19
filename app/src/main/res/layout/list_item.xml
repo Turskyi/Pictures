@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="vertical"
+              android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
     <ImageView
-            android:id="@+id/large_image_view_preview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:id="@+id/list_iv_preview"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
             android:layout_margin="4dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_folder"
@@ -17,8 +17,7 @@
     <TextView
             android:id="@+id/file_name"
             android:textColor="#000"
-            android:gravity="center"
-            android:layout_marginStart="4dp"
+            android:layout_marginTop="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 

@@ -14,11 +14,11 @@ import com.turskyi.gallery.FileLiveSingleton
 import com.turskyi.gallery.R
 import com.turskyi.gallery.model.MyFile
 
-class LargeRecyclerAdapter(private val aContext: Context, private val aFileList: List<MyFile>) : RecyclerView.Adapter<LargeRecyclerAdapter.FileViewHolder>() {
+class ListRecyclerAdapter(private val aContext: Context, private val aFileList: List<MyFile>) : RecyclerView.Adapter<ListRecyclerAdapter.FileViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
 
-        val viewLarge = LayoutInflater.from(parent.context).inflate(R.layout.large_file, parent, false)
+        val viewLarge = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
         return FileViewHolder(viewLarge)
     }
 
@@ -33,7 +33,7 @@ class LargeRecyclerAdapter(private val aContext: Context, private val aFileList:
 
     class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
-        var aFileIV: ImageView = itemView.findViewById(R.id.large_image_view_preview)
+        var aFileIV: ImageView = itemView.findViewById(R.id.list_iv_preview)
         fun bindView(aFile: MyFile, aContext: Context) {
             fileNameTV.text = aFile.name
 
@@ -46,7 +46,7 @@ class LargeRecyclerAdapter(private val aContext: Context, private val aFileList:
                 aFileIV.setImageBitmap(aBitmap)
 
                 //to use for opening the picture
-                aFileIV.setOnClickListener {
+                itemView.setOnClickListener {
                     val anIntent = Intent(aContext, DetailActivity::class.java)
                     anIntent.putExtra("File", aFile.path)
                     aContext.startActivity(anIntent)

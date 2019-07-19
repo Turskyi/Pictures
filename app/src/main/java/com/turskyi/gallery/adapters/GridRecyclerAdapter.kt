@@ -14,11 +14,11 @@ import com.turskyi.gallery.FileLiveSingleton
 import com.turskyi.gallery.R
 import com.turskyi.gallery.model.MyFile
 
-class RecyclerAdapter(private val aContext: Context, private val aFileList: List<MyFile>) : RecyclerView.Adapter<RecyclerAdapter.FileViewHolder>() {
+class GridRecyclerAdapter(private val aContext: Context, private val aFileList: List<MyFile>) : RecyclerView.Adapter<GridRecyclerAdapter.FileViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
 
-        val viewLarge = LayoutInflater.from(parent.context).inflate(R.layout.small_file, parent, false)
+        val viewLarge = LayoutInflater.from(parent.context).inflate(R.layout.picture_item, parent, false)
         return FileViewHolder(viewLarge)
 
     }
@@ -34,12 +34,12 @@ class RecyclerAdapter(private val aContext: Context, private val aFileList: List
 
     class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
-        var aFileIV: ImageView = itemView.findViewById(R.id.small_image_view_preview)
+        var aFileIV: ImageView = itemView.findViewById(R.id.folder_image_view_preview)
         fun bindView(aFile: MyFile, aContext: Context) {
             fileNameTV.text = aFile.name
-
             itemView.setOnClickListener{
                 FileLiveSingleton.getInstance().setPath(aFile.path)
+
             }
 
             if(aFile.extension in listOf("jpeg", "png","jpg", "JPG")) {
@@ -47,7 +47,7 @@ class RecyclerAdapter(private val aContext: Context, private val aFileList: List
                 aFileIV.setImageBitmap(aBitmap)
 
                 //to use for opening the picture
-                aFileIV.setOnClickListener {
+                itemView.setOnClickListener {
                     val anIntent = Intent(aContext, DetailActivity::class.java)
                     anIntent.putExtra("File", aFile.name)
                     aContext.startActivity(anIntent)
