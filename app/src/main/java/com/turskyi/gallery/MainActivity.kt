@@ -1,6 +1,7 @@
 package com.turskyi.gallery
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -8,12 +9,13 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.turskyi.gallery.adapters.ListRecyclerAdapter
 import com.turskyi.gallery.adapters.GridRecyclerAdapter
+import com.turskyi.gallery.adapters.ListRecyclerAdapter
 import com.turskyi.gallery.model.MyFile
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -79,7 +81,7 @@ class MainActivity : AppCompatActivity() {
     private fun readFiles() {
 
         toolbar_title.text = path
-        if (path.endsWith("/storage/") ){
+        if (path.endsWith("/storage/")) {
             toolbar_title.text = title
         }
 
@@ -92,14 +94,14 @@ class MainActivity : AppCompatActivity() {
         for (inFile in files) {
             if (inFile.isDirectory) {
                 fileList.add(MyFile("${inFile.path}/", inFile.name, null))
-            } else if (inFile.extension in listOf("jpeg", "png","jpg", "JPG")) {
+            } else if (inFile.extension in listOf("jpeg", "png", "jpg", "JPG")) {
                 fileList.add(MyFile("${inFile.absolutePath}/", inFile.name, inFile.extension))
             }
         }
-        if(quantityOfColumns == 1)
-        recycler_view.adapter = ListRecyclerAdapter(this, fileList)
+        if (quantityOfColumns == 1)
+            recycler_view.adapter = ListRecyclerAdapter(this, fileList)
         else
-        recycler_view.adapter = GridRecyclerAdapter(this, fileList)
+            recycler_view.adapter = GridRecyclerAdapter(this, fileList)
     }
 
     private fun getNumberOfColumns() {
@@ -125,9 +127,8 @@ class MainActivity : AppCompatActivity() {
     private fun turnIntoList() {
         if (quantityOfColumns == 1) {
             return
-        }
-        else
-        quantityOfColumns -= 1
+        } else
+            quantityOfColumns -= 1
         getNumberOfColumns()
         readFiles()
     }
@@ -138,5 +139,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         FileLiveSingleton.getInstance().setBackPath()
+        if (toolbar_title.text == title) {
+            AlertDialog.Builder(this)
+                .setTitle("Really Exit?")
+                .setMessage("Are you sure you want to exit?")
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(
+                    android.R.string.yes
+                ) { _, _ -> super@MainActivity.onBackPressed() }.create().show()
+        }
     }
 }
