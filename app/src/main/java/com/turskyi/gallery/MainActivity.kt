@@ -92,11 +92,20 @@ class MainActivity : AppCompatActivity() {
         val files = f.listFiles()
 
         for (inFile in files) {
-            if (inFile.isDirectory) {
-                fileList.add(MyFile("${inFile.path}/", inFile.name, null))
-            } else if (inFile.extension in listOf("jpeg", "png", "jpg", "JPG")) {
-                fileList.add(MyFile("${inFile.absolutePath}/", inFile.name, inFile.extension))
+            if (inFile.path == "/storage/self") continue
+            else if (inFile.path == "/storage/emulated") {
+                if (inFile.isDirectory) {
+                    fileList.add(MyFile("/storage/emulated/0/", inFile.name, null))
+                }
+            } else {
+                if (inFile.isDirectory) {
+                    fileList.add(MyFile("${inFile.path}/", inFile.name, null))
+                } else if (inFile.extension in listOf("jpeg", "png", "jpg", "JPG")) {
+                    fileList.add(MyFile("${inFile.absolutePath}/", inFile.name, inFile.extension))
+                }
             }
+
+
         }
         if (quantityOfColumns == 1)
             recycler_view.adapter = ListRecyclerAdapter(this, fileList)
@@ -138,7 +147,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        FileLiveSingleton.getInstance().setBackPath()
         if (toolbar_title.text == title) {
             AlertDialog.Builder(this)
                 .setTitle("Really Exit?")
@@ -147,6 +155,6 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton(
                     android.R.string.yes
                 ) { _, _ -> super@MainActivity.onBackPressed() }.create().show()
-        }
+        } else FileLiveSingleton.getInstance().setBackPath()
     }
 }

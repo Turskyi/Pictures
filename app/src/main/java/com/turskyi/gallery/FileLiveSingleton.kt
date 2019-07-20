@@ -29,6 +29,9 @@ class FileLiveSingleton {
             if (index == ( pathArray.size - 2)) continue
             exitPath += "/${pathArray[index]}"
         }
+        if (exitPath.endsWith( "/storage/emulated/")){
+            exitPath = "/storage/"
+        }
         livePath.value = exitPath
     }
 }

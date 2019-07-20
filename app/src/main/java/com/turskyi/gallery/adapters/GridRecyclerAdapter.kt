@@ -49,7 +49,7 @@ class GridRecyclerAdapter(private val aContext: Context, private val aFileList: 
                 //to use for opening the picture
                 itemView.setOnClickListener {
                     val anIntent = Intent(aContext, DetailActivity::class.java)
-                    anIntent.putExtra("File", aFile.name)
+                    anIntent.putExtra("File", aFile.path)
                     aContext.startActivity(anIntent)
                 }
             }
