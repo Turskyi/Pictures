@@ -5,4 +5,6 @@
     <string name="list">List</string>
     <string name="number_of_columns">1</string>
     <string name="folders">Folders</string>
+    <string name="arrow_back">arrow back</string>
+    <string name="grid">grid</string>
 </resources>

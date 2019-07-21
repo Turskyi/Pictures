@@ -4,6 +4,9 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
@@ -19,10 +22,7 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
-
     private var path = "/storage/"
-
-//    lateinit var quantityOfColumns: Int
 
     private var quantityOfColumns: Int = 1
 
@@ -31,8 +31,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         getPermission()
+
+        btn_arrow_back.setOnClickListener {
+            onBackPressed()
+        }
 
         aRecyclerView = findViewById(R.id.recycler_view)
 
@@ -43,14 +46,34 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        btn_folders.setOnClickListener {
-            turnIntoFolders()
-        }
+        btn_view_changer.setOnClickListener (firstButtonListener)
 
-        btn_list.setOnClickListener {
-            turnIntoList()
-        }
+//        btn_folders.setOnClickListener {
+//            turnIntoFolders()
+//        }
+//
+//        btn_list.setOnClickListener {
+//            turnIntoList()
+//        }
+
         getNumberOfColumns()
+
+    }
+
+    private var firstButtonListener: View.OnClickListener = View.OnClickListener {
+        btn_view_changer.setImageResource(R.drawable.ic_view_list_white)
+        turnIntoFolders()
+        // change the buttonListener
+        btn_view_changer.setOnClickListener(secondButtonListener)
+    }
+
+    private var secondButtonListener: View.OnClickListener = View.OnClickListener {
+        // Find a reference to the button. Change the image.
+        btn_view_changer.setImageResource(R.drawable.ic_grid)
+
+        turnIntoList()
+        // return first buttonListener
+        btn_view_changer.setOnClickListener(firstButtonListener)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -79,12 +102,12 @@ class MainActivity : AppCompatActivity() {
      * This method updates adapter.
      */
     private fun readFiles() {
-
         toolbar_title.text = path
+        btn_arrow_back.visibility = VISIBLE
         if (path.endsWith("/storage/")) {
             toolbar_title.text = title
+            btn_arrow_back.visibility = INVISIBLE
         }
-
         val fileList: ArrayList<MyFile> = ArrayList()
 
         val f = File(path)
@@ -92,6 +115,7 @@ class MainActivity : AppCompatActivity() {
         val files = f.listFiles()
 
         for (inFile in files) {
+
             if (inFile.path == "/storage/self") continue
             else if (inFile.path == "/storage/emulated") {
                 if (inFile.isDirectory) {
@@ -100,12 +124,11 @@ class MainActivity : AppCompatActivity() {
             } else {
                 if (inFile.isDirectory) {
                     fileList.add(MyFile("${inFile.path}/", inFile.name, null))
+
                 } else if (inFile.extension in listOf("jpeg", "png", "jpg", "JPG")) {
                     fileList.add(MyFile("${inFile.absolutePath}/", inFile.name, inFile.extension))
                 }
             }
-
-
         }
         if (quantityOfColumns == 1)
             recycler_view.adapter = ListRecyclerAdapter(this, fileList)
@@ -147,6 +170,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        btn_arrow_back.visibility = VISIBLE
         if (toolbar_title.text == title) {
             AlertDialog.Builder(this)
                 .setTitle("Really Exit?")

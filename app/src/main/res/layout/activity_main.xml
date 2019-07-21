@@ -7,36 +7,9 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
-    <include layout="@layout/toolbar" />
-
-    <LinearLayout
-            android:id="@+id/linear_layout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:weightSum="10"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-        <Button
-                android:id="@+id/btn_list"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="5"
-                android:layout_margin="4dp"
-                android:text="@string/list"
-                style="@style/Animation.Design.BottomSheetDialog"/>
-
-        <Button
-                android:id="@+id/btn_folders"
-                android:layout_width="0dp"
-                android:layout_weight="5"
-                android:layout_height="48dp"
-                android:layout_margin="4dp"
-                android:text="@string/folders"
-                style="@style/Animation.Design.BottomSheetDialog"/>
-    </LinearLayout>
+    <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar" />
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
@@ -45,7 +18,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/linear_layout"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
             android:scaleType="centerCrop">
 
     </androidx.recyclerview.widget.RecyclerView>
