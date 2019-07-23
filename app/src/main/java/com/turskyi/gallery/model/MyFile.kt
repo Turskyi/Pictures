@@ -1,7 +1,9 @@
 package com.turskyi.gallery.model
 
-data class MyFile(
-    var path: String,
+data class MyFile (
+    val path: String,
     val name: String,
-    val extension: String?
+    val extension: String?,
+    val imageFile: MyFile?/*,
+    var isChecked: Boolean*/
 )

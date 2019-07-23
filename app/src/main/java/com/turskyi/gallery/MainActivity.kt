@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
@@ -11,14 +12,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.turskyi.gallery.adapters.GridRecyclerAdapter
 import com.turskyi.gallery.adapters.ListRecyclerAdapter
+import com.turskyi.gallery.adapters.MyRecyclerViewAdapter
 import com.turskyi.gallery.model.MyFile
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,19 +30,34 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var aRecyclerView: RecyclerView
 
+    // My File list
+    private var aFileList = ArrayList<MyFile?>()
+
+    private var maxRow = 10
+
+    private var isLoading = false
+    private lateinit var mAdapter: MyRecyclerViewAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         getPermission()
+
+        aRecyclerView = findViewById(R.id.recycler_view)
+
+//        if (quantityOfColumns == 1)
+        aRecyclerView.layoutManager = LinearLayoutManager(this)
+//        else
+//            aRecyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
 
         btn_arrow_back.setOnClickListener {
             onBackPressed()
         }
 
-        aRecyclerView = findViewById(R.id.recycler_view)
-
         FileLiveSingleton.getInstance().getPath().observe(this, Observer<String> { path ->
             if (path != null && path.isNotEmpty()) {
+                maxRow = 10
                 this.path = path
                 readFiles()
             }
@@ -48,16 +65,90 @@ class MainActivity : AppCompatActivity() {
 
         btn_view_changer.setOnClickListener (firstButtonListener)
 
-//        btn_folders.setOnClickListener {
-//            turnIntoFolders()
-//        }
-//
-//        btn_list.setOnClickListener {
-//            turnIntoList()
-//        }
-
         getNumberOfColumns()
 
+        aRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                if (!isLoading) {
+                    val linearLayoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    if (linearLayoutManager.findLastCompletelyVisibleItemPosition() == aFileList.size - 2) {
+                        maxRow += 10
+                        isLoading = true
+                        loadMore()
+                    }
+                }
+            }
+        })
+
+        // mAdapter.getAllChecked()
+    }
+
+    private fun loadMore() {
+        val handler = Handler()
+
+//        handler.post {
+//            aFileList.add(null)
+//            mAdapter.notifyItemChanged(aFileList.size - 1)
+//        }
+
+        val task = Runnable {
+            aFileList.removeAt(aFileList.size - 1)
+            val scrollPosition = aFileList.size
+            mAdapter.notifyItemRemoved(scrollPosition)
+
+            val currentSize = scrollPosition
+            val nextLimit = currentSize + 10
+
+            val myList = ArrayList<MyFile?>()
+
+            val f = File(path)
+            val files = f.listFiles()
+
+            for (inFile in files) {
+                if (inFile.path == "/storage/self") continue
+                else if (inFile.path == "/storage/emulated") {
+                    if (inFile.isDirectory) {
+                        aFileList.add(MyFile("/storage/emulated/0/", inFile.name, null, null))
+                    }
+                }
+            }
+
+            for (index in files.indices) {
+                // Skip old files
+                if (index < currentSize) continue
+
+                // break for maxLimit
+                if (nextLimit == index) break
+
+                if (files[index].isDirectory) {
+
+                    var imageFile: MyFile? = null
+
+                    val filesInDirectory = files[index].listFiles()
+
+                    if (filesInDirectory != null && filesInDirectory.isNotEmpty()) {
+                        for (mFile in filesInDirectory) {
+                            if (mFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
+                                imageFile = MyFile("${mFile.path}/", mFile.name, mFile.extension, null)
+                                break
+                            }
+                        }
+                    }
+
+                    myList.add(MyFile("${files[index].path}/", files[index].name, null, imageFile))
+                } else if (files[index].extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
+                    myList.add(MyFile("${files[index].absolutePath}/", files[index].name, files[index].extension, null))
+                }
+
+            }
+            mAdapter.addNewFiles(myList)
+            isLoading = false
+        }
+
+        /// postDelayed for loading simulation with sleep thread
+        handler.postDelayed(task, 0)
     }
 
     private var firstButtonListener: View.OnClickListener = View.OnClickListener {
@@ -102,38 +193,73 @@ class MainActivity : AppCompatActivity() {
      * This method updates adapter.
      */
     private fun readFiles() {
+        aFileList = ArrayList()
+
         toolbar_title.text = path
         btn_arrow_back.visibility = VISIBLE
         if (path.endsWith("/storage/")) {
             toolbar_title.text = title
             btn_arrow_back.visibility = INVISIBLE
         }
-        val fileList: ArrayList<MyFile> = ArrayList()
 
         val f = File(path)
 
         val files = f.listFiles()
 
         for (inFile in files) {
-
             if (inFile.path == "/storage/self") continue
             else if (inFile.path == "/storage/emulated") {
                 if (inFile.isDirectory) {
-                    fileList.add(MyFile("/storage/emulated/0/", inFile.name, null))
-                }
-            } else {
-                if (inFile.isDirectory) {
-                    fileList.add(MyFile("${inFile.path}/", inFile.name, null))
-
-                } else if (inFile.extension in listOf("jpeg", "png", "jpg", "JPG")) {
-                    fileList.add(MyFile("${inFile.absolutePath}/", inFile.name, inFile.extension))
+                    aFileList.add(MyFile("/storage/emulated/0/", inFile.name, null, null))
                 }
             }
         }
+
+        for (index in files.indices) {
+            if (maxRow == index) break
+
+            // This variable for image
+            var imageFile: MyFile? = null
+                if (files[index].isDirectory) {
+
+                    /// Get List of files in folder
+                    val filesInDirectory = files[index].listFiles()
+
+                    // Search for a photo
+                    if (filesInDirectory != null && filesInDirectory.isNotEmpty()) {
+                        for (aFile in filesInDirectory) {
+                            if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
+                                imageFile = MyFile("${aFile.path}/", aFile.name, aFile.extension, null)
+                                break
+                            }
+                        }
+                    }
+                    else {
+
+                    // Skip folder if it is empty
+                    continue
+                }
+                    aFileList.add(MyFile("${files[index].path}/", files[index].name, null, imageFile))
+                } else if (files[index].extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
+                    aFileList.add(
+                        MyFile(
+                            "${files[index].absolutePath}/",
+                            files[index].name,
+                            files[index].extension,
+                            null
+                        )
+                    )
+            }
+        }
+
+        mAdapter = MyRecyclerViewAdapter(aFileList)
+
+        recycler_view.adapter = mAdapter
+
         if (quantityOfColumns == 1)
-            recycler_view.adapter = ListRecyclerAdapter(this, fileList)
+            recycler_view.adapter = ListRecyclerAdapter(this, aFileList)
         else
-            recycler_view.adapter = GridRecyclerAdapter(this, fileList)
+            recycler_view.adapter = GridRecyclerAdapter(this, aFileList)
     }
 
     private fun getNumberOfColumns() {
