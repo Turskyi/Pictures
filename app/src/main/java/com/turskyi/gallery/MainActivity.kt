@@ -228,7 +228,6 @@ class MainActivity : AppCompatActivity() {
             // This variable for image
             var imageFile: MyFile? = null
             if (files[index].isDirectory) {
-
                 /// Get List of files in folder
                 val filesInDirectory = files[index].listFiles()
 

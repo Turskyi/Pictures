@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import android.graphics.BitmapFactory
+import android.view.View.OnLongClickListener
 import com.turskyi.gallery.DetailActivity
 import com.turskyi.gallery.FileLiveSingleton
 import com.turskyi.gallery.R
@@ -43,7 +44,8 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_ITEM) {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
-            MyViewHolder(view)
+            ListViewHolder(view)
+
         } else {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
             MyLoadingHolder(view)
@@ -55,7 +57,7 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is MyViewHolder) {
+        if (holder is ListViewHolder) {
             holder.bindView(listFile[position]!!, aContext)
         } else {
 
@@ -72,10 +74,10 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
     }
 
 //    fun getAllChecked() : ArrayList<MyFile> {
-//         TODO return variable
-//         TODO for with filter
-//         TODO return variable
-
+////         TODO return variable
+////         TODO for with filter
+////         TODO return variable
+//
 //         var checkedFiles = ArrayList<MyFile?> {
 //             for (aFile in listFile) {
 //                 if (aFile?.isChecked!!) {
@@ -83,23 +85,16 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
 //         }
 //    }
 
-    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
         private val previewIV: ImageView = itemView.findViewById(R.id.list_iv_preview)
         private val selectedImage: ImageView = itemView.findViewById(R.id.selected_image)
-
         fun bindView(aFile: MyFile, aContext: Context) {
             fileNameTV.text = aFile.name
 
-//            itemView.setOnClickListener{
-//                FileLiveSingleton.getInstance().setPath(aFile.path)
-//            }
+            itemView.setOnLongClickListener (firstListener)
 
-            itemView.setOnLongClickListener {
-                selectedImage.visibility = View.VISIBLE
-                true
-            }
 
             if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
                 val aBitmap = BitmapFactory.decodeFile(aFile.path)
@@ -134,8 +129,21 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
 
         }
 
+
+        private var firstListener: OnLongClickListener = OnLongClickListener {
+            selectedImage.visibility = View.VISIBLE
+            itemView.setOnLongClickListener(secondListener)
+            true
+        }
+
+        private var secondListener: OnLongClickListener = OnLongClickListener {
+            selectedImage.visibility = View.INVISIBLE
+
+            itemView.setOnLongClickListener(firstListener)
+            true
+        }
+
     }
 
     class MyLoadingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-
 }
