@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         aRecyclerView = findViewById(R.id.recycler_view)
 
 //        if (quantityOfColumns == 1)
-        aRecyclerView.layoutManager = LinearLayoutManager(this)
+//        aRecyclerView.layoutManager = LinearLayoutManager(this)
 //        else
 //            aRecyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
 
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        btn_view_changer.setOnClickListener (firstButtonListener)
+        btn_view_changer.setOnClickListener(firstButtonListener)
 
         getNumberOfColumns()
 
@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // mAdapter.getAllChecked()
+//         mAdapter.getAllChecked()
     }
 
     private fun loadMore() {
@@ -98,8 +98,7 @@ class MainActivity : AppCompatActivity() {
             val scrollPosition = aFileList.size
             mAdapter.notifyItemRemoved(scrollPosition)
 
-            val currentSize = scrollPosition
-            val nextLimit = currentSize + 10
+            val nextLimit = scrollPosition + 10
 
             val myList = ArrayList<MyFile?>()
 
@@ -110,14 +109,14 @@ class MainActivity : AppCompatActivity() {
                 if (inFile.path == "/storage/self") continue
                 else if (inFile.path == "/storage/emulated") {
                     if (inFile.isDirectory) {
-                        aFileList.add(MyFile("/storage/emulated/0/", inFile.name, null, null))
+                        aFileList.add(MyFile("/storage/emulated/0/", inFile.name, null, null, false))
                     }
                 }
             }
 
             for (index in files.indices) {
                 // Skip old files
-                if (index < currentSize) continue
+                if (index < scrollPosition) continue
 
                 // break for maxLimit
                 if (nextLimit == index) break
@@ -131,15 +130,23 @@ class MainActivity : AppCompatActivity() {
                     if (filesInDirectory != null && filesInDirectory.isNotEmpty()) {
                         for (mFile in filesInDirectory) {
                             if (mFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
-                                imageFile = MyFile("${mFile.path}/", mFile.name, mFile.extension, null)
+                                imageFile = MyFile("${mFile.path}/", mFile.name, mFile.extension, null, false)
                                 break
                             }
                         }
                     }
 
-                    myList.add(MyFile("${files[index].path}/", files[index].name, null, imageFile))
+                    myList.add(MyFile("${files[index].path}/", files[index].name, null, imageFile, false))
                 } else if (files[index].extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
-                    myList.add(MyFile("${files[index].absolutePath}/", files[index].name, files[index].extension, null))
+                    myList.add(
+                        MyFile(
+                            "${files[index].absolutePath}/",
+                            files[index].name,
+                            files[index].extension,
+                            null,
+                            false
+                        )
+                    )
                 }
 
             }
@@ -210,7 +217,7 @@ class MainActivity : AppCompatActivity() {
             if (inFile.path == "/storage/self") continue
             else if (inFile.path == "/storage/emulated") {
                 if (inFile.isDirectory) {
-                    aFileList.add(MyFile("/storage/emulated/0/", inFile.name, null, null))
+                    aFileList.add(MyFile("/storage/emulated/0/", inFile.name, null, null, false))
                 }
             }
         }
@@ -220,46 +227,45 @@ class MainActivity : AppCompatActivity() {
 
             // This variable for image
             var imageFile: MyFile? = null
-                if (files[index].isDirectory) {
+            if (files[index].isDirectory) {
 
-                    /// Get List of files in folder
-                    val filesInDirectory = files[index].listFiles()
+                /// Get List of files in folder
+                val filesInDirectory = files[index].listFiles()
 
-                    // Search for a photo
-                    if (filesInDirectory != null && filesInDirectory.isNotEmpty()) {
-                        for (aFile in filesInDirectory) {
-                            if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
-                                imageFile = MyFile("${aFile.path}/", aFile.name, aFile.extension, null)
-                                break
-                            }
+                // Search for a photo
+                if (filesInDirectory != null && filesInDirectory.isNotEmpty()) {
+                    for (aFile in filesInDirectory) {
+                        if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
+                            imageFile = MyFile("${aFile.path}/", aFile.name, aFile.extension, null, false)
+                            break
                         }
                     }
-                    else {
+                } else {
 
                     // Skip folder if it is empty
                     continue
                 }
-                    aFileList.add(MyFile("${files[index].path}/", files[index].name, null, imageFile))
-                } else if (files[index].extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
-                    aFileList.add(
-                        MyFile(
-                            "${files[index].absolutePath}/",
-                            files[index].name,
-                            files[index].extension,
-                            null
-                        )
+                aFileList.add(MyFile("${files[index].path}/", files[index].name, null, imageFile, false))
+            } else if (files[index].extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
+                aFileList.add(
+                    MyFile(
+                        "${files[index].absolutePath}/",
+                        files[index].name,
+                        files[index].extension,
+                        null, false
                     )
+                )
             }
         }
 
-        mAdapter = MyRecyclerViewAdapter(aFileList)
+        mAdapter = MyRecyclerViewAdapter(this, aFileList)
 
         recycler_view.adapter = mAdapter
 
-        if (quantityOfColumns == 1)
-            recycler_view.adapter = ListRecyclerAdapter(this, aFileList)
-        else
-            recycler_view.adapter = GridRecyclerAdapter(this, aFileList)
+//        if (quantityOfColumns == 1)
+//            recycler_view.adapter = ListRecyclerAdapter(this, aFileList)
+//        else
+//            recycler_view.adapter = GridRecyclerAdapter(this, aFileList)
     }
 
     private fun getNumberOfColumns() {
@@ -298,6 +304,7 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         btn_arrow_back.visibility = VISIBLE
         if (toolbar_title.text == title) {
+            btn_arrow_back.visibility = INVISIBLE
             AlertDialog.Builder(this)
                 .setTitle("Really Exit?")
                 .setMessage("Are you sure you want to exit?")
