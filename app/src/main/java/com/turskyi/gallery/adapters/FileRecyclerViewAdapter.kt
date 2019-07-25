@@ -2,53 +2,55 @@ package com.turskyi.gallery.adapters
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import android.graphics.BitmapFactory
-import android.view.View.OnLongClickListener
 import com.turskyi.gallery.DetailActivity
 import com.turskyi.gallery.FileLiveSingleton
 import com.turskyi.gallery.R
-import com.turskyi.gallery.model.MyFile
+import com.turskyi.gallery.models.MyFile
+import com.turskyi.gallery.models.ViewTypes
 
-class MyRecyclerViewAdapter(private val aContext: Context, private var listFile: ArrayList<MyFile?>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FileRecyclerViewAdapter(
+    private val aContext: Context,
+    private var listFile: ArrayList<MyFile?>,
+    private var isGrid: Boolean
+) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val VIEW_TYPE_ITEM = 0
-    private val VIEW_TYPE_LOADING = 1
-
-//  class  ViewHolder1 : RecyclerView.Adapter<ListRecyclerAdapter.FileViewHolder>() {
-//
-//       ViewHolder1(var itemView: View ){
-//        }
-//    }
-
-    //  class  ViewHolder2 : RecyclerView.Adapter<ListRecyclerAdapter.FileViewHolder>() {
-//
-//       ViewHolder1(var itemView: View ){
-//        }
-//    }
+//    private val VIEW_TYPE_ITEM = 0
+//    private val VIEW_TYPE_LOADING = 1
 
     // set viewType
     override fun getItemViewType(position: Int): Int {
-        return if (listFile[position] == null) {
-            VIEW_TYPE_LOADING
+//        return if (listFile[position] == null) {
+//            VIEW_TYPE_LOADING
+//        } else {
+//            VIEW_TYPE_ITEM
+//        }
+
+        return if (isGrid) {
+            ViewTypes.GRID.id
         } else {
-            VIEW_TYPE_ITEM
+            ViewTypes.LINEAR.id
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_TYPE_ITEM) {
+//        return if (viewType == VIEW_TYPE_ITEM) {
+        return if (viewType == ViewTypes.LINEAR.id) {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
             ListViewHolder(view)
-
         } else {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
-            MyLoadingHolder(view)
+//            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
+//            MyLoadingHolder(view)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.picture_item, parent, false)
+            ListViewHolder(view)
         }
     }
 
@@ -60,8 +62,12 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
         if (holder is ListViewHolder) {
             holder.bindView(listFile[position]!!, aContext)
         } else {
-
         }
+    }
+
+    fun setNewList(listFile: ArrayList<MyFile?>) {
+        this.listFile = listFile
+        notifyDataSetChanged()
     }
 
     fun addNewFiles(listFile: List<MyFile?>) {
@@ -71,6 +77,11 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
             }
             notifyDataSetChanged()
         }
+    }
+
+    fun changeViewType() {
+        isGrid = !isGrid
+        notifyDataSetChanged()
     }
 
 //    fun getAllChecked() : ArrayList<MyFile> {
@@ -88,12 +99,15 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
     class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
-        private val previewIV: ImageView = itemView.findViewById(R.id.list_iv_preview)
+        private val previewIV: ImageView = itemView.findViewById(R.id.file_iv_preview)
+
+        //I left this object to perform onLongClickListener otherwise it is not gonna work
         private val selectedImage: ImageView = itemView.findViewById(R.id.selected_image)
+
         fun bindView(aFile: MyFile, aContext: Context) {
             fileNameTV.text = aFile.name
 
-            itemView.setOnLongClickListener (firstListener)
+            itemView.setOnLongClickListener(firstListener)
 
 
             if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
@@ -112,9 +126,8 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
                     anIntent.putExtra("File", aFile.path)
                     aContext.startActivity(anIntent)
                 }
-
             } else {
-                // if image exist in folder
+                // if image exists in folder
                 if (aFile.imageFile != null) {
                     val path: String = aFile.imageFile.path
                     val myBitmap = BitmapFactory.decodeFile(path)
@@ -126,7 +139,6 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
                     FileLiveSingleton.getInstance().setPath(aFile.path)
                 }
             }
-
         }
 
 
@@ -138,11 +150,9 @@ class MyRecyclerViewAdapter(private val aContext: Context, private var listFile:
 
         private var secondListener: OnLongClickListener = OnLongClickListener {
             selectedImage.visibility = View.INVISIBLE
-
             itemView.setOnLongClickListener(firstListener)
             true
         }
-
     }
 
     class MyLoadingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

@@ -23,13 +23,17 @@ class FileLiveSingleton {
     }
 
     fun setBackPath() {
+
         val pathArray = livePath.value!!.split("/")
+
         var exitPath = ""
+
         for (index in pathArray.indices) {
-            if (index == ( pathArray.size - 2)) continue
+            if (index == ( pathArray.size - 2) || index == 0) continue
             exitPath += "/${pathArray[index]}"
         }
-        if (exitPath.endsWith( "/storage/emulated/")){
+//        if (exitPath.endsWith( "/storage/emulated/")){
+        if (exitPath == "/storage/emulated/"){
             exitPath = "/storage/"
         }
         livePath.value = exitPath

@@ -1,4 +1,4 @@
-package com.turskyi.gallery.model
+package com.turskyi.gallery.models
 
 data class MyFile (
     val path: String,

@@ -8,10 +8,10 @@
     <include layout="@layout/toolbar" />
 
     <ImageView
-            android:id="@+id/image_view_zoom"
+            android:id="@+id/image_view_enlarged"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
+            android:scaleType="centerInside"
             tools:ignore="ContentDescription"/>
 
 </LinearLayout>
