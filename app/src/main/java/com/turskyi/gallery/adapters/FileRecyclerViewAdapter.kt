@@ -15,11 +15,15 @@ import com.turskyi.gallery.FileLiveSingleton
 import com.turskyi.gallery.R
 import com.turskyi.gallery.models.MyFile
 import com.turskyi.gallery.models.ViewTypes
+import com.turskyi.gallery.models.ViewTypes.*
 
 class FileRecyclerViewAdapter(
     private val aContext: Context,
     private var listFile: ArrayList<MyFile?>,
     private var isGrid: Boolean
+//    ,
+//    private var isGridEnum: ViewTypes = LINEAR
+
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -35,23 +39,30 @@ class FileRecyclerViewAdapter(
 //        }
 
         return if (isGrid) {
-            ViewTypes.GRID.id
+            GRID.id
         } else {
-            ViewTypes.LINEAR.id
+            LINEAR.id
         }
+
+//        return when (isGridEnum) {
+//            GRID -> GRID.id
+//            LOADING -> LOADING.id
+//            else -> LINEAR.id
+//        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 //        return if (viewType == VIEW_TYPE_ITEM) {
-        return if (viewType == ViewTypes.LINEAR.id) {
+        return if (viewType == LINEAR.id) {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
             ListViewHolder(view)
-        } else {
-//            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
-//            MyLoadingHolder(view)
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.picture_item, parent, false)
-            ListViewHolder(view)
-        }
+        } else if (viewType == ViewTypes.LOADING.id) {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
+            MyLoadingHolder(view)
+        }  else {
+                val view = LayoutInflater.from(parent.context).inflate(R.layout.picture_item, parent, false)
+                ListViewHolder(view)
+            }
     }
 
     override fun getItemCount(): Int {
@@ -92,6 +103,7 @@ class FileRecyclerViewAdapter(
 //         var checkedFiles = ArrayList<MyFile?> {
 //             for (aFile in listFile) {
 //                 if (aFile?.isChecked!!) {
+//                return@ArrayList
 //             }
 //         }
 //    }

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.turskyi.gallery.adapters.FileRecyclerViewAdapter
 import com.turskyi.gallery.models.MyFile
 import com.turskyi.gallery.models.ViewTypes
+import com.turskyi.gallery.models.ViewTypes.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
@@ -24,10 +25,6 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
 
     private var path = "/storage/"
-
-//    private var quantityOfColumns: Int = 1
-//
-//    private lateinit var aRecyclerView: RecyclerView
 
     // My File list
     private var aFileList = ArrayList<MyFile?>()
@@ -45,8 +42,6 @@ class MainActivity : AppCompatActivity() {
 
         getPermission()
 
-//        aRecyclerView = findViewById(R.id.recycler_view)
-
         //switch between two viewHolders
 //        if (quantityOfColumns == 1)
 //        aRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -55,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         //replacement instead of two viewHolders now only this one
         viewAdapter = FileRecyclerViewAdapter(this, aFileList, isGrid)
+//        viewAdapter = FileRecyclerViewAdapter(this, aFileList, isGridEnum == GRID)
         recycler_view.adapter = viewAdapter
 
         btn_arrow_back.setOnClickListener {
@@ -63,7 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         FileLiveSingleton.getInstance().getPath().observe(this, Observer<String> { path ->
             if (path != null && path.isNotEmpty()) {
-                maxRow = 20
+                maxRow = 15
                 this.path = path
                 readFiles()
             }
@@ -96,10 +92,10 @@ class MainActivity : AppCompatActivity() {
     private fun loadMore() {
         val handler = Handler()
 
-//        handler.post {
-//            aFileList.add(null)
-//            viewAdapter.notifyItemChanged(aFileList.size - 1)
-//        }
+        handler.post {
+            aFileList.add(null)
+            viewAdapter.notifyItemChanged(aFileList.size - 1)
+        }
 
         val task = Runnable {
             aFileList.removeAt(aFileList.size - 1)
@@ -182,22 +178,25 @@ class MainActivity : AppCompatActivity() {
 //        btn_view_changer.setOnClickListener(firstButtonListener)
 //    }
 
-    private var isGridEnum: ViewTypes = ViewTypes.LINEAR
+    private var isGridEnum: ViewTypes = LINEAR
 
     // Замінити бул isGrid на Енум
     private var btnToolbarClickListener: View.OnClickListener = View.OnClickListener {
-        isGridEnum = if (isGridEnum.id == ViewTypes.LINEAR.id) {
-            ViewTypes.GRID
-        } else {
-            ViewTypes.LINEAR
+        isGridEnum = when {
+            isGridEnum.id == LINEAR.id -> GRID
+            isLoading -> LOADING
+            else -> LINEAR
         }
 
-        isGrid = if (isGrid) {
-            btn_view_changer.setImageResource(R.drawable.ic_grid)
-            !isGrid
-        } else {
+//        isGrid = if (isGrid) {
+        if (isGridEnum.id == GRID.id) {
             btn_view_changer.setImageResource(R.drawable.ic_view_list_white)
-            !isGrid
+//            !isGrid
+            isGridEnum != GRID
+        } else {
+            btn_view_changer.setImageResource(R.drawable.ic_grid)
+//            !isGrid
+            isGridEnum != GRID
         }
 
         updateLayoutManager()
@@ -250,10 +249,10 @@ class MainActivity : AppCompatActivity() {
         //the title is now just a name of a folder without a path except the main screen
         if (path == "/storage/")
 
-            //without this line onBackPress not going to word from the main screen
+        //without this line onBackPress not going to work from the main screen
             toolbar_title.text = title
         else
-        toolbar_title.text = f.name
+            toolbar_title.text = f.name
 
         val files = f.listFiles()
 
@@ -304,47 +303,14 @@ class MainActivity : AppCompatActivity() {
 //        viewAdapter = FileRecyclerViewAdapter(this, aFileList)
 //        recycler_view.adapter = viewAdapter
 
+//        This method is called when the list button is clicked.
+//        This method is called when the folders button is clicked.
         //update the list
         viewAdapter.setNewList(aFileList)
-
-//the line above making the same
-//        if (quantityOfColumns == 1)
-//            recycler_view.adapter = ListRecyclerAdapter(this, aFileList)
-//        else
-//            recycler_view.adapter = GridRecyclerAdapter(this, aFileList)
     }
 
-//    private fun getNumberOfColumns() {
-//        val aGridLayoutManager = GridLayoutManager(this@MainActivity, quantityOfColumns)
-//        aRecyclerView.layoutManager = aGridLayoutManager
-//    }
-//
-//    /**
-//     * This method is called when the folders button is clicked.
-//     */
-//    private fun turnIntoFolders() {
-//        if (quantityOfColumns == 2) {
-//            return
-//        }
-//        quantityOfColumns += 1
-//        getNumberOfColumns()
-//        readFiles()
-//    }
-//
-//    /**
-//     * This method is called when the list button is clicked.
-//     */
-//    private fun turnIntoList() {
-//        if (quantityOfColumns == 1) {
-//            return
-//        } else
-//            quantityOfColumns -= 1
-//        getNumberOfColumns()
-//        readFiles()
-//    }
-
     private fun updateLayoutManager() {
-        val aGridLayoutManager = if (isGrid) GridLayoutManager(this@MainActivity, 2)
+        val aGridLayoutManager = if (isGridEnum == GRID) GridLayoutManager(this@MainActivity, 2)
         else GridLayoutManager(this@MainActivity, 1)
         recycler_view.layoutManager = aGridLayoutManager
     }
@@ -364,7 +330,6 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton(
                     android.R.string.yes
                 ) { _, _ -> super@MainActivity.onBackPressed() }.create().show()
-        }
-        else FileLiveSingleton.getInstance().setBackPath()
+        } else FileLiveSingleton.getInstance().setBackPath()
     }
 }
