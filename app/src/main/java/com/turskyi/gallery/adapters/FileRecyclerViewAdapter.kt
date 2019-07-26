@@ -20,49 +20,34 @@ import com.turskyi.gallery.models.ViewTypes.*
 class FileRecyclerViewAdapter(
     private val aContext: Context,
     private var listFile: ArrayList<MyFile?>,
-    private var isGrid: Boolean
-//    ,
-//    private var isGridEnum: ViewTypes = LINEAR
-
-) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-//    private val VIEW_TYPE_ITEM = 0
-//    private val VIEW_TYPE_LOADING = 1
+    private var isGridEnum: ViewTypes = LINEAR
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // set viewType
     override fun getItemViewType(position: Int): Int {
-//        return if (listFile[position] == null) {
-//            VIEW_TYPE_LOADING
-//        } else {
-//            VIEW_TYPE_ITEM
-//        }
 
-        return if (isGrid) {
-            GRID.id
-        } else {
-            LINEAR.id
+        return when (isGridEnum) {
+            GRID -> GRID.id
+            LOADING -> LOADING.id
+            else -> LINEAR.id
         }
-
-//        return when (isGridEnum) {
-//            GRID -> GRID.id
-//            LOADING -> LOADING.id
-//            else -> LINEAR.id
-//        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-//        return if (viewType == VIEW_TYPE_ITEM) {
-        return if (viewType == LINEAR.id) {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
-            ListViewHolder(view)
-        } else if (viewType == ViewTypes.LOADING.id) {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
-            MyLoadingHolder(view)
-        }  else {
+        return when (viewType) {
+            LINEAR.id -> {
+                val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
+                ListViewHolder(view)
+            }
+            ViewTypes.LOADING.id -> {
+                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
+                MyLoadingHolder(view)
+            }
+            else -> {
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.picture_item, parent, false)
                 ListViewHolder(view)
             }
+        }
     }
 
     override fun getItemCount(): Int {
@@ -70,10 +55,7 @@ class FileRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ListViewHolder) {
-            holder.bindView(listFile[position]!!, aContext)
-        } else {
-        }
+        (holder as? ListViewHolder)?.bindView(listFile[position]!!, aContext)
     }
 
     fun setNewList(listFile: ArrayList<MyFile?>) {
@@ -91,7 +73,11 @@ class FileRecyclerViewAdapter(
     }
 
     fun changeViewType() {
-        isGrid = !isGrid
+        isGridEnum = if (isGridEnum.id == ViewTypes.LINEAR.id) {
+            GRID
+        } else {
+            LINEAR
+        }
         notifyDataSetChanged()
     }
 
@@ -119,8 +105,7 @@ class FileRecyclerViewAdapter(
         fun bindView(aFile: MyFile, aContext: Context) {
             fileNameTV.text = aFile.name
 
-            itemView.setOnLongClickListener(firstListener)
-
+            itemView.setOnLongClickListener(btnFirstClickListener)
 
             if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
                 val aBitmap = BitmapFactory.decodeFile(aFile.path)
@@ -140,7 +125,16 @@ class FileRecyclerViewAdapter(
                 }
             } else {
                 // if image exists in folder
-                if (aFile.imageFile != null) {
+
+
+//                if (aFile.imageFile != null) {
+//                    val path: String = aFile.imageFile.path
+//                    val myBitmap = BitmapFactory.decodeFile(path)
+//                    previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
+//                    previewIV.setImageBitmap(myBitmap)
+//                }
+
+                aFile.imageFile?.let {
                     val path: String = aFile.imageFile.path
                     val myBitmap = BitmapFactory.decodeFile(path)
                     previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -153,16 +147,15 @@ class FileRecyclerViewAdapter(
             }
         }
 
-
-        private var firstListener: OnLongClickListener = OnLongClickListener {
+        private var btnFirstClickListener: OnLongClickListener = OnLongClickListener {
             selectedImage.visibility = View.VISIBLE
-            itemView.setOnLongClickListener(secondListener)
+            itemView.setOnLongClickListener(btnSecondClickListener)
             true
         }
 
-        private var secondListener: OnLongClickListener = OnLongClickListener {
+        private var btnSecondClickListener: OnLongClickListener = OnLongClickListener {
             selectedImage.visibility = View.INVISIBLE
-            itemView.setOnLongClickListener(firstListener)
+            itemView.setOnLongClickListener(btnFirstClickListener)
             true
         }
     }

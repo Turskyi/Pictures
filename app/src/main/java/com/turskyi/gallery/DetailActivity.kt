@@ -22,7 +22,14 @@ class DetailActivity : AppCompatActivity() {
 
         aFileIV = findViewById(R.id.image_view_enlarged)
         val aBundle: Bundle? = intent.extras
-        if (aBundle != null) {
+
+
+//        if (aBundle != null) {
+//            val aBitmap = BitmapFactory.decodeFile(aBundle.getString("File"))
+//            aFileIV.setImageBitmap(aBitmap)
+//        }
+
+        aBundle?.let {
             val aBitmap = BitmapFactory.decodeFile(aBundle.getString("File"))
             aFileIV.setImageBitmap(aBitmap)
         }
@@ -30,6 +37,8 @@ class DetailActivity : AppCompatActivity() {
         btn_view_changer.setOnClickListener {
             Toast.makeText(this, "I want to delete this picture", Toast.LENGTH_LONG).show()
 
+
+                /* Here I wanted to create a method to delete a file */
 //            if (aBundle != null) {
 //                val aBitmap = BitmapFactory.decodeFile(aBundle.getString("File"))
 //                val file = File(/*???*/ Environment.getExternalStorageDirectory().path,

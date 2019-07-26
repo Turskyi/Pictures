@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     // My File list
     private var aFileList = ArrayList<MyFile?>()
 
-    private var isGrid = false
+    private var isGridEnum: ViewTypes = LINEAR
 
     private var maxRow = 15
 
@@ -43,14 +44,8 @@ class MainActivity : AppCompatActivity() {
         getPermission()
 
         //switch between two viewHolders
-//        if (quantityOfColumns == 1)
-//        aRecyclerView.layoutManager = LinearLayoutManager(this)
-//        else
-//            aRecyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        viewAdapter = FileRecyclerViewAdapter(this, aFileList, isGridEnum)
 
-        //replacement instead of two viewHolders now only this one
-        viewAdapter = FileRecyclerViewAdapter(this, aFileList, isGrid)
-//        viewAdapter = FileRecyclerViewAdapter(this, aFileList, isGridEnum == GRID)
         recycler_view.adapter = viewAdapter
 
         btn_arrow_back.setOnClickListener {
@@ -65,7 +60,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-//        btn_view_changer.setOnClickListener(firstButtonListener)
         btn_view_changer.setOnClickListener(btnToolbarClickListener)
 
 //        getNumberOfColumns()
@@ -162,25 +156,6 @@ class MainActivity : AppCompatActivity() {
         handler.postDelayed(task, 0)
     }
 
-//    private var firstButtonListener: View.OnClickListener = View.OnClickListener {
-//        btn_view_changer.setImageResource(R.drawable.ic_view_list_white)
-//        turnIntoFolders()
-//        // change the buttonListener
-//        btn_view_changer.setOnClickListener(secondButtonListener)
-//    }
-//
-//    private var secondButtonListener: View.OnClickListener = View.OnClickListener {
-//        // Find a reference to the button. Change the image.
-//        btn_view_changer.setImageResource(R.drawable.ic_grid)
-//
-//        turnIntoList()
-//        // return first buttonListener
-//        btn_view_changer.setOnClickListener(firstButtonListener)
-//    }
-
-    private var isGridEnum: ViewTypes = LINEAR
-
-    // Замінити бул isGrid на Енум
     private var btnToolbarClickListener: View.OnClickListener = View.OnClickListener {
         isGridEnum = when {
             isGridEnum.id == LINEAR.id -> GRID
@@ -188,14 +163,11 @@ class MainActivity : AppCompatActivity() {
             else -> LINEAR
         }
 
-//        isGrid = if (isGrid) {
         if (isGridEnum.id == GRID.id) {
             btn_view_changer.setImageResource(R.drawable.ic_view_list_white)
-//            !isGrid
             isGridEnum != GRID
         } else {
             btn_view_changer.setImageResource(R.drawable.ic_grid)
-//            !isGrid
             isGridEnum != GRID
         }
 
@@ -238,9 +210,7 @@ class MainActivity : AppCompatActivity() {
 //        toolbar_title.text = path
 
         btn_arrow_back.visibility = VISIBLE
-//        if (path.endsWith("/storage/")) {
         if (path == "/storage/") {
-//            toolbar_title.text = title
             btn_arrow_back.visibility = INVISIBLE
         }
 
@@ -282,8 +252,10 @@ class MainActivity : AppCompatActivity() {
                             break
                         }
                     }
+                } else if (files[index].startsWith(".")) {
+                    Log.d("MainActivity", "Folder with dot")
+                    continue
                 } else {
-
                     // Skip folder if it is empty
                     continue
                 }
@@ -298,11 +270,9 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
             }
+
+
         }
-
-//        viewAdapter = FileRecyclerViewAdapter(this, aFileList)
-//        recycler_view.adapter = viewAdapter
-
 //        This method is called when the list button is clicked.
 //        This method is called when the folders button is clicked.
         //update the list
@@ -310,7 +280,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateLayoutManager() {
-        val aGridLayoutManager = if (isGridEnum == GRID) GridLayoutManager(this@MainActivity, 2)
+        val aGridLayoutManager =
+            if (isGridEnum == GRID) GridLayoutManager(this@MainActivity, 2)
         else GridLayoutManager(this@MainActivity, 1)
         recycler_view.layoutManager = aGridLayoutManager
     }
