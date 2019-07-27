@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity() {
     // My File list
     private var aFileList = ArrayList<MyFile?>()
 
+    private var checkedList = ArrayList<MyFile?>()
+
     private var isGridEnum: ViewTypes = LINEAR
 
     private var maxRow = 15
@@ -80,7 +82,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
-//         viewAdapter.getAllChecked()
+         viewAdapter.getAllChecked(checkedList)
+
+        //doesn't work
+//        if (checkedList.isNotEmpty()){
+//            btn_view_changer.setImageResource(R.drawable.ic_remove32)
+//        }
     }
 
     private fun loadMore() {
@@ -107,7 +114,8 @@ class MainActivity : AppCompatActivity() {
                 if (inFile.path == "/storage/self") continue
                 else if (inFile.path == "/storage/emulated") {
                     if (inFile.isDirectory) {
-                        aFileList.add(MyFile("/storage/emulated/0/", inFile.name, null, null, false))
+                        aFileList.add(MyFile(
+                            "/storage/emulated/0/", inFile.name, null, null, false))
                     }
                 }
             }
@@ -252,6 +260,7 @@ class MainActivity : AppCompatActivity() {
                             break
                         }
                     }
+                    //doesn't work yet
                 } else if (files[index].startsWith(".")) {
                     Log.d("MainActivity", "Folder with dot")
                     continue

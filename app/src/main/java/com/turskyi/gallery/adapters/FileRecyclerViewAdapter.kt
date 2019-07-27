@@ -7,8 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toolbar
 import androidx.recyclerview.widget.RecyclerView
 import com.turskyi.gallery.DetailActivity
 import com.turskyi.gallery.FileLiveSingleton
@@ -16,11 +18,13 @@ import com.turskyi.gallery.R
 import com.turskyi.gallery.models.MyFile
 import com.turskyi.gallery.models.ViewTypes
 import com.turskyi.gallery.models.ViewTypes.*
+import kotlinx.android.synthetic.main.toolbar.*
 
 class FileRecyclerViewAdapter(
     private val aContext: Context,
     private var listFile: ArrayList<MyFile?>,
-    private var isGridEnum: ViewTypes = LINEAR
+    private var isGridEnum: ViewTypes = LINEAR,
+    private var numberOfChecked: Int = 0
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // set viewType
@@ -81,50 +85,54 @@ class FileRecyclerViewAdapter(
         notifyDataSetChanged()
     }
 
-//    fun getAllChecked() : ArrayList<MyFile> {
-////         TODO return variable
-////         TODO for with filter
-////         TODO return variable
-//
-//         var checkedFiles = ArrayList<MyFile?> {
-//             for (aFile in listFile) {
-//                 if (aFile?.isChecked!!) {
-//                return@ArrayList
-//             }
-//         }
-//    }
-
-    class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
-        private val previewIV: ImageView = itemView.findViewById(R.id.file_iv_preview)
-
-        //I left this object to perform onLongClickListener otherwise it is not gonna work
-        private val selectedImage: ImageView = itemView.findViewById(R.id.selected_image)
-
-        fun bindView(aFile: MyFile, aContext: Context) {
-            fileNameTV.text = aFile.name
-
-            itemView.setOnLongClickListener(btnFirstClickListener)
-
-            if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
-                val aBitmap = BitmapFactory.decodeFile(aFile.path)
-                previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
-
-                previewIV.setImageBitmap(aBitmap)
-
-                previewIV.setOnClickListener {
-                    FileLiveSingleton.getInstance().setPath(aFile.path)
+    fun getAllChecked(checkedFiles: ArrayList<MyFile?> ): ArrayList<MyFile?> {
+//         TODO return variable
+//         TODO for with filter
+//         TODO return variable
+            for (aFile in listFile) {
+                if (aFile?.isChecked!!) {
+                    numberOfChecked++
+                   checkedFiles.add(aFile)
                 }
+            }
+        notifyDataSetChanged()
+        return checkedFiles
+        }
 
-                //to use for opening the picture
-                itemView.setOnClickListener {
-                    val anIntent = Intent(aContext, DetailActivity::class.java)
-                    anIntent.putExtra("File", aFile.path)
-                    aContext.startActivity(anIntent)
-                }
-            } else {
-                // if image exists in folder
+class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+    private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
+    private val previewIV: ImageView = itemView.findViewById(R.id.file_iv_preview)
+//    private val btnDelete: ImageView = itemView.findViewById(R.id.btn_view_changer)
+
+
+    //I left this object to perform onLongClickListener otherwise it is not gonna work
+    private val selectedImage: ImageView = itemView.findViewById(R.id.selected_image)
+
+    fun bindView(aFile: MyFile, aContext: Context) {
+        fileNameTV.text = aFile.name
+
+        itemView.setOnLongClickListener(btnFirstClickListener)
+
+        if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
+            val aBitmap = BitmapFactory.decodeFile(aFile.path)
+            previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
+
+            previewIV.setImageBitmap(aBitmap)
+
+            previewIV.setOnClickListener {
+                FileLiveSingleton.getInstance().setPath(aFile.path)
+            }
+
+            //to use for opening the picture
+            itemView.setOnClickListener {
+                val anIntent = Intent(aContext, DetailActivity::class.java)
+                anIntent.putExtra("File", aFile.path)
+                aContext.startActivity(anIntent)
+            }
+        } else {
+
+            // if image exists in folder
 
 
 //                if (aFile.imageFile != null) {
@@ -134,31 +142,35 @@ class FileRecyclerViewAdapter(
 //                    previewIV.setImageBitmap(myBitmap)
 //                }
 
-                aFile.imageFile?.let {
-                    val path: String = aFile.imageFile.path
-                    val myBitmap = BitmapFactory.decodeFile(path)
-                    previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
-                    previewIV.setImageBitmap(myBitmap)
-                }
-
-                itemView.setOnClickListener {
-                    FileLiveSingleton.getInstance().setPath(aFile.path)
-                }
+            aFile.imageFile?.let {
+                val path: String = aFile.imageFile.path
+                val myBitmap = BitmapFactory.decodeFile(path)
+                previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
+                previewIV.setImageBitmap(myBitmap)
             }
-        }
 
-        private var btnFirstClickListener: OnLongClickListener = OnLongClickListener {
-            selectedImage.visibility = View.VISIBLE
-            itemView.setOnLongClickListener(btnSecondClickListener)
-            true
-        }
-
-        private var btnSecondClickListener: OnLongClickListener = OnLongClickListener {
-            selectedImage.visibility = View.INVISIBLE
-            itemView.setOnLongClickListener(btnFirstClickListener)
-            true
+            itemView.setOnClickListener {
+                FileLiveSingleton.getInstance().setPath(aFile.path)
+            }
         }
     }
 
-    class MyLoadingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    private var btnFirstClickListener: OnLongClickListener = OnLongClickListener {
+        selectedImage.visibility = View.VISIBLE
+
+//   btnDelete.setImageResource(R.drawable.ic_remove32)
+
+        itemView.setOnLongClickListener(btnSecondClickListener)
+        true
+    }
+
+    private var btnSecondClickListener: OnLongClickListener = OnLongClickListener {
+        selectedImage.visibility = View.INVISIBLE
+
+        itemView.setOnLongClickListener(btnFirstClickListener)
+        true
+    }
+}
+
+class MyLoadingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }
