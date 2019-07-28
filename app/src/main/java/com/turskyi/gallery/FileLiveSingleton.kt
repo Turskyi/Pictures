@@ -14,6 +14,7 @@ class FileLiveSingleton {
 //            if (INSTANCE == null) INSTANCE = FileLiveSingleton()
 //            return INSTANCE!!
 
+            /* is the code bellow correct? */
             INSTANCE?: run {
                 INSTANCE = FileLiveSingleton()
             }
@@ -42,7 +43,7 @@ class FileLiveSingleton {
         }
 
 
-        //this replacement doesn't work
+        //this replacement for the code above doesn't work
 //        val pathBuilder = StringBuilder()
 //        exitPath = pathBuilder.apply {
 //            for (index in pathArray.indices) {

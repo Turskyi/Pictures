@@ -29,6 +29,7 @@ class DetailActivity : AppCompatActivity() {
 //            aFileIV.setImageBitmap(aBitmap)
 //        }
 
+        /* is the code bellow correct? */
         aBundle?.let {
             val aBitmap = BitmapFactory.decodeFile(aBundle.getString("File"))
             aFileIV.setImageBitmap(aBitmap)
@@ -38,7 +39,7 @@ class DetailActivity : AppCompatActivity() {
             Toast.makeText(this, "I want to delete this picture", Toast.LENGTH_LONG).show()
 
 
-                /* Here I wanted to create a method to delete a file */
+                /** Here I wanted to create a method to delete a file but it doesn't work */
 //            if (aBundle != null) {
 //                val aBitmap = BitmapFactory.decodeFile(aBundle.getString("File"))
 //                val file = File(/*???*/ Environment.getExternalStorageDirectory().path,

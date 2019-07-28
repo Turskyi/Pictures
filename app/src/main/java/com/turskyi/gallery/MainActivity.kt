@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
 
     private var path = "/storage/"
 
-    // My File list
+    /** My File list */
     private var aFileList = ArrayList<MyFile?>()
 
     private var checkedList = ArrayList<MyFile?>()
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         getPermission()
 
-        //switch between two viewHolders
+        /** switch between two viewHolders */
         viewAdapter = FileRecyclerViewAdapter(this, aFileList, isGridEnum)
 
         recycler_view.adapter = viewAdapter
@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
         btn_view_changer.setOnClickListener(btnToolbarClickListener)
 
-//        getNumberOfColumns()
+        /** getNumberOfColumns() replaced with this one bellow */
         updateLayoutManager()
 
         recycler_view.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -82,9 +82,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
-         viewAdapter.getAllChecked(checkedList)
+        viewAdapter.getAllChecked(checkedList)
 
-        //doesn't work
+        /* the code bellow doesn't work and I don't know why */
 //        if (checkedList.isNotEmpty()){
 //            btn_view_changer.setImageResource(R.drawable.ic_remove32)
 //        }
@@ -114,17 +114,21 @@ class MainActivity : AppCompatActivity() {
                 if (inFile.path == "/storage/self") continue
                 else if (inFile.path == "/storage/emulated") {
                     if (inFile.isDirectory) {
-                        aFileList.add(MyFile(
-                            "/storage/emulated/0/", inFile.name, null, null, false))
+                        aFileList.add(
+                            MyFile(
+                                "/storage/emulated/0/", inFile.name, null, null, false
+                            )
+                        )
                     }
                 }
             }
 
             for (index in files.indices) {
-                // Skip old files
+
+                /** Skip old files */
                 if (index < scrollPosition) continue
 
-                // break for maxLimit
+                /** break for maxLimit */
                 if (nextLimit == index) break
 
                 if (files[index].isDirectory) {
@@ -160,7 +164,7 @@ class MainActivity : AppCompatActivity() {
             isLoading = false
         }
 
-        /// postDelayed for loading simulation with sleep thread
+        /** postDelayed for loading simulation with sleep thread */
         handler.postDelayed(task, 0)
     }
 
@@ -189,7 +193,8 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSION_EXTERNAL_STORAGE -> {
-                // If request is cancelled, the result arrays are empty.
+
+                /** If request is cancelled, the result arrays are empty. */
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     readFiles()
                 } else {
@@ -208,9 +213,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /**
-     * This method updates adapter.
-     */
+    /** This method updates adapter. */
     private fun readFiles() {
         aFileList = ArrayList()
 
@@ -249,7 +252,8 @@ class MainActivity : AppCompatActivity() {
             // This variable for image
             var imageFile: MyFile? = null
             if (files[index].isDirectory) {
-                /// Get List of files in folder
+
+                /** Get List of files in folder */
                 val filesInDirectory = files[index].listFiles()
 
                 // Search for a photo
@@ -260,12 +264,14 @@ class MainActivity : AppCompatActivity() {
                             break
                         }
                     }
-                    //doesn't work yet
+
+                    /* doesn't work yet */
                 } else if (files[index].startsWith(".")) {
                     Log.d("MainActivity", "Folder with dot")
                     continue
+//
                 } else {
-                    // Skip folder if it is empty
+                    /** Skip folder if it is empty */
                     continue
                 }
                 aFileList.add(MyFile("${files[index].path}/", files[index].name, null, imageFile, false))
@@ -282,16 +288,18 @@ class MainActivity : AppCompatActivity() {
 
 
         }
-//        This method is called when the list button is clicked.
-//        This method is called when the folders button is clicked.
-        //update the list
+        /**
+        This method is called when the list button is clicked.
+        This method is called when the folders button is clicked.
+        Updates the list
+         */
         viewAdapter.setNewList(aFileList)
     }
 
     private fun updateLayoutManager() {
         val aGridLayoutManager =
             if (isGridEnum == GRID) GridLayoutManager(this@MainActivity, 2)
-        else GridLayoutManager(this@MainActivity, 1)
+            else GridLayoutManager(this@MainActivity, 1)
         recycler_view.layoutManager = aGridLayoutManager
     }
 

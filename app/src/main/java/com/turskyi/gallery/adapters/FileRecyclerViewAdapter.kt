@@ -7,10 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toolbar
 import androidx.recyclerview.widget.RecyclerView
 import com.turskyi.gallery.DetailActivity
 import com.turskyi.gallery.FileLiveSingleton
@@ -18,7 +16,6 @@ import com.turskyi.gallery.R
 import com.turskyi.gallery.models.MyFile
 import com.turskyi.gallery.models.ViewTypes
 import com.turskyi.gallery.models.ViewTypes.*
-import kotlinx.android.synthetic.main.toolbar.*
 
 class FileRecyclerViewAdapter(
     private val aContext: Context,
@@ -27,7 +24,7 @@ class FileRecyclerViewAdapter(
     private var numberOfChecked: Int = 0
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    // set viewType
+    /** set  the viewType */
     override fun getItemViewType(position: Int): Int {
 
         return when (isGridEnum) {
@@ -103,10 +100,8 @@ class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
     private val previewIV: ImageView = itemView.findViewById(R.id.file_iv_preview)
-//    private val btnDelete: ImageView = itemView.findViewById(R.id.btn_view_changer)
 
-
-    //I left this object to perform onLongClickListener otherwise it is not gonna work
+    /* I left this object to perform onLongClickListener otherwise it is not gonna work */
     private val selectedImage: ImageView = itemView.findViewById(R.id.selected_image)
 
     fun bindView(aFile: MyFile, aContext: Context) {
@@ -124,7 +119,7 @@ class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                 FileLiveSingleton.getInstance().setPath(aFile.path)
             }
 
-            //to use for opening the picture
+            /** to use for opening the picture */
             itemView.setOnClickListener {
                 val anIntent = Intent(aContext, DetailActivity::class.java)
                 anIntent.putExtra("File", aFile.path)
@@ -132,8 +127,7 @@ class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             }
         } else {
 
-            // if image exists in folder
-
+            /** if image exists in folder */
 
 //                if (aFile.imageFile != null) {
 //                    val path: String = aFile.imageFile.path
@@ -142,6 +136,7 @@ class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 //                    previewIV.setImageBitmap(myBitmap)
 //                }
 
+            /* is it correct replacement for the code above? */
             aFile.imageFile?.let {
                 val path: String = aFile.imageFile.path
                 val myBitmap = BitmapFactory.decodeFile(path)
@@ -157,8 +152,6 @@ class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     private var btnFirstClickListener: OnLongClickListener = OnLongClickListener {
         selectedImage.visibility = View.VISIBLE
-
-//   btnDelete.setImageResource(R.drawable.ic_remove32)
 
         itemView.setOnLongClickListener(btnSecondClickListener)
         true
