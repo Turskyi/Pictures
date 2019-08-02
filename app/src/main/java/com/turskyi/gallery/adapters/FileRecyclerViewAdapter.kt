@@ -42,6 +42,7 @@ class FileRecyclerViewAdapter(
             }
             ViewTypes.LOADING.id -> {
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
+//                ListViewHolder.MyLoadingHolder(view)
                 MyLoadingHolder(view)
             }
             else -> {
@@ -82,14 +83,14 @@ class FileRecyclerViewAdapter(
         notifyDataSetChanged()
     }
 
-    fun getAllChecked(checkedFiles: ArrayList<MyFile?> ): ArrayList<MyFile?> {
-//         TODO return variable
-//         TODO for with filter
-//         TODO return variable
+//    fun getAllChecked(checkedFiles: ArrayList<MyFile?> ): ArrayList<MyFile?> {
+    fun getAllChecked(): ArrayList<MyFile?> {
+    val checkedFiles: ArrayList<MyFile?> = ArrayList()
             for (aFile in listFile) {
                 if (aFile?.isChecked!!) {
                     numberOfChecked++
                    checkedFiles.add(aFile)
+                    notifyDataSetChanged()
                 }
             }
         notifyDataSetChanged()
@@ -129,15 +130,11 @@ class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
             /** if image exists in folder */
 
-//                if (aFile.imageFile != null) {
-//                    val path: String = aFile.imageFile.path
-//                    val myBitmap = BitmapFactory.decodeFile(path)
-//                    previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
-//                    previewIV.setImageBitmap(myBitmap)
-//                }
-
             /* is it correct replacement for the code above? */
+//            aFile.imageFile?.let {myFile ->
             aFile.imageFile?.let {
+//                val path: String = it.imageFile!!.path
+//                val path: String = myFile.imageFile!!.path
                 val path: String = aFile.imageFile.path
                 val myBitmap = BitmapFactory.decodeFile(path)
                 previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -151,16 +148,12 @@ class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
     private var btnFirstClickListener: OnLongClickListener = OnLongClickListener {
-        selectedImage.visibility = View.VISIBLE
 
-        itemView.setOnLongClickListener(btnSecondClickListener)
-        true
-    }
-
-    private var btnSecondClickListener: OnLongClickListener = OnLongClickListener {
-        selectedImage.visibility = View.INVISIBLE
-
-        itemView.setOnLongClickListener(btnFirstClickListener)
+        if (selectedImage.visibility == View.INVISIBLE) {
+            selectedImage.visibility = View.VISIBLE
+        } else {
+            selectedImage.visibility = View.INVISIBLE
+        }
         true
     }
 }

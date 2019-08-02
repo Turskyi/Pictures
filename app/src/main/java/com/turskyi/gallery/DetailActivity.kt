@@ -24,11 +24,6 @@ class DetailActivity : AppCompatActivity() {
         val aBundle: Bundle? = intent.extras
 
 
-//        if (aBundle != null) {
-//            val aBitmap = BitmapFactory.decodeFile(aBundle.getString("File"))
-//            aFileIV.setImageBitmap(aBitmap)
-//        }
-
         /* is the code bellow correct? */
         aBundle?.let {
             val aBitmap = BitmapFactory.decodeFile(aBundle.getString("File"))
@@ -37,7 +32,6 @@ class DetailActivity : AppCompatActivity() {
 
         btn_view_changer.setOnClickListener {
             Toast.makeText(this, "I want to delete this picture", Toast.LENGTH_LONG).show()
-
 
                 /** Here I wanted to create a method to delete a file but it doesn't work */
 //            if (aBundle != null) {
@@ -48,7 +42,6 @@ class DetailActivity : AppCompatActivity() {
 //                    file.delete()
 //                }
 //            }
-
         }
     }
 }

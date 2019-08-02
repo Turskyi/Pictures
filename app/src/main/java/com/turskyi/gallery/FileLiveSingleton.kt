@@ -10,11 +10,6 @@ class FileLiveSingleton {
         private var INSTANCE: FileLiveSingleton? = null
 
         fun getInstance(): FileLiveSingleton {
-
-//            if (INSTANCE == null) INSTANCE = FileLiveSingleton()
-//            return INSTANCE!!
-
-            /* is the code bellow correct? */
             INSTANCE?: run {
                 INSTANCE = FileLiveSingleton()
             }
@@ -41,16 +36,6 @@ class FileLiveSingleton {
             if (index == ( pathArray.size - 2) || index == 0) continue
             exitPath += "/${pathArray[index]}"
         }
-
-
-        //this replacement for the code above doesn't work
-//        val pathBuilder = StringBuilder()
-//        exitPath = pathBuilder.apply {
-//            for (index in pathArray.indices) {
-//                if (index == ( pathArray.size - 2) || index == 0) continue
-//                exitPath += "/${pathArray[index]}"
-//            }
-//        }.toString()
 
         if (exitPath == "/storage/emulated/"){
             exitPath = "/storage/"
