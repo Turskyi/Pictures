@@ -14,13 +14,13 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        btn_arrow_back.setOnClickListener {
+        btnArrowBack.setOnClickListener {
             onBackPressed()
         }
 
-        btn_view_changer.setImageResource(R.drawable.ic_remove32)
+        btnViewChanger.setImageResource(R.drawable.ic_remove32)
 
-        aFileIV = findViewById(R.id.image_view_enlarged)
+        aFileIV = findViewById(R.id.imageViewEnlarged)
         val aBundle: Bundle? = intent.extras
 
 
@@ -30,7 +30,7 @@ class DetailActivity : AppCompatActivity() {
             aFileIV.setImageBitmap(aBitmap)
         }
 
-        btn_view_changer.setOnClickListener {
+        btnViewChanger.setOnClickListener {
             Toast.makeText(this, "I want to delete this picture", Toast.LENGTH_LONG).show()
 
                 /** Here I wanted to create a method to delete a file but it doesn't work */

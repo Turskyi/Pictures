@@ -1,24 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context="com.turskyi.gallery.HomeActivity">
 
+    <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-
- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/colorPrimary"
-              android:orientation="vertical"
-              tools:context="com.turskyi.gallery.HomeActivity">
-
-    <include
-        android:id="@+id/activity_main"
-        layout="@layout/activity_main"/>
-
-   <include
-            android:id="@+id/bottom_bar_menu"
-            layout="@menu/bottom_bar_menu"/>
-
-    </LinearLayout>
-
-
-
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="match_parent"
+            android:layout_gravity="bottom"
+            app:menu="@menu/bottom_bar_menu"
+            app:labelVisibilityMode="auto"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/container"
+            tools:visibility="visible"
+            app:itemTextColor="@color/design_default_color_on_secondary"
+            app:backgroundTint="@color/design_default_color_primary"
+            app:itemBackground="?attr/panelBackground"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

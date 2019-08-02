@@ -83,80 +83,78 @@ class FileRecyclerViewAdapter(
         notifyDataSetChanged()
     }
 
-//    fun getAllChecked(checkedFiles: ArrayList<MyFile?> ): ArrayList<MyFile?> {
+    //    fun getAllChecked(checkedFiles: ArrayList<MyFile?> ): ArrayList<MyFile?> {
     fun getAllChecked(): ArrayList<MyFile?> {
-    val checkedFiles: ArrayList<MyFile?> = ArrayList()
-            for (aFile in listFile) {
-                if (aFile?.isChecked!!) {
-                    numberOfChecked++
-                   checkedFiles.add(aFile)
-                    notifyDataSetChanged()
-                }
+        val checkedFiles: ArrayList<MyFile?> = ArrayList()
+        for (aFile in listFile) {
+            if (aFile?.isChecked!!) {
+                numberOfChecked++
+                checkedFiles.add(aFile)
+                notifyDataSetChanged()
             }
+        }
         notifyDataSetChanged()
         return checkedFiles
-        }
+    }
 
-class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
-    private val previewIV: ImageView = itemView.findViewById(R.id.file_iv_preview)
+        private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
+        private val previewIV: ImageView = itemView.findViewById(R.id.file_iv_preview)
 
-    /* I left this object to perform onLongClickListener otherwise it is not gonna work */
-    private val selectedImage: ImageView = itemView.findViewById(R.id.selected_image)
+        /* I left this object to perform onLongClickListener otherwise it is not gonna work */
+        private val selectedImage: ImageView = itemView.findViewById(R.id.selected_image)
 
-    fun bindView(aFile: MyFile, aContext: Context) {
-        fileNameTV.text = aFile.name
+        fun bindView(aFile: MyFile, aContext: Context) {
+            fileNameTV.text = aFile.name
 
-        itemView.setOnLongClickListener(btnFirstClickListener)
+            itemView.setOnLongClickListener(btnFirstClickListener)
 
-        if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
-            val aBitmap = BitmapFactory.decodeFile(aFile.path)
-            previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
-
-            previewIV.setImageBitmap(aBitmap)
-
-            previewIV.setOnClickListener {
-                FileLiveSingleton.getInstance().setPath(aFile.path)
-            }
-
-            /** to use for opening the picture */
-            itemView.setOnClickListener {
-                val anIntent = Intent(aContext, DetailActivity::class.java)
-                anIntent.putExtra("File", aFile.path)
-                aContext.startActivity(anIntent)
-            }
-        } else {
-
-            /** if image exists in folder */
-
-            /* is it correct replacement for the code above? */
-//            aFile.imageFile?.let {myFile ->
-            aFile.imageFile?.let {
-//                val path: String = it.imageFile!!.path
-//                val path: String = myFile.imageFile!!.path
-                val path: String = aFile.imageFile.path
-                val myBitmap = BitmapFactory.decodeFile(path)
+            if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
+                val aBitmap = BitmapFactory.decodeFile(aFile.path)
                 previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
-                previewIV.setImageBitmap(myBitmap)
-            }
 
-            itemView.setOnClickListener {
-                FileLiveSingleton.getInstance().setPath(aFile.path)
+                previewIV.setImageBitmap(aBitmap)
+
+                previewIV.setOnClickListener {
+                    FileLiveSingleton.getInstance().setPath(aFile.path)
+                }
+
+                /** to use for opening the picture */
+                itemView.setOnClickListener {
+                    val anIntent = Intent(aContext, DetailActivity::class.java)
+                    anIntent.putExtra("File", aFile.path)
+                    aContext.startActivity(anIntent)
+                }
+            } else {
+
+                /** if image exists in folder */
+
+                aFile.imageFile?.let {
+//                        aFile.imageFile?.let {aFile ->
+//                            val path: String = it.imageFile!!.path
+                    val path: String = aFile.imageFile.path
+                    val myBitmap = BitmapFactory.decodeFile(path)
+                    previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
+                    previewIV.setImageBitmap(myBitmap)
+                }
+
+                itemView.setOnClickListener {
+                    FileLiveSingleton.getInstance().setPath(aFile.path)
+                }
             }
+        }
+
+        private var btnFirstClickListener: OnLongClickListener = OnLongClickListener {
+
+            if (selectedImage.visibility == View.INVISIBLE) {
+                selectedImage.visibility = View.VISIBLE
+            } else {
+                selectedImage.visibility = View.INVISIBLE
+            }
+            true
         }
     }
 
-    private var btnFirstClickListener: OnLongClickListener = OnLongClickListener {
-
-        if (selectedImage.visibility == View.INVISIBLE) {
-            selectedImage.visibility = View.VISIBLE
-        } else {
-            selectedImage.visibility = View.INVISIBLE
-        }
-        true
-    }
-}
-
-class MyLoadingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class MyLoadingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }

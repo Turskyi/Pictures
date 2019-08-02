@@ -1,16 +1,23 @@
 package com.turskyi.gallery
 
+import android.Manifest
 import android.app.AlertDialog
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.activity_main.*
+import com.turskyi.gallery.fragments.FoldersFragment
+import com.turskyi.gallery.fragments.PicturesFragment
+import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.toolbar.*
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 
 class HomeActivity : AppCompatActivity() {
+
+    companion object {
+        private const val PERMISSION_EXTERNAL_STORAGE = 10001
+    }
 
     private var fragmentId = 0
 
@@ -19,10 +26,7 @@ class HomeActivity : AppCompatActivity() {
         /*  Set the content of the activity to use the activity_home.xml layout file */
         setContentView(R.layout.activity_home)
 
-//        @Suppress("UNUSED_VARIABLE")
-//        val binding = DataBindingUtil.setContentView<ViewDataBinding>(this, R.layout.activity_home)
-
-        bottom_navigation_view.setOnNavigationItemSelectedListener { item ->
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             initFragment(item.itemId)
         }
     }
@@ -43,7 +47,7 @@ class HomeActivity : AppCompatActivity() {
             else -> PicturesFragment()
         }
 
-        fragmentManager.replace(R.id.activity_main, fragment).commit()
+        fragmentManager.replace(R.id.container, fragment).commit()
         return true
     }
 
@@ -57,10 +61,44 @@ class HomeActivity : AppCompatActivity() {
         fragmentId = savedInstanceState.getInt("fragmentId")
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            PERMISSION_EXTERNAL_STORAGE -> {
+
+                /** If request is cancelled, the result arrays are empty. */
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+
+                } else {
+                    getPermission()
+                }
+                return
+            }
+        }
+    }
+
+    private fun getPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE).toTypedArray(),
+            PERMISSION_EXTERNAL_STORAGE
+        )
+    }
+
     override fun onBackPressed() {
-        btn_arrow_back.visibility = View.VISIBLE
-        if (toolbar_title.text == title) {
-            btn_arrow_back.visibility = View.INVISIBLE
+
+        val fragment =
+            this.supportFragmentManager.findFragmentById(R.id.container)
+        (fragment as? IOnBackPressed)?.onBackPressed()?.let {
+            super.onBackPressed()
+        }
+
+        btnArrowBack.visibility = View.VISIBLE
+        if (toolbarTitle.text == title) {
+            btnArrowBack.visibility = View.INVISIBLE
             AlertDialog.Builder(this)
                 .setTitle("Really Exit?")
                 .setMessage("Are you sure you want to exit?")

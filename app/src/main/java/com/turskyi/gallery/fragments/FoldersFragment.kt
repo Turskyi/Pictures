@@ -1,55 +1,60 @@
-package com.turskyi.gallery
+package com.turskyi.gallery.fragments
 
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.turskyi.gallery.FileLiveSingleton
+import com.turskyi.gallery.IOnBackPressed
+import com.turskyi.gallery.R
 import com.turskyi.gallery.adapters.FileRecyclerViewAdapter
+import com.turskyi.gallery.models.GalleryPicture
 import com.turskyi.gallery.models.MyFile
 import com.turskyi.gallery.models.ViewTypes
-import kotlinx.android.synthetic.main.activity_main.*
+import com.turskyi.gallery.models.ViewTypes.*
+import kotlinx.android.synthetic.main.fragment_pictures.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
-import java.util.*
 
-class PicturesFragment : Fragment() {
+class FoldersFragment : Fragment() , IOnBackPressed {
 
     private var path = "/storage/"
-    private lateinit var viewAdapter: FileRecyclerViewAdapter
 
     /** My File list */
     private var aFileList = ArrayList<MyFile?>()
 
-    private var isGridEnum: ViewTypes = ViewTypes.LINEAR
-    private var isLoading = false
+    private var isGridEnum: ViewTypes = LINEAR
+
     private var maxRow = 15
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    private var isLoading = false
+    private lateinit var viewAdapter: FileRecyclerViewAdapter
 
-        val binding: ViewDataBinding = DataBindingUtil.inflate(
-            inflater, R.layout.activity_main, container, false
-        )
+    /** Create an array of pictures */
+    private val galleryPictures = ArrayList<GalleryPicture>()
 
-//        val rootView = inflater
-//            .inflate(R.layout.activity_main, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_folders, container, false)
+    }
 
-        //switch between two viewHolders
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        /** switch between two viewHolders */
         viewAdapter = FileRecyclerViewAdapter(requireContext(), aFileList, isGridEnum)
 
+        recyclerView.adapter = viewAdapter
 
-        /** Create a list of images */
         FileLiveSingleton.getInstance().getPath().observe(this, Observer<String> { path ->
             if (path != null && path.isNotEmpty()) {
                 maxRow = 15
@@ -58,11 +63,12 @@ class PicturesFragment : Fragment() {
             }
         })
 
-        btn_view_changer.setOnClickListener(btnToolbarClickListener)
+        btnViewChanger.setOnClickListener(btnToolbarClickListener)
 
+        /** get number of columns */
         updateLayoutManager()
 
-        recycler_view.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -79,8 +85,11 @@ class PicturesFragment : Fragment() {
         })
         viewAdapter.getAllChecked()
 
-//        return rootView
-        return binding.root
+        readFiles()
+
+        btnArrowBack.setOnClickListener {
+            onBackPressed()
+        }
     }
 
     private fun loadMore() {
@@ -117,10 +126,11 @@ class PicturesFragment : Fragment() {
             }
 
             for (index in files.indices) {
-                // Skip old files
+
+                /** Skip old files */
                 if (index < scrollPosition) continue
 
-                // break for maxLimit
+                /** break for maxLimit */
                 if (nextLimit == index) break
 
                 if (files[index].isDirectory) {
@@ -156,32 +166,64 @@ class PicturesFragment : Fragment() {
             isLoading = false
         }
 
-        /// postDelayed for loading simulation with sleep thread
+        /** postDelayed for loading simulation with sleep thread */
         handler.postDelayed(task, 0)
     }
 
-    /**
-     * This method updates adapter.
-     */
+    private var btnToolbarClickListener: View.OnClickListener = View.OnClickListener {
+        isGridEnum = when {
+            isGridEnum.id == LINEAR.id -> GRID
+            isLoading -> LOADING
+            else -> LINEAR
+        }
+
+        if (isGridEnum.id == GRID.id) {
+            btnViewChanger.setImageResource(R.drawable.ic_view_list_white)
+            isGridEnum != GRID
+        } else {
+            btnViewChanger.setImageResource(R.drawable.ic_grid)
+            isGridEnum != GRID
+        }
+
+        updateLayoutManager()
+
+        viewAdapter.changeViewType()
+
+        readFiles()
+    }
+
+    /** This method updates adapter. */
     private fun readFiles() {
+
+        /* the code bellow doesn't work and I don't know why */
+//        if (viewAdapter.getAllChecked().isNotEmpty()){
+        //or
+//        if (aFileList.contains(MyFile("","","",null,isChecked = true))){
+//
+//            btnViewChanger.setImageResource(R.drawable.ic_remove32)
+//        }
+
         aFileList = ArrayList()
 
         //the title of toolbar is the path
-//        toolbar_title.text = path
+//        toolbarTitle.text = path
 
-        btn_arrow_back.visibility = View.VISIBLE
+        btnArrowBack.visibility = VISIBLE
         if (path == "/storage/") {
-            btn_arrow_back.visibility = View.INVISIBLE
+            btnArrowBack.visibility = INVISIBLE
         }
 
-        val f = File(path)
+        val file = File(path)
 
         //the title is now just a name of a folder without a path except the main screen
         if (path == "/storage/")
-        else
-            toolbar_title.text = f.name
 
-        val files = f.listFiles()
+        //without this line onBackPress not going to work from the main screen
+            toolbarTitle.text = getString(R.string.app_name)
+        else
+            toolbarTitle.text = file.name
+
+        val files = file.listFiles()
 
         for (inFile in files) {
             if (inFile.path == "/storage/self") continue
@@ -198,7 +240,8 @@ class PicturesFragment : Fragment() {
             // This variable for image
             var imageFile: MyFile? = null
             if (files[index].isDirectory) {
-                /// Get List of files in folder
+
+                /** Get List of files in folder */
                 val filesInDirectory = files[index].listFiles()
 
                 // Search for a photo
@@ -209,12 +252,14 @@ class PicturesFragment : Fragment() {
                             break
                         }
                     }
-                    //doesn't work yet
+
+                    /* doesn't work yet */
                 } else if (files[index].startsWith(".")) {
-                    Log.d("MainActivity", "Folder with dot")
+                    Log.d("FoldersFragment", "Folder with dot")
                     continue
+//
                 } else {
-                    // Skip folder if it is empty
+                    /** Skip folder if it is empty */
                     continue
                 }
                 aFileList.add(MyFile("${files[index].path}/", files[index].name, null, imageFile, false))
@@ -228,43 +273,37 @@ class PicturesFragment : Fragment() {
                     )
                 )
             }
-
-
         }
         /**
         This method is called when the list button is clicked.
         This method is called when the folders button is clicked.
-        Update the list.
+        Updates the list
          */
         viewAdapter.setNewList(aFileList)
     }
 
     private fun updateLayoutManager() {
         val aGridLayoutManager =
-            if (isGridEnum == ViewTypes.GRID) GridLayoutManager(context, 2)
+            if (isGridEnum == GRID) GridLayoutManager(context, 2)
             else GridLayoutManager(context, 1)
-        recycler_view.layoutManager = aGridLayoutManager
+        recyclerView.layoutManager = aGridLayoutManager
     }
 
-    private var btnToolbarClickListener: View.OnClickListener = View.OnClickListener {
-        isGridEnum = when {
-            isGridEnum.id == ViewTypes.LINEAR.id -> ViewTypes.GRID
-            isLoading -> ViewTypes.LOADING
-            else -> ViewTypes.LINEAR
-        }
 
-        if (isGridEnum.id == ViewTypes.GRID.id) {
-            btn_view_changer.setImageResource(R.drawable.ic_view_list_white)
-            isGridEnum != ViewTypes.GRID
-        } else {
-            btn_view_changer.setImageResource(R.drawable.ic_grid)
-            isGridEnum != ViewTypes.GRID
-        }
 
-        updateLayoutManager()
+    override fun onBackPressed() {
+        btnArrowBack.visibility = VISIBLE
+     return   if (toolbarTitle.text.equals(R.string.app_name)) {
+            btnArrowBack.visibility = INVISIBLE
+            AlertDialog.Builder(activity?.applicationContext!!)
+                .setTitle("Really Exit?")
+                .setMessage("Are you sure you want to exit?")
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(
+                    android.R.string.yes
+                ) { _, _ -> onBackPressed() }.create().show()
 
-        viewAdapter.changeViewType()
-
-        readFiles()
+     } else
+        FileLiveSingleton.getInstance().setBackPath()
     }
 }
