@@ -73,6 +73,7 @@ class HomeActivity : AppCompatActivity() {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
 
                 } else {
+                    //TODO ти реквестиш пермішн в методі який тригериться коли запрошують пермішн. він не викличиться
                     getPermission()
                 }
                 return

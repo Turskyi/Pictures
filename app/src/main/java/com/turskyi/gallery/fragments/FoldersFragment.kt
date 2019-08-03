@@ -27,12 +27,14 @@ import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
 
 class FoldersFragment : Fragment() , IOnBackPressed {
-
+    //TODO в активності тільки те, що безпосередньо потрібне для відображення View
     private var path = "/storage/"
 
     /** My File list */
+        //TODO в активності тільки те, що безпосередньо потрібне для відображення View
     private var aFileList = ArrayList<MyFile?>()
 
+    //TODO не інформативна назва змінної, чого Enum і як це стосується її функції
     private var isGridEnum: ViewTypes = LINEAR
 
     private var maxRow = 15
@@ -68,6 +70,8 @@ class FoldersFragment : Fragment() , IOnBackPressed {
         /** get number of columns */
         updateLayoutManager()
 
+        //TODO я так зрозумів це твоя пагінація, от правильний метод
+        // https://startandroid.ru/ru/courses/architecture-components/27-course/architecture-components/542-urok-14-paging-library-chast-1.html
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -92,6 +96,7 @@ class FoldersFragment : Fragment() , IOnBackPressed {
         }
     }
 
+    //TODO так само це має відбуватися в viewmodel
     private fun loadMore() {
         val handler = Handler()
 
@@ -113,6 +118,7 @@ class FoldersFragment : Fragment() , IOnBackPressed {
             val files = f.listFiles()
 
             for (inFile in files) {
+                //TODO зроби ці стрінги константами і зберігай в якомусь класі
                 if (inFile.path == "/storage/self") continue
                 else if (inFile.path == "/storage/emulated") {
                     if (inFile.isDirectory) {
@@ -141,6 +147,7 @@ class FoldersFragment : Fragment() , IOnBackPressed {
 
                     if (filesInDirectory != null && filesInDirectory.isNotEmpty()) {
                         for (mFile in filesInDirectory) {
+                            //TODO цей ліст теж варто винести, бо часто дублюється. можеш навіть в ресурси
                             if (mFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
                                 imageFile = MyFile("${mFile.path}/", mFile.name, mFile.extension, null, false)
                                 break

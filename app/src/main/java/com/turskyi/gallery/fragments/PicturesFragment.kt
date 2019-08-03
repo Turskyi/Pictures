@@ -185,6 +185,7 @@ class PicturesFragment : Fragment() {
     /**
      * This method updates adapter.
      */
+        //TODO я казав використовувати viewmodel, такі речі не можна роботи в класі що відповідає за вигляд
     private fun readFiles() {
         aFileList = ArrayList()
 
@@ -199,13 +200,15 @@ class PicturesFragment : Fragment() {
         val file = File(path)
 
         //the title is now just a name of a folder without a path except the main screen
+
         if (path == "/storage/")
             toolbarTitle.text = getString(R.string.app_name)
         else
             toolbarTitle.text = file.name
 
-        val files = file.listFiles()
 
+        val files = file.listFiles()
+        //TODO а якщо масив нулл?
         for (inFile in files) {
             if (inFile.path == "/storage/self") continue
             else if (inFile.path == "/storage/emulated") {

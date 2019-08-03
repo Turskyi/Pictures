@@ -4,7 +4,8 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 
 class FileLiveSingleton {
-
+    //TODO можна наслідувати мутабл лайв дата і робити ці операції зразу в ньому
+    // почитай про кастомні livedata, а якщо є операції що не зрозуміло як роботи в ній, то винось в viewModel
     companion object {
 
         private var INSTANCE: FileLiveSingleton? = null

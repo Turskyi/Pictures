@@ -18,7 +18,13 @@ import com.turskyi.gallery.models.ViewTypes
 import com.turskyi.gallery.models.ViewTypes.*
 
 class FileRecyclerViewAdapter(
+    //TODO меморі лік через контекст
     private val aContext: Context,
+    //TODO в котліні не треба створювати функцію для заповнення масива, під його оголошенням можна написати
+    // set(value) {
+    //  field = value
+    //  notifyDataSetChanged()
+    //}
     private var listFile: ArrayList<MyFile?>,
     private var isGridEnum: ViewTypes = LINEAR,
     private var numberOfChecked: Int = 0
@@ -98,7 +104,9 @@ class FileRecyclerViewAdapter(
     }
 
     class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
+        //TODO холдер є тільки для доступу до айтемів, в ньому не відбувається жодних оголошень, бо вони мінливі
+        // занесення даних повинне відбуватися в он бінд, коли холдер повертається на екран
+        // крім того об'єкти холдери можуть використовуватися повторно з іншими ресурсами. роблячи так ти блокуєш цю функцію
         private val fileNameTV: TextView = itemView.findViewById(R.id.file_name)
         private val previewIV: ImageView = itemView.findViewById(R.id.file_iv_preview)
 
