@@ -7,10 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.Fragment
-import com.turskyi.gallery.fragments.FoldersFragment
-import com.turskyi.gallery.fragments.PicturesFragment
-import kotlinx.android.synthetic.main.activity_home.*
+import com.turskyi.gallery.fragments.HomeFragment
 import kotlinx.android.synthetic.main.toolbar.*
 
 class HomeActivity : AppCompatActivity() {
@@ -19,46 +16,13 @@ class HomeActivity : AppCompatActivity() {
         private const val PERMISSION_EXTERNAL_STORAGE = 10001
     }
 
-    private var fragmentId = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /*  Set the content of the activity to use the activity_home.xml layout file */
-        setContentView(R.layout.activity_home)
 
-        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
-            initFragment(item.itemId)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        initFragment(fragmentId)
-    }
-
-    private fun initFragment(id: Int): Boolean {
+        val homeFragment = HomeFragment()
+        homeFragment.arguments = intent.extras
         val fragmentManager = supportFragmentManager.beginTransaction()
-
-        fragmentId = id
-
-        val fragment: Fragment = when (id) {
-            R.id.pictures_menu -> PicturesFragment()
-            R.id.folders_menu -> FoldersFragment()
-            else -> PicturesFragment()
-        }
-
-        fragmentManager.replace(R.id.container, fragment).commit()
-        return true
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt("fragmentId", fragmentId)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        fragmentId = savedInstanceState.getInt("fragmentId")
+        fragmentManager.add(android.R.id.content, homeFragment).commit()
     }
 
     override fun onRequestPermissionsResult(
@@ -90,7 +54,6 @@ class HomeActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-
         val fragment =
             this.supportFragmentManager.findFragmentById(R.id.container)
         (fragment as? IOnBackPressed)?.onBackPressed()?.let {
@@ -109,4 +72,5 @@ class HomeActivity : AppCompatActivity() {
                 ) { _, _ -> super@HomeActivity.onBackPressed() }.create().show()
         } else FileLiveSingleton.getInstance().setBackPath()
     }
+//    }
 }

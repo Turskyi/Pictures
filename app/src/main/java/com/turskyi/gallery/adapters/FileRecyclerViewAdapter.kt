@@ -10,9 +10,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.turskyi.gallery.DetailActivity
 import com.turskyi.gallery.FileLiveSingleton
 import com.turskyi.gallery.R
+import com.turskyi.gallery.fragments.DetailFragment
 import com.turskyi.gallery.models.MyFile
 import com.turskyi.gallery.models.ViewTypes
 import com.turskyi.gallery.models.ViewTypes.*
@@ -24,7 +24,8 @@ class FileRecyclerViewAdapter(
     // set(value) {
     //  field = value
     //  notifyDataSetChanged()
-    //}
+    //  }
+    //
     private var listFile: ArrayList<MyFile?>,
     private var isGridEnum: ViewTypes = LINEAR,
     private var numberOfChecked: Int = 0
@@ -32,7 +33,6 @@ class FileRecyclerViewAdapter(
 
     /** set  the viewType */
     override fun getItemViewType(position: Int): Int {
-
         return when (isGridEnum) {
             GRID -> GRID.id
             LOADING -> LOADING.id
@@ -48,7 +48,6 @@ class FileRecyclerViewAdapter(
             }
             ViewTypes.LOADING.id -> {
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.item_loading, parent, false)
-//                ListViewHolder.MyLoadingHolder(view)
                 MyLoadingHolder(view)
             }
             else -> {
@@ -89,7 +88,6 @@ class FileRecyclerViewAdapter(
         notifyDataSetChanged()
     }
 
-    //    fun getAllChecked(checkedFiles: ArrayList<MyFile?> ): ArrayList<MyFile?> {
     fun getAllChecked(): ArrayList<MyFile?> {
         val checkedFiles: ArrayList<MyFile?> = ArrayList()
         for (aFile in listFile) {
@@ -116,7 +114,7 @@ class FileRecyclerViewAdapter(
         fun bindView(aFile: MyFile, aContext: Context) {
             fileNameTV.text = aFile.name
 
-            itemView.setOnLongClickListener(btnFirstClickListener)
+            itemView.setOnLongClickListener(imageLongClickListener)
 
             if (aFile.extension in listOf("jpeg", "png", "jpg", "webp", "JPEG", "PNG", "JPG")) {
                 val aBitmap = BitmapFactory.decodeFile(aFile.path)
@@ -130,17 +128,14 @@ class FileRecyclerViewAdapter(
 
                 /** to use for opening the picture */
                 itemView.setOnClickListener {
-                    val anIntent = Intent(aContext, DetailActivity::class.java)
+                    val anIntent = Intent(aContext, DetailFragment::class.java)
                     anIntent.putExtra("File", aFile.path)
                     aContext.startActivity(anIntent)
                 }
             } else {
 
                 /** if image exists in folder */
-
                 aFile.imageFile?.let {
-//                        aFile.imageFile?.let {aFile ->
-//                            val path: String = it.imageFile!!.path
                     val path: String = aFile.imageFile.path
                     val myBitmap = BitmapFactory.decodeFile(path)
                     previewIV.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -153,8 +148,7 @@ class FileRecyclerViewAdapter(
             }
         }
 
-        private var btnFirstClickListener: OnLongClickListener = OnLongClickListener {
-
+        private var imageLongClickListener: OnLongClickListener = OnLongClickListener {
             if (selectedImage.visibility == View.INVISIBLE) {
                 selectedImage.visibility = View.VISIBLE
             } else {
