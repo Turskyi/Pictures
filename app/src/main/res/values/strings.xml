@@ -8,4 +8,10 @@
     <string name="arrow_back">arrow back</string>
     <string name="grid">grid</string>
     <string name="pictures">Pictures</string>
+    <string name="image_preview">Image preview</string>
+    <string name="checkbox">Checkbox</string>
+    <string name="image_with_no_permission_sign">image with no permission sign</string>
+    <string name="you_cannot_use_the_app_without_permission">Click the button to get access</string>
+    <string name="get_access">Get access</string>
+    <string name="folder_preview">folder preview</string>
 </resources>

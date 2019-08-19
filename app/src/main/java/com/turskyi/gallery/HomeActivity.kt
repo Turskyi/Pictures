@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.turskyi.gallery.fragments.HomeFragment
+import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.toolbar.*
 
 class HomeActivity : AppCompatActivity() {
@@ -18,11 +20,21 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_home)
 
-        val homeFragment = HomeFragment()
-        homeFragment.arguments = intent.extras
-        val fragmentManager = supportFragmentManager.beginTransaction()
-        fragmentManager.add(android.R.id.content, homeFragment).commit()
+        /** permission must be here, in "onCreate" */
+        checkPermission()
+    }
+
+    /** check if we have permission */
+    private fun checkPermission() {
+        val permissionGranted =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (permissionGranted != PackageManager.PERMISSION_GRANTED) {
+            requestPermission()
+        } else {
+            showFragment()
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -35,17 +47,27 @@ class HomeActivity : AppCompatActivity() {
 
                 /** If request is cancelled, the result arrays are empty. */
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-
+                    emptyView.visibility = View.GONE
+                    showFragment()
                 } else {
-                    //TODO ти реквестиш пермішн в методі який тригериться коли запрошують пермішн. він не викличиться
-                    getPermission()
+                    /** shows the "get permission view" */
+                    emptyView.visibility = View.VISIBLE
+                    emptyView.setOnClickListener {
+                        requestPermission()
+                    }
                 }
-                return
             }
         }
     }
 
-    private fun getPermission() {
+    private fun showFragment() {
+        val homeFragment = HomeFragment()
+        homeFragment.arguments = intent.extras
+        val fragmentManager = supportFragmentManager.beginTransaction()
+        fragmentManager.add(R.id.frameLayout, homeFragment).commit()
+    }
+
+    private fun requestPermission() {
         ActivityCompat.requestPermissions(
             this,
             listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE).toTypedArray(),
@@ -54,14 +76,16 @@ class HomeActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+
+        /** here we allow to use this method in fragments */
         val fragment =
             this.supportFragmentManager.findFragmentById(R.id.container)
         (fragment as? IOnBackPressed)?.onBackPressed()?.let {
             super.onBackPressed()
         }
 
-        btnArrowBack.visibility = View.VISIBLE
-        if (toolbarTitle.text == title) {
+        if (toolbarTitle.text != title) FileLiveSingleton.getInstance().setBackPath()
+        else {
             btnArrowBack.visibility = View.INVISIBLE
             AlertDialog.Builder(this)
                 .setTitle("Really Exit?")
@@ -70,7 +94,6 @@ class HomeActivity : AppCompatActivity() {
                 .setPositiveButton(
                     android.R.string.yes
                 ) { _, _ -> super@HomeActivity.onBackPressed() }.create().show()
-        } else FileLiveSingleton.getInstance().setBackPath()
+        }
     }
-//    }
 }

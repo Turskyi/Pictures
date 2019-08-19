@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- I use this xml file for the bottomNavigationView
+     in HomeFragment and in fragment_home -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-            android:id="@+id/pictures_menu"
+            android:id="@+id/picturesMenu"
             android:icon="@drawable/ic_grid"
-            android:title="@string/pictures"/>
+            android:title="@string/pictures" />
 
     <item
-            android:id="@+id/folders_menu"
+            android:id="@+id/foldersMenu"
             android:icon="@drawable/ic_folder"
-            android:title="@string/folders"/>
+            android:title="@string/folders" />
 </menu>
