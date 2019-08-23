@@ -1,7 +1,6 @@
 package com.turskyi.gallery
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
@@ -10,13 +9,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.turskyi.gallery.fragments.HomeFragment
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.toolbar.*
 
-class HomeActivity : AppCompatActivity() {
+open class HomeActivity : AppCompatActivity() {
 
+    // should I move this constant to constants class
     companion object {
         private const val PERMISSION_EXTERNAL_STORAGE = 10001
     }
+
+    private val homeFragment = HomeFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,24 +77,17 @@ class HomeActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-
-        /** here we allow to use this method in fragments */
-        val fragment =
-            this.supportFragmentManager.findFragmentById(R.id.container)
-        (fragment as? IOnBackPressed)?.onBackPressed()?.let {
-            super.onBackPressed()
-        }
-
-        if (toolbarTitle.text != title) FileLiveSingleton.getInstance().setBackPath()
-        else {
-            btnArrowBack.visibility = View.INVISIBLE
-            AlertDialog.Builder(this)
-                .setTitle("Really Exit?")
-                .setMessage("Are you sure you want to exit?")
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(
-                    android.R.string.yes
-                ) { _, _ -> super@HomeActivity.onBackPressed() }.create().show()
-        }
+//        if (homeFragment.isMenuVisible){
+//            AlertDialog.Builder(this)
+//                .setTitle("Really Exit?")
+//                .setMessage("Are you sure you want to exit?")
+//                .setNegativeButton(android.R.string.no, null)
+//                .setPositiveButton(
+//                    android.R.string.yes
+//                ) { _, _ -> super@HomeActivity.onBackPressed() }.create().show()
+//        } else {
+//             FileLiveSingleton.getInstance().setBackPath()
+        supportFragmentManager.popBackStack()
+//        }
     }
 }

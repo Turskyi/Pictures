@@ -26,7 +26,7 @@ class FileLiveSingleton {
     fun getPath(): MutableLiveData<String> = livePath
 
     fun setPath(newPath: String) {
-        Log.d("FileSingleton","path $newPath")
+        Log.d("FileSingleton","firstPicturePath $newPath")
         livePath.value = newPath
     }
 
@@ -43,13 +43,6 @@ class FileLiveSingleton {
                 exitPath = Constants.STORAGE_FOLDER
             }
             livePath.value = exitPath
-
-            // here I tried to implement method to send data about changes to another activity,
-            // but I do it wrong and I did not figured out how to make it in a correct way
-//            val intent: Intent = Intent()
-//            intent.putExtra(exitPath, liveUpdatedListState)
-//            setResult(RESULT_OK, intent)
-//            finish()
         }
     }
 }

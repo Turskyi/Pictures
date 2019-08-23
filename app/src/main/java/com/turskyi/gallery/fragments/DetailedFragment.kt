@@ -1,28 +1,34 @@
 package com.turskyi.gallery.fragments
 
-import android.graphics.BitmapFactory
+import android.content.ContentUris
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import com.bumptech.glide.Glide
-import com.turskyi.gallery.data.Constants
-import com.turskyi.gallery.FileLiveSingleton
-import com.turskyi.gallery.IOnBackPressed
+import com.turskyi.gallery.R
 import com.turskyi.gallery.R.drawable
 import com.turskyi.gallery.R.layout
+import com.turskyi.gallery.data.Constants
+import com.turskyi.gallery.models.GalleryPicture
 import kotlinx.android.synthetic.main.fragment_detailed.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
 
-//I do not use this fragment because I do not know how to,
-// so for now I use DetailedActivity instead
-class DetailedFragment : Fragment(), IOnBackPressed {
+class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment() {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    private var fragmentId = 0
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(layout.fragment_detailed, container, false)
     }
 
@@ -30,32 +36,55 @@ class DetailedFragment : Fragment(), IOnBackPressed {
         super.onViewCreated(view, savedInstanceState)
 
         btnArrowBack.setOnClickListener {
-            onBackPressed()
+            initFragment(fragmentId)
         }
 
         btnViewChanger.setImageResource(drawable.ic_remove32)
 
         /* First way to implement the picture on full screen with Glide*/
-        val path = activity?.intent!!.getStringExtra(Constants.KEY_WORD_PATH)
-        val file = File(path!!)
+        val imagePath = galleryPicture.path
+        val file = File(imagePath)
         val uri: Uri = Uri.fromFile(file)
         Glide.with(this).load(uri).into(imageViewEnlarged)
 
         /* Second way to open picture full screen without Glide */
-        val aBundle: Bundle? = activity?.intent!!.extras
-        aBundle?.let {
-            val aBitmap = BitmapFactory.decodeFile(aBundle.getString(Constants.KEY_WORD_PATH))
-            imageViewEnlarged.setImageBitmap(aBitmap)
-        }
+//        val aBundle: Bundle? = activity?.intent!!.extras
+//        aBundle?.let {
+//            val aBitmap = BitmapFactory.decodeFile(aBundle.getString(imagePath))
+//            imageViewEnlarged.setImageBitmap(aBitmap)
+//        }
+        val id = galleryPicture.id
 
         btnViewChanger.setOnClickListener {
-            Toast.makeText(activity, "I want to delete this picture", Toast.LENGTH_LONG).show()
+            if (file.exists()) {
+                val deleteUri: Uri = ContentUris
+                    .withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                activity?.contentResolver?.delete(deleteUri, null, null)
+            } else {
+                Toast.makeText(context, "File is not exist", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
-    /* I need the following method otherwise I will not be able to inherit the interface "OnBackPressed" */
-    override fun onBackPressed() {
-        btnArrowBack.visibility = View.INVISIBLE
-        FileLiveSingleton.getInstance().setBackPath()
+    private fun initFragment(id: Int): Boolean {
+        val fragmentManager: FragmentTransaction = fragmentManager!!.beginTransaction()
+        fragmentId = id
+        val fragment: Fragment = if (id == R.id.picturesMenu) PicturesFragment()
+        else PicturesInFolderFragment(null)
+        fragmentManager.replace(R.id.container, fragment).commit()
+        return true
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(Constants.KEY_WORD_FRAGMENT_ID, fragmentId)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        savedInstanceState?.let {
+            fragmentId = savedInstanceState.getInt(Constants.KEY_WORD_FRAGMENT_ID)
+        }
     }
 }

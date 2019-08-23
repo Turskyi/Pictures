@@ -1,9 +1,6 @@
 package com.turskyi.gallery.models
 
-import android.net.Uri
-
-data class GalleryFolder (
-    val path: String, val name: String) {
+data class GalleryFolder  (
+    val folderPath : String, val firstPicturePath: String, val name: String, var images: MutableList<GalleryPicture>) {
     var isSelected: Boolean = false
-    var uri: Uri? = null
 }

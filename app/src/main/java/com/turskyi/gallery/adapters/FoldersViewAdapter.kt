@@ -1,7 +1,6 @@
 package com.turskyi.gallery.adapters
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.view.LayoutInflater
@@ -9,11 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.turskyi.gallery.PicturesInFolderActivity
 import com.turskyi.gallery.R
-import com.turskyi.gallery.data.Constants
+import com.turskyi.gallery.fragments.PicturesInFolderFragment
+import com.turskyi.gallery.interfaces.OnFolderClickListener
 import com.turskyi.gallery.models.GalleryFolder
 import com.turskyi.gallery.models.ViewTypes
 import com.turskyi.gallery.models.ViewTypes.GRID
@@ -25,8 +26,10 @@ import java.io.File
 //  field = value
 //  notifyDataSetChanged() }
 
-class FoldersViewAdapter(private var listFolder: MutableSet<GalleryFolder>?) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FoldersViewAdapter(
+    private var foldersList: MutableSet<GalleryFolder>?,
+    private val onFolderClickListener: OnFolderClickListener?) :
+    RecyclerView.Adapter<FoldersViewAdapter.FolderViewHolder>() {
 
     private var viewType: ViewTypes = GRID
 
@@ -37,100 +40,77 @@ class FoldersViewAdapter(private var listFolder: MutableSet<GalleryFolder>?) :
     }
 
     /** switch between layouts */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):
-            RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
         return if (viewType == LINEAR.id) {
             val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.folder_list_item, parent, false)
+                .inflate(com.turskyi.gallery.R.layout.folder_list_item, parent, false)
             FolderViewHolder(view, parent.context)
         } else {
             val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.folder_item, parent, false)
+                .inflate(com.turskyi.gallery.R.layout.folder_item, parent, false)
             FolderViewHolder(view, parent.context)
         }
     }
 
     override fun getItemCount(): Int {
-        listFolder ?: run {
+        foldersList ?: run {
             return 0
         }
-        return listFolder!!.size
+        return foldersList!!.size
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-//        (holder as? FolderViewHolder)?.bindView(listFolder!![position])
-        // I replaced this line with the code above I hope that is correct
-        listFolder!!.elementAt(position).let { (holder as? FolderViewHolder)?.bindView(it) }
-    }
+    override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
 
-    /* I do not know how to get all checked folders yet */
-    fun getAllChecked(): MutableSet<GalleryFolder?> {
-        var numberOfChecked = 0
-        val checkedFiles: MutableSet<GalleryFolder?> = mutableSetOf()
-        for (aFile in this.listFolder!!) {
-            if (aFile.isSelected) {
-                numberOfChecked++
-                checkedFiles.add(aFile)
-                notifyDataSetChanged()
+        /** making "check sign visible and invisible onLongClick */
+        holder.previewIV.setOnLongClickListener {
+            if (holder.selectedFolder.visibility == View.INVISIBLE) {
+                holder.selectedFolder.visibility = View.VISIBLE
+//                holder.selectedFolder.isSelected
+                onFolderClickListener?.addOnClick(foldersList?.elementAt(position)!!)
+            } else {
+                holder.selectedFolder.visibility = View.INVISIBLE
+//                holder.selectedFolder.isSelected
+                onFolderClickListener?.removeOnClick(foldersList?.elementAt(position)!!)
             }
+            true
         }
-        notifyDataSetChanged()
-        return checkedFiles
+        foldersList!!.elementAt(position).let { holder.bindView(it) }
     }
 
     class FolderViewHolder(itemView: View, private val context: Context) :
         RecyclerView.ViewHolder(itemView) {
 
-        //TODO холдер є тільки для доступу до айтемів, в ньому не відбувається жодних оголошень, бо вони мінливі
+        //TODO холдер є тільки для доступу до айтемів, в ньому не відбувається жодних оголошень,
+        // бо вони мінливі
         // занесення даних повинне відбуватися в он бінд, коли холдер повертається на екран
-        // крім того об'єкти холдери можуть використовуватися повторно з іншими ресурсами. роблячи так ти блокуєш цю функцію
-        private val folderNameTV: TextView = itemView.findViewById(R.id.folderName)
-        private val previewIV: ImageView = itemView.findViewById(R.id.folderPreviewIV)
+        // крім того об'єкти холдери можуть використовуватися повторно з іншими ресурсами.
+        // роблячи так ти блокуєш цю функцію
+        private val folderNameTV: TextView =
+            itemView.findViewById(com.turskyi.gallery.R.id.folderName)
+        val previewIV: ImageView =
+            itemView.findViewById(com.turskyi.gallery.R.id.folderPreviewIV)
+        val selectedFolder: ImageView =
+            itemView.findViewById(com.turskyi.gallery.R.id.selectedFolder)
 
         fun bindView(galleryFolder: GalleryFolder) {
-            val file = File(galleryFolder.path)
+            val file = File(galleryFolder.firstPicturePath)
             folderNameTV.text = galleryFolder.name
             val uri: Uri = Uri.fromFile(file)
             Glide.with(context).load(uri).into(previewIV)
-            val selectedFolder: ImageView = itemView.findViewById(R.id.selectedFolder)
+
             /** Makes the cover of a folder with a picture */
-            previewIV.setImageBitmap(BitmapFactory.decodeFile(galleryFolder.path))
+            previewIV.setImageBitmap(BitmapFactory.decodeFile(galleryFolder.firstPicturePath))
 
             previewIV.setOnClickListener {
-
-                // supposed to send to PicturesInFolderFragment
-//                val intent = Intent(context, PicturesInFolderFragment::class.java)
-
-                //some kind of method to send data to second activity, but I do not know how to use it
-//                startActivityForResult(
-//                    context.applicationContext as Activity, intent, 1, /* what should be here?*/)
-
-                // temporary method to send to PicturesInFolderActivity
-                val intent = Intent(context, PicturesInFolderActivity::class.java)
-                intent.putExtra(Constants.KEY_WORD_PATH, galleryFolder.path)
-                context.startActivity(intent)
-
-                //attempt to make DetailedFragment,
-                // but it does not want to implement supportFragmentManager yet
-//                val detailFragment = PicturesInFolderFragment()
-//                detailFragment.arguments = intent.extras
-//                val fragmentManager = getChildFragmentManager.beginTransaction()
-//                fragmentManager.add(android.R.id.content, detailFragment).commit()
-            }
-
-            /** making "check sign visible and invisible onLongClick */
-            previewIV.setOnLongClickListener {
-                if (selectedFolder.visibility == View.INVISIBLE) {
-                    selectedFolder.visibility = View.VISIBLE
-                } else {
-                    selectedFolder.visibility = View.INVISIBLE
-                }
-                true
+                val fragmentManager: FragmentTransaction =
+                    (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                val picturesInFolderFragment = PicturesInFolderFragment(galleryFolder)
+                fragmentManager.replace(R.id.container, picturesInFolderFragment).commit()
             }
 
             /* the method bellow I am going to use later for unknown yet reason */
 //            itemView.setOnClickListener {
-//                FileLiveSingleton.getInstance().setPath(galleryFolder.path)
+//                FileLiveSingleton.getInstance().setPath(galleryFolder.firstPicturePath)
 //            }
         }
     }
@@ -144,14 +124,4 @@ class FoldersViewAdapter(private var listFolder: MutableSet<GalleryFolder>?) :
         }
         notifyDataSetChanged()
     }
-
-    //some kind of method to send data to second activity, but I do not know how to use it
-//    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//        if (requestCode == 1) {
-//            if (resultCode == RESULT_OK) {
-//             //?
-//            }
-//        }
-//    }
 }

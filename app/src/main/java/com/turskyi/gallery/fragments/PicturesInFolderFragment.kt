@@ -1,118 +1,149 @@
 package com.turskyi.gallery.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.turskyi.gallery.FileLiveSingleton
 import com.turskyi.gallery.R
-import com.turskyi.gallery.adapters.PicturesViewAdapter
+import com.turskyi.gallery.adapters.PicturesStaggeredViewAdapter
+import com.turskyi.gallery.data.FilesRepository
+import com.turskyi.gallery.interfaces.OnPictureClickListener
+import com.turskyi.gallery.models.GalleryFolder
 import com.turskyi.gallery.models.GalleryPicture
 import com.turskyi.gallery.models.ViewTypes
 import kotlinx.android.synthetic.main.fragment_pictures.*
 import kotlinx.android.synthetic.main.toolbar.*
+import java.io.File
 
-// I do not use this Fragment because I do not now how to implement it yet,
-// so for now I use PicturesInFolderActivity
-class PicturesInFolderFragment : Fragment() {
+class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) : Fragment(), OnPictureClickListener {
 
-    /** My File list */
-    private var allLoaded = false
-    private lateinit var viewAdapter: PicturesViewAdapter
-    private var layoutViewType: ViewTypes = ViewTypes.GRID
+
+    //TODO в активності тільки те, що безпосередньо потрібне для відображення View
+    //TODO не інформативна назва змінної, чого Enum і як це стосується її функції
+    private var layoutViewType: ViewTypes = ViewTypes.STAGGERED
     private var staggeredGridLayoutManager: StaggeredGridLayoutManager? = null
+    private lateinit var viewAdapter: PicturesStaggeredViewAdapter
+    private var selectedPictures: MutableList<GalleryPicture>? = mutableListOf()
+
+    override fun addOnClick(galleryPicture: GalleryPicture) {
+        selectedPictures?.add(galleryPicture)
+//        btnViewChanger.setImageResource(R.drawable.ic_remove32)
+        updateBtnVieChanger()
+    }
+
+    override fun removeOnClick(galleryPicture: GalleryPicture) {
+        selectedPictures?.remove(galleryPicture)
+//        if (layoutViewType.id == ViewTypes.LINEAR.id) {
+//            btnViewChanger.setImageResource(ic_view_list_white)
+//        } else {
+//            btnViewChanger.setImageResource(R.drawable.ic_grid)
+//        }
+        updateBtnVieChanger()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_pictures, container, false)
+        return inflater.inflate(com.turskyi.gallery.R.layout.fragment_pictures, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        btnViewChanger.setOnClickListener {
-            layoutViewType = if (layoutViewType.id == ViewTypes.LINEAR.id) {
-                btnViewChanger.setImageResource(R.drawable.ic_view_list_white)
-                ViewTypes.GRID
-            } else {
-                btnViewChanger.setImageResource(R.drawable.ic_grid)
-                ViewTypes.LINEAR
-            }
+        val listOfPicturesInFolder = galleryFolder?.images
 
-            /** This method updates adapter. */
-            viewAdapter.changeViewType()
-            context?.let { context -> fetchGalleryImages(context) }
+        btnArrowBack.setOnClickListener {
+            (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+            val foldersFragment = FoldersFragment()
+            foldersFragment.arguments = (context as AppCompatActivity).intent.extras
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.container, foldersFragment)
+                ?.addToBackStack(null)?.commit()
         }
 
-        //switch between listView and gridView
-        updateLayoutManager()
-        context?.let { fetchGalleryImages(it) }
+        btnViewChanger.setOnClickListener {
+            when {
+                selectedPictures?.size!! > 0 -> deleteAllSelected()
+                layoutViewType.id == ViewTypes.LINEAR.id -> {
+                    viewAdapter.changeViewType()
+                    btnViewChanger.setImageResource(R.drawable.ic_view_list_white)
+                    layoutViewType = ViewTypes.GRID
+                }
+                else -> {
+                    viewAdapter.changeViewType()
+                    btnViewChanger.setImageResource(R.drawable.ic_grid)
+                    ViewTypes.LINEAR
+                }
+            }
 
-        //my idea to update view after file has been deleted
-//        FileLiveSingleton.getInstance().getUpdatedState().observe(this, Observer<Boolean> { isStateUpdated ->
+            // something wrong with this method which I wanted to use to replace the code above
+//            if (selectedPictures?.size!! > 0) {
+//                deleteAllSelected()
+//            } else updateBtnVieChanger()
+
+            updateAnimation()
+        }
+
+        updateLayoutManager()
+
+        //???
+        context?.let { galleryFolder?.images }
+
+        viewAdapter = PicturesStaggeredViewAdapter(listOfPicturesInFolder,null)
+
+        recyclerView.adapter = viewAdapter
+
+        //my idea to update view after file has been deleted,
+        // it would be great to find out if it is correct
+//        FileLiveSingleton.getInstance().getUpdatedState().observe(this, Observer<Boolean> {
+//                isStateUpdated ->
 //            if ( isStateUpdated  == true) {
-//                context?.let { getGalleryImages(it) }
+//                context?.let { galleryFolder?.images }
 //            }
 //        })
     }
 
-    private fun fetchGalleryImages(context: Context) {
-
-        /** Create an array of pictures */
-        val galleryImageUrls = mutableListOf<GalleryPicture>()
-
-        /** Get all columns of files with image type */
-        val columns = arrayOf(
-            MediaStore.Images.Media.DATA,
-            MediaStore.Images.Media._ID
-        )
-
-        /** order data by date */
-        val orderBy = MediaStore.Images.Media.DATE_TAKEN
-
-        /** This cursor will hold the result of the query */
-        val cursor = context.contentResolver.query(
-
-            /** get all data in Cursor by sorting in descending order */
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null,
-            null, "$orderBy DESC"
-        )
-
-        if (cursor != null && !allLoaded) {
-            var index = 0
-            while (cursor.moveToPosition(index)) {
-                val pictureArray = cursor.getString(index).split('/')
-                galleryImageUrls.add(GalleryPicture(cursor.getString(index)))
-                index++
+    private fun deleteAllSelected() {
+        selectedPictures?.let {
+            for (selectedPicture in it) {
+                val file = File(selectedPicture.path)
+                if (file.exists())
+                    file.delete()
             }
-            cursor.close()
-
-            /** switch between two viewHolders */
-            viewAdapter = PicturesViewAdapter(galleryImageUrls)
-
-            /** Without this line nothing gonna shows up */
-            recyclerView.adapter = viewAdapter
         }
     }
 
+    private fun updateBtnVieChanger() {
+        selectedPictures?.size ?: run {
+            //        if (selectedFolders?.isEmpty()!!) {
+            if (layoutViewType.id == ViewTypes.LINEAR.id) {
+                btnViewChanger.setImageResource(R.drawable.ic_view_list_white)
+            } else {
+                btnViewChanger.setImageResource(R.drawable.ic_grid)
+            }
+        }
+        btnViewChanger.setImageResource(R.drawable.ic_remove32)
+    }
+
     private fun updateLayoutManager() {
-        btnArrowBack.visibility = View.INVISIBLE
-        staggeredGridLayoutManager =
-            if (layoutViewType == ViewTypes.GRID) StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
-            else StaggeredGridLayoutManager(1, LinearLayoutManager.VERTICAL)
+        btnArrowBack.visibility = View.VISIBLE
+        staggeredGridLayoutManager = if (layoutViewType == ViewTypes.STAGGERED)
+                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+            else StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL)
         recyclerView.layoutManager = staggeredGridLayoutManager
     }
 
     /* I will change this method later to make an animation effect */
     private fun updateAnimation() {
-        if (layoutViewType == ViewTypes.STAGGERED) staggeredGridLayoutManager?.spanCount = 2
+        if (layoutViewType == ViewTypes.STAGGERED)
+            staggeredGridLayoutManager?.spanCount = 2
         else staggeredGridLayoutManager?.spanCount = 1
         viewAdapter.notifyItemRangeChanged(0, viewAdapter.itemCount)
     }
