@@ -4,26 +4,26 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.turskyi.gallery.fragments.HomeFragment
+import com.turskyi.gallery.fragments.BottomNavigationFragment
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 
 open class HomeActivity : AppCompatActivity() {
 
-    // should I move this constant to constants class
+    //TODO: Should I move this constant to constants class?
     companion object {
         private const val PERMISSION_EXTERNAL_STORAGE = 10001
     }
-
-    private val homeFragment = HomeFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        /** permission must be here, in "onCreate" */
+        /* permission must be here, in "onCreate" */
         checkPermission()
     }
 
@@ -41,13 +41,13 @@ open class HomeActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
-        grantResults: IntArray
+        grantResult: IntArray
     ) {
         when (requestCode) {
             PERMISSION_EXTERNAL_STORAGE -> {
 
-                /** If request is cancelled, the result arrays are empty. */
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                /** If request is cancelled, the result array is empty. */
+                if ((grantResult.isNotEmpty() && grantResult[0] == PackageManager.PERMISSION_GRANTED)) {
                     emptyView.visibility = View.GONE
                     showFragment()
                 } else {
@@ -62,7 +62,7 @@ open class HomeActivity : AppCompatActivity() {
     }
 
     private fun showFragment() {
-        val homeFragment = HomeFragment()
+        val homeFragment = BottomNavigationFragment()
         homeFragment.arguments = intent.extras
         val fragmentManager = supportFragmentManager.beginTransaction()
         fragmentManager.add(R.id.frameLayout, homeFragment).commit()
@@ -77,17 +77,21 @@ open class HomeActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-//        if (homeFragment.isMenuVisible){
-//            AlertDialog.Builder(this)
-//                .setTitle("Really Exit?")
-//                .setMessage("Are you sure you want to exit?")
-//                .setNegativeButton(android.R.string.no, null)
-//                .setPositiveButton(
-//                    android.R.string.yes
-//                ) { _, _ -> super@HomeActivity.onBackPressed() }.create().show()
-//        } else {
-//             FileLiveSingleton.getInstance().setBackPath()
-        supportFragmentManager.popBackStack()
-//        }
+
+        val count = supportFragmentManager.backStackEntryCount
+
+        if (count == 0) {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.really_exit))
+                .setMessage(getString(R.string.are_you_sure_you_want_to_exit))
+                .setNegativeButton(android.R.string.no, null)
+                .setPositiveButton(
+                    android.R.string.yes
+                ) { _, _ -> super@HomeActivity.onBackPressed() }.create().show()
+
+        } else {
+            bottomNavigationView?.visibility = View.VISIBLE
+            supportFragmentManager.popBackStack()
+        }
     }
 }

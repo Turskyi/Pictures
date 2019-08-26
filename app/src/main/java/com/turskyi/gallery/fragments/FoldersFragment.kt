@@ -5,14 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import com.turskyi.gallery.R.drawable
+import com.turskyi.gallery.R
 import com.turskyi.gallery.R.drawable.ic_view_list_white
 import com.turskyi.gallery.adapters.FoldersViewAdapter
-import com.turskyi.gallery.data.FilesRepository
 import com.turskyi.gallery.interfaces.OnFolderClickListener
 import com.turskyi.gallery.models.GalleryFolder
-import com.turskyi.gallery.models.ViewTypes
+import com.turskyi.gallery.models.ViewType
+import com.turskyi.gallery.viewmodels.FoldersViewModel
 import kotlinx.android.synthetic.main.fragment_folders.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
@@ -21,63 +23,54 @@ class FoldersFragment : Fragment(), OnFolderClickListener {
 
     //TODO в активності тільки те, що безпосередньо потрібне для відображення View
     //TODO не інформативна назва змінної, чого Enum і як це стосується її функції
-    private var layoutViewType: ViewTypes = ViewTypes.GRID
-    private var gridLayoutManager: GridLayoutManager? = null
+   private lateinit var foldersViewModel: FoldersViewModel
     private lateinit var viewAdapter: FoldersViewAdapter
-    private val repository = FilesRepository()
-    private var selectedFolders: MutableSet<GalleryFolder>? = mutableSetOf()
-
-    override fun addOnClick(galleryFolder: GalleryFolder) {
-        selectedFolders?.add(galleryFolder)
-//        btnViewChanger.setImageResource(drawable.ic_remove32)
-        updateBtnVieChanger()
-    }
-
-    override fun removeOnClick(galleryFolder: GalleryFolder) {
-        selectedFolders?.remove(galleryFolder)
-//        if (layoutViewType.id == ViewTypes.LINEAR.id) {
-//            btnViewChanger.setImageResource(ic_view_list_white)
-//        } else {
-//            btnViewChanger.setImageResource(drawable.ic_grid)
-//        }
-        updateBtnVieChanger()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        foldersViewModel = ViewModelProvider(this).get(FoldersViewModel::class.java)
         return inflater.inflate(com.turskyi.gallery.R.layout.fragment_folders, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val listOfFolders =
-            repository.getGalleryFolders(activity?.applicationContext!!)
+        foldersViewModel.viewTypes.observe(this, Observer { viewType ->
+            when (viewType) {
+                ViewType.DELETE -> {
+                    updateBtnViewChanger(viewType)
+                }
+                ViewType.GRID -> {
+                    updateBtnViewChanger(viewType)
+
+
+                    viewAdapter.changeViewType()
+                }
+                else -> {
+                    updateBtnViewChanger(viewType)
+                    viewAdapter.changeViewType()
+                }
+            }
+        })
 
         btnViewChanger.setOnClickListener {
 
             when {
-                selectedFolders?.size!! > 0 -> deleteAllSelected()
-                layoutViewType.id == ViewTypes.LINEAR.id -> {
+                foldersViewModel.selectedFolders.size > 0 -> deleteAllSelected()
+                foldersViewModel.currentViewType.id == ViewType.LINEAR.id -> {
                     viewAdapter.changeViewType()
-                    btnViewChanger.setImageResource(ic_view_list_white)
-                    layoutViewType = ViewTypes.GRID
+                    btnViewChanger.setImageResource(R.drawable.ic_view_list_white)
+                    foldersViewModel.currentViewType = ViewType.GRID
                 }
                 else -> {
                     viewAdapter.changeViewType()
-                    btnViewChanger.setImageResource(drawable.ic_grid)
-                    ViewTypes.LINEAR
+                    btnViewChanger.setImageResource(R.drawable.ic_grid)
+                    foldersViewModel.currentViewType = ViewType.LINEAR
                 }
             }
-
-            // something wrong with this method which I wanted to use to replace the code above
-//            if (selectedFolders?.size!! > 0) {
-//                deleteAllSelected()
-//            } else updateBtnVieChanger()
-
             updateAnimation()
         }
 
@@ -85,14 +78,26 @@ class FoldersFragment : Fragment(), OnFolderClickListener {
         updateLayoutManager()
 
         /* switch between two viewHolders */
-        viewAdapter = FoldersViewAdapter(listOfFolders, null)
-
+        viewAdapter = FoldersViewAdapter(foldersViewModel.listOfFolders, this)
         /* Without this line nothing gonna shows up */
         recyclerView.adapter = viewAdapter
     }
 
+    override fun addOnLongClick(galleryFolder: GalleryFolder) {
+        foldersViewModel.selectedFolders.add(galleryFolder)
+foldersViewModel.changeLayoutView()
+    }
+
+    override fun removeOnLongClick(galleryFolder: GalleryFolder, viewType: ViewType) {
+      foldersViewModel.changeLayoutView()
+        foldersViewModel.selectedFolders.remove(galleryFolder)
+if (foldersViewModel.selectedFolders.isEmpty()) {
+    updateBtnViewChanger(viewType)
+}
+    }
+
     private fun deleteAllSelected() {
-        selectedFolders?.let {
+        foldersViewModel.selectedFolders.let {
             for (selectedFolder in it) {
                 val file = File(selectedFolder.folderPath)
                 if (file.exists())
@@ -101,32 +106,36 @@ class FoldersFragment : Fragment(), OnFolderClickListener {
         }
     }
 
-    private fun updateBtnVieChanger() {
-        selectedFolders?.size ?: run {
-            //        if (selectedFolders?.isEmpty()!!) {
-            if (layoutViewType.id == ViewTypes.LINEAR.id) {
+    private fun updateBtnViewChanger(viewType: ViewType) {
+        when (viewType) {
+            ViewType.DELETE -> {
+                btnViewChanger.setImageResource(R.drawable.ic_remove32)
+            }
+            ViewType.GRID -> {
                 btnViewChanger.setImageResource(ic_view_list_white)
-            } else {
-                btnViewChanger.setImageResource(drawable.ic_grid)
+            }
+            else -> {
+                btnViewChanger.setImageResource(R.drawable.ic_grid)
             }
         }
-        btnViewChanger.setImageResource(drawable.ic_remove32)
     }
 
     // this method is absolutely the same as  in the "PicturesFragment" I consider about
     // combining them somewhere, for example in "ToolbarFragment"
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.INVISIBLE
-        gridLayoutManager = if (layoutViewType == ViewTypes.GRID)
+        foldersViewModel.gridLayoutManager =
+            if (foldersViewModel.currentViewType == ViewType.GRID)
             GridLayoutManager(context, 2)
         else GridLayoutManager(context, 1)
-        recyclerView.layoutManager = gridLayoutManager
+        recyclerView.layoutManager = foldersViewModel.gridLayoutManager
     }
 
     /* I will use the following method later to make an animation effect */
     private fun updateAnimation() {
-        if (layoutViewType == ViewTypes.GRID) gridLayoutManager?.spanCount = 2
-        else gridLayoutManager?.spanCount = 1
+        if (foldersViewModel.currentViewType == ViewType.GRID)
+            foldersViewModel.gridLayoutManager?.spanCount = 2
+        else foldersViewModel.gridLayoutManager?.spanCount = 1
         viewAdapter.notifyItemRangeChanged(0, viewAdapter.itemCount)
     }
 }

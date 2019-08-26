@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.turskyi.gallery.data.Constants
 
+//TODO: Do I need this pattern for future use?
 class FileLiveSingleton {
     //TODO можна наслідувати мутабл лайв дата і робити ці операції зразу в ньому
     // почитай про кастомні livedata,

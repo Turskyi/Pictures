@@ -9,37 +9,36 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.FragmentActivity
 import com.bumptech.glide.Glide
-import com.turskyi.gallery.R
-import com.turskyi.gallery.R.drawable
-import com.turskyi.gallery.R.layout
-import com.turskyi.gallery.data.Constants
+import com.turskyi.gallery.interfaces.IOnBackPressed
 import com.turskyi.gallery.models.GalleryPicture
 import kotlinx.android.synthetic.main.fragment_detailed.*
+import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
 
-class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment() {
-
-    private var fragmentId = 0
+class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment(), IOnBackPressed {
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(layout.fragment_detailed, container, false)
+        return inflater.inflate(com.turskyi.gallery.R.layout.fragment_detailed, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val fragmentActivity: FragmentActivity? = activity
+        fragmentActivity?.bottomNavigationView?.visibility = View.GONE
+
         btnArrowBack.setOnClickListener {
-            initFragment(fragmentId)
+            onBackPressed()
         }
 
-        btnViewChanger.setImageResource(drawable.ic_remove32)
+        btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_remove32)
 
         /* First way to implement the picture on full screen with Glide*/
         val imagePath = galleryPicture.path
@@ -53,6 +52,7 @@ class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment() 
 //            val aBitmap = BitmapFactory.decodeFile(aBundle.getString(imagePath))
 //            imageViewEnlarged.setImageBitmap(aBitmap)
 //        }
+
         val id = galleryPicture.id
 
         btnViewChanger.setOnClickListener {
@@ -66,25 +66,11 @@ class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment() 
         }
     }
 
-    private fun initFragment(id: Int): Boolean {
-        val fragmentManager: FragmentTransaction = fragmentManager!!.beginTransaction()
-        fragmentId = id
-        val fragment: Fragment = if (id == R.id.picturesMenu) PicturesFragment()
-        else PicturesInFolderFragment(null)
-        fragmentManager.replace(R.id.container, fragment).commit()
-        return true
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(Constants.KEY_WORD_FRAGMENT_ID, fragmentId)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        savedInstanceState?.let {
-            fragmentId = savedInstanceState.getInt(Constants.KEY_WORD_FRAGMENT_ID)
-        }
+    override fun onBackPressed() {
+        activity?.bottomNavigationView?.visibility = View.VISIBLE
+        //TODO: what is going on when I press on "back press arrow"?
+        // Why does not observer  receive the changes?
+        // How can I fix this bug?
+        fragmentManager?.popBackStack()
     }
 }

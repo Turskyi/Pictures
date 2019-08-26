@@ -14,4 +14,6 @@
     <string name="you_cannot_use_the_app_without_permission">Click the button to get access</string>
     <string name="get_access">Get access</string>
     <string name="folder_preview">folder preview</string>
+    <string name="are_you_sure_you_want_to_exit">Are you sure you want to exit?</string>
+    <string name="really_exit">Really Exit?</string>
 </resources>

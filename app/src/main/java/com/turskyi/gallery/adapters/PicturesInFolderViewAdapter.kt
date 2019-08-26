@@ -13,10 +13,11 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.turskyi.gallery.R
+import com.turskyi.gallery.data.Constants
 import com.turskyi.gallery.fragments.DetailedFragment
 import com.turskyi.gallery.interfaces.OnPictureClickListener
 import com.turskyi.gallery.models.GalleryPicture
-import com.turskyi.gallery.models.ViewTypes
+import com.turskyi.gallery.models.ViewType
 import java.io.File
 
 //TODO в котліні не треба створювати функцію для заповнення масива, під його оголошенням можна написати
@@ -24,22 +25,29 @@ import java.io.File
 //  field = value
 //  notifyDataSetChanged() }
 
-class PicturesStaggeredViewAdapter(
+class PicturesInFolderViewAdapter(
     private var picturesList: MutableList<GalleryPicture>?,
-    private val onItemClickListener: OnPictureClickListener?) :
-    RecyclerView.Adapter<PicturesStaggeredViewAdapter.PicturesInFolderViewHolder>() {
+    private val onItemClickListener: OnPictureClickListener?
+) :
+    RecyclerView.Adapter<PicturesInFolderViewAdapter.PicturesInFolderViewHolder>() {
 
-    private var viewType: ViewTypes = ViewTypes.STAGGERED
+    //    private var number = 0
+//        set(number) {
+//            field = number
+//        }
+//        get() = field
 
-    /** set  the viewType */
+    private var viewType: ViewType = ViewType.STAGGERED
+
+    /** set  the viewTypes */
     override fun getItemViewType(position: Int): Int {
-        return if (viewType == ViewTypes.STAGGERED) ViewTypes.STAGGERED.id
-        else ViewTypes.LINEAR.id
+        return if (viewType == ViewType.STAGGERED) ViewType.STAGGERED.id
+        else ViewType.LINEAR.id
     }
 
     /** switch between layouts */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PicturesInFolderViewHolder {
-        return if (viewType == ViewTypes.LINEAR.id) {
+        return if (viewType == ViewType.LINEAR.id) {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.picture_list_item, parent, false)
             PicturesInFolderViewHolder(view, parent.context)
@@ -62,13 +70,28 @@ class PicturesStaggeredViewAdapter(
         holder.previewIV.setOnLongClickListener {
             if (holder.selectedImage.visibility == View.INVISIBLE) {
                 holder.selectedImage.visibility = View.VISIBLE
-                onItemClickListener?.addOnClick(picturesList?.elementAt(position)!!)
+                onItemClickListener?.addOnLongClick(picturesList?.elementAt(position)!!)
             } else {
                 holder.selectedImage.visibility = View.INVISIBLE
-                onItemClickListener?.removeOnClick(picturesList?.elementAt(position)!!)
+                onItemClickListener?.removeOnLongClick(picturesList?.elementAt(position)!!, viewType)
             }
             true
         }
+
+        holder.itemView.setOnLongClickListener {
+            if (holder.selectedImage.visibility == View.INVISIBLE) {
+                holder.selectedImage.visibility = View.VISIBLE
+                onItemClickListener?.addOnLongClick(picturesList?.elementAt(position)!!)
+            } else {
+                holder.selectedImage.visibility = View.INVISIBLE
+                onItemClickListener?.removeOnLongClick(
+                    picturesList?.elementAt(position)!!,
+                    viewType
+                )
+            }
+            true
+        }
+
         holder.bindView(picturesList!![position])
     }
 
@@ -78,9 +101,12 @@ class PicturesStaggeredViewAdapter(
         //TODO холдер є тільки для доступу до айтемів, в ньому не відбувається жодних оголошень, бо вони мінливі
         // занесення даних повинне відбуватися в он бінд, коли холдер повертається на екран
         // крім того об'єкти холдери можуть використовуватися повторно з іншими ресурсами. роблячи так ти блокуєш цю функцію
-        private val pictureNameTV: TextView = itemView.findViewById(R.id.pictureName)
-        val previewIV: ImageView = itemView.findViewById(R.id.picturePreviewIV)
-        val selectedImage: ImageView = itemView.findViewById(R.id.selectedPicture)
+        private val pictureNameTV: TextView =
+            itemView.findViewById(R.id.pictureName)
+        val previewIV: ImageView =
+            itemView.findViewById(R.id.picturePreviewIV)
+        val selectedImage: ImageView =
+            itemView.findViewById(R.id.selectedPicture)
 
         fun bindView(galleryPicture: GalleryPicture) {
             val file = File(galleryPicture.path)
@@ -93,25 +119,25 @@ class PicturesStaggeredViewAdapter(
                 val fragmentManager: FragmentTransaction =
                     (context as AppCompatActivity).supportFragmentManager.beginTransaction()
                 val detailedFragment = DetailedFragment(galleryPicture)
-                fragmentManager.replace(R.id.container, detailedFragment).commit()
+                fragmentManager
+                    .replace(R.id.container, detailedFragment, Constants.TAG_DETAILED_FRAGMENT)
+                    .addToBackStack(Constants.TAG_DETAILED_FRAGMENT).commit()
             }
 
-            /* the method bellow I am going to use later for unknown yet reason */
-//            itemView.setOnLongClickListener {
-//                if (selectedFolder.visibility == View.INVISIBLE) {
-//                    selectedFolder.visibility = View.VISIBLE
-//                } else {
-//                    selectedFolder.visibility = View.INVISIBLE
-//                }
-//            }
+            itemView.setOnClickListener {
+                val fragmentManager: FragmentTransaction =
+                    (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                val detailedFragment = DetailedFragment(galleryPicture)
+                fragmentManager
+                    .replace(R.id.container, detailedFragment, Constants.TAG_DETAILED_FRAGMENT)
+                    .addToBackStack(Constants.TAG_DETAILED_FRAGMENT).commit()
+            }
         }
     }
 
     fun changeViewType() {
-        viewType = when {
-            viewType.id == ViewTypes.LINEAR.id -> ViewTypes.STAGGERED
-            else -> ViewTypes.LINEAR
-        }
+        viewType = if (viewType.id == ViewType.LINEAR.id) ViewType.STAGGERED
+        else ViewType.LINEAR
         notifyDataSetChanged()
     }
 }

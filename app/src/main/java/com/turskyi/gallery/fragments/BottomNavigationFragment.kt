@@ -8,17 +8,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.turskyi.gallery.R
 import com.turskyi.gallery.data.Constants
-import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 
 /** This fragment controls the "bottomNavigationView" which set another fragment for the whole screen */
-class HomeFragment : Fragment() {
+class BottomNavigationFragment : Fragment(){
+
     private var fragmentId = 0
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        return inflater.inflate(R.layout.fragment_bottom_navigation, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -58,7 +59,7 @@ class HomeFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         savedInstanceState?.let {
-            fragmentId = savedInstanceState.getInt(Constants.KEY_WORD_FRAGMENT_ID)
+            fragmentId = it.getInt(Constants.KEY_WORD_FRAGMENT_ID)
         }
     }
 }

@@ -20,15 +20,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:labelVisibilityMode="labeled"
-            app:layout_constraintTop_toBottomOf="@id/container"
+            app:itemBackground="@android:color/black"
+            app:itemIconTint="@drawable/selector"
+            app:itemTextColor="@android:color/white"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:menu="@menu/bottom_bar_menu"
-            android:visibility="visible"
-            app:itemIconTint="#5809C5"
-            app:itemTextColor="#A89AC2"
-            app:itemRippleColor="@color/colorPrimaryDark"/>
+            app:menu="@menu/bottom_bar_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

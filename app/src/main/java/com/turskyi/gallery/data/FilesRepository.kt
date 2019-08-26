@@ -3,6 +3,7 @@ package com.turskyi.gallery.data
 import android.content.Context
 import android.provider.MediaStore
 import android.provider.MediaStore.Images
+import android.provider.MediaStore.Images.Media.DATA
 import com.turskyi.gallery.models.GalleryFolder
 import com.turskyi.gallery.models.GalleryPicture
 
@@ -12,8 +13,9 @@ class FilesRepository {
     fun getGalleryImages(context: Context): MutableList<GalleryPicture> {
 
         /** Get all columns of type images */
+        // TODO: How to get rid of deprecated "DATA" string?
         val columns = arrayOf(
-            Images.Media.DATA,
+            DATA,
             Images.Media._ID
         )
 
@@ -25,22 +27,23 @@ class FilesRepository {
 
         /** This cursor will hold the result of the query
         and put all data in Cursor by sorting in descending order */
-        val cursor = context.contentResolver
-            .query(
-                Images.Media.EXTERNAL_CONTENT_URI,
-                columns, null, null, "$orderBy DESC"
-            )
+        //TODO: How correctly to get rid of the following warning in "query"?
+        val cursor = context.contentResolver.query(
+            Images.Media.EXTERNAL_CONTENT_URI,
+            columns, null, null, "$orderBy DESC"
+        )
 
         cursor?.let {
-            if (it.moveToNext())
+            if (it.moveToNext()) {
                 do {
-                    val dataColumnIndex = it.getColumnIndex(Images.Media.DATA)
+                    val dataColumnIndex = it.getColumnIndex(DATA)
                     val id =
                         it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
                     val galleryPicture = GalleryPicture(it.getString(dataColumnIndex), id)
                     galleryImageUrls.add(galleryPicture)
                 } while (it.moveToNext())
-            it.close()
+                it.close()
+            }
         }
         return galleryImageUrls
     }
@@ -48,47 +51,49 @@ class FilesRepository {
     fun getGalleryFolders(context: Context): MutableSet<GalleryFolder> {
 
         val columns = arrayOf(
-            Images.Media.DATA,
+            DATA,
             Images.Media._ID
         )
 
         /** My set of folders */
         val galleryFolderUrls: MutableSet<GalleryFolder> = mutableSetOf()
+
+        //TODO: Why is this val must be here or I can move it inside the body?
         val galleryFolderPaths: MutableSet<String> = mutableSetOf()
 
         /** order data by date */
+        //TODO: How correctly to get rid of the following warning in "DATE_TAKEN"?
         val orderBy = Images.Media.DATE_TAKEN
 
         /** This cursor will hold the result of the query
          * and get all data in Cursor by sorting in descending order */
         val cursor = context.contentResolver.query(
             Images.Media.EXTERNAL_CONTENT_URI,
-            columns,
-            null,
-            null,
-            "$orderBy DESC"
+            columns, null, null, "$orderBy DESC"
         )
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                val dataColumnIndex = cursor.getColumnIndex(Images.Media.DATA)
-                val picturePath = cursor.getString(dataColumnIndex)
-                val pathArrayOfStrings = picturePath.split('/')
-                val folderName = pathArrayOfStrings[pathArrayOfStrings.size - 2]
-                val folderPath = getFolderPath(pathArrayOfStrings)
+        cursor?.let {
+            //TODO: Why "moveToFirst" and not "moveToNext()"?
+            if (it.moveToFirst()) {
+                do {
+                    val dataColumnIndex = it.getColumnIndex(DATA)
+                    val picturePath = it.getString(dataColumnIndex)
+                    val pathArrayOfStrings = picturePath.split('/')
+                    val folderName = pathArrayOfStrings[pathArrayOfStrings.size - 2]
+                    val folderPath = getFolderPath(pathArrayOfStrings)
 
-                // if we found copy of the folder path we skip the rest of the function
-                // and go to the next picture
-                if (galleryFolderPaths.contains(folderPath)) continue
+                    /* if we found copy of the folder path we skip the rest of the function
+                      and go to the next picture */
+                    if (galleryFolderPaths.contains(folderPath)) continue
 
-                galleryFolderPaths.add(folderPath)
+                    galleryFolderPaths.add(folderPath)
 
-                val images = getImagesInFolder(context, folderPath)
-                galleryFolderUrls.add(
-                    GalleryFolder(folderPath, picturePath, folderName, images)
-                )
-            } while (cursor.moveToNext())
-            cursor.close()
+                    val images = getImagesInFolder(context, folderPath)
+                    val galleryFolder = GalleryFolder(folderPath, picturePath, folderName, images)
+                    galleryFolderUrls.add(galleryFolder)
+                } while (it.moveToNext())
+                it.close()
+            }
         }
         return galleryFolderUrls
     }
@@ -96,7 +101,7 @@ class FilesRepository {
     private fun getFolderPath(pathArrayOfStrings: List<String>): String {
         var folderPath = ""
 
-        /** building a firstPicturePath string to the folder */
+        /** building a folderPath out of firstPicturePathString in the folder */
         for (index in pathArrayOfStrings.indices) {
             if (index == pathArrayOfStrings.size - 1) break
             folderPath += pathArrayOfStrings[index] + "/"
@@ -104,15 +109,15 @@ class FilesRepository {
         return folderPath
     }
 
-    // this private function have made using information above
-    // to cut out particular action from the getGalleryFolders
+    // this private function had been made by using information above
+    // to cut out particular action in the getGalleryFolders
     private fun getImagesInFolder(
         context: Context,
         folderPath: String?
     ): MutableList<GalleryPicture> {
 
         val columns = arrayOf(
-            Images.Media.DATA,
+            DATA,
             Images.Media._ID
         )
 
@@ -131,39 +136,25 @@ class FilesRepository {
             "$orderBy DESC"
         )
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                val dataColumnIndex = cursor.getColumnIndex(Images.Media.DATA)
+        cursor?.let {
+            if (it.moveToFirst()) {
+                do {
+                    val dataColumnIndex = it.getColumnIndex(DATA)
+                    val id =
+                        it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                    val picturePath = it.getString(dataColumnIndex)
+                    val pathArrayOfStrings = picturePath.split('/')
+                    val currentFolderPath = getFolderPath(pathArrayOfStrings)
 
-                //added id method
-                val id =
-                    cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
-
-                val picturePath = cursor.getString(dataColumnIndex)
-                val pathArrayOfStrings = picturePath.split('/')
-
-                val currentFolderPath = getFolderPath(pathArrayOfStrings)
-
-                // I switch the following code with the code above
-//                var currentFolderPath = ""
-//                /** building a firstPicturePath to the folder */
-//                for (index in pathArrayOfStrings.indices) {
-//                    if (index == pathArrayOfStrings.size - 1) break
-//                    currentFolderPath += pathArrayOfStrings[index] + "/"
-//                }
-
-                /** collecting images in particular folder */
-                if (currentFolderPath == folderPath) {
-
-                    /**  have identified the object GalleryPicture */
-                    // I replaced 0 with "id"
-                    val galleryPicture = GalleryPicture(picturePath, id)
-
-                    /** zeroing a folder and add an element of the list */
-                    images.add(galleryPicture)
-                }
-            } while (cursor.moveToNext())
-            cursor.close()
+                    /** collecting images in particular folder */
+                    if (currentFolderPath == folderPath) {
+                        val galleryPicture = GalleryPicture(picturePath, id)
+                        /** zeroing a folder and add an element of the list */
+                        images.add(galleryPicture)
+                    }
+                } while (it.moveToNext())
+                it.close()
+            }
         }
         return images
     }

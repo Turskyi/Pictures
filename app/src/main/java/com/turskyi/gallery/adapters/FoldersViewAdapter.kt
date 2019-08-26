@@ -3,6 +3,7 @@ package com.turskyi.gallery.adapters
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.provider.SyncStateContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,12 +14,11 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.turskyi.gallery.R
+import com.turskyi.gallery.data.Constants
 import com.turskyi.gallery.fragments.PicturesInFolderFragment
 import com.turskyi.gallery.interfaces.OnFolderClickListener
 import com.turskyi.gallery.models.GalleryFolder
-import com.turskyi.gallery.models.ViewTypes
-import com.turskyi.gallery.models.ViewTypes.GRID
-import com.turskyi.gallery.models.ViewTypes.LINEAR
+import com.turskyi.gallery.models.ViewType
 import java.io.File
 
 //TODO в котліні не треба створювати функцію для заповнення масива, під його оголошенням можна написати
@@ -28,20 +28,26 @@ import java.io.File
 
 class FoldersViewAdapter(
     private var foldersList: MutableSet<GalleryFolder>?,
-    private val onFolderClickListener: OnFolderClickListener?) :
-    RecyclerView.Adapter<FoldersViewAdapter.FolderViewHolder>() {
+    private val onFolderClickListener: OnFolderClickListener?
+) : RecyclerView.Adapter<FoldersViewAdapter.FolderViewHolder>() {
 
-    private var viewType: ViewTypes = GRID
+//    private var number = 0
+//        set(number) {
+//            field = number
+//        }
+//        get() = field
 
-    /** set  the viewType */
+    private var viewType: ViewType = ViewType.GRID
+
+    /** set  the viewTypes */
     override fun getItemViewType(position: Int): Int {
-        return if (viewType == GRID) GRID.id
-        else LINEAR.id
+        return if (viewType == ViewType.GRID) ViewType.GRID.id
+        else ViewType.LINEAR.id
     }
 
     /** switch between layouts */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
-        return if (viewType == LINEAR.id) {
+        return if (viewType == ViewType.LINEAR.id) {
             val view = LayoutInflater.from(parent.context)
                 .inflate(com.turskyi.gallery.R.layout.folder_list_item, parent, false)
             FolderViewHolder(view, parent.context)
@@ -65,16 +71,31 @@ class FoldersViewAdapter(
         holder.previewIV.setOnLongClickListener {
             if (holder.selectedFolder.visibility == View.INVISIBLE) {
                 holder.selectedFolder.visibility = View.VISIBLE
-//                holder.selectedFolder.isSelected
-                onFolderClickListener?.addOnClick(foldersList?.elementAt(position)!!)
+                onFolderClickListener?.addOnLongClick(foldersList?.elementAt(position)!!)
             } else {
                 holder.selectedFolder.visibility = View.INVISIBLE
-//                holder.selectedFolder.isSelected
-                onFolderClickListener?.removeOnClick(foldersList?.elementAt(position)!!)
+                onFolderClickListener?.removeOnLongClick(
+                    foldersList?.elementAt(position)!!,
+                    viewType
+                )
             }
             true
         }
-        foldersList!!.elementAt(position).let { holder.bindView(it) }
+
+        holder.itemView.setOnLongClickListener {
+            if (holder.selectedFolder.visibility == View.INVISIBLE) {
+                holder.selectedFolder.visibility = View.VISIBLE
+                onFolderClickListener?.addOnLongClick(foldersList?.elementAt(position)!!)
+            } else {
+                holder.selectedFolder.visibility = View.INVISIBLE
+                onFolderClickListener?.removeOnLongClick(
+                    foldersList?.elementAt(position)!!,
+                    viewType
+                )
+            }
+            true
+        }
+        holder.bindView(foldersList!!.elementAt(position))
     }
 
     class FolderViewHolder(itemView: View, private val context: Context) :
@@ -93,34 +114,39 @@ class FoldersViewAdapter(
             itemView.findViewById(com.turskyi.gallery.R.id.selectedFolder)
 
         fun bindView(galleryFolder: GalleryFolder) {
+            /** Makes the cover of a folder with a picture */
             val file = File(galleryFolder.firstPicturePath)
             folderNameTV.text = galleryFolder.name
             val uri: Uri = Uri.fromFile(file)
             Glide.with(context).load(uri).into(previewIV)
-
-            /** Makes the cover of a folder with a picture */
             previewIV.setImageBitmap(BitmapFactory.decodeFile(galleryFolder.firstPicturePath))
 
             previewIV.setOnClickListener {
                 val fragmentManager: FragmentTransaction =
                     (context as AppCompatActivity).supportFragmentManager.beginTransaction()
                 val picturesInFolderFragment = PicturesInFolderFragment(galleryFolder)
-                fragmentManager.replace(R.id.container, picturesInFolderFragment).commit()
+                fragmentManager
+                    .replace(R.id.container, picturesInFolderFragment, Constants.TAG_PICS_IN_FOLDER)
+                    .addToBackStack(Constants.TAG_PICS_IN_FOLDER).commit()
             }
 
-            /* the method bellow I am going to use later for unknown yet reason */
-//            itemView.setOnClickListener {
-//                FileLiveSingleton.getInstance().setPath(galleryFolder.firstPicturePath)
-//            }
+            previewIV.setOnClickListener {
+                val fragmentManager: FragmentTransaction =
+                    (context as AppCompatActivity).supportFragmentManager.beginTransaction()
+                val picturesInFolderFragment = PicturesInFolderFragment(galleryFolder)
+                fragmentManager
+                    .replace(R.id.container, picturesInFolderFragment, Constants.TAG_PICS_IN_FOLDER)
+                    .addToBackStack(Constants.TAG_PICS_IN_FOLDER).commit()
+            }
         }
     }
 
     /** This method to update the layout */
     fun changeViewType() {
-        viewType = if (viewType.id == ViewTypes.LINEAR.id) {
-            GRID
+        viewType = if (viewType.id == ViewType.LINEAR.id) {
+            ViewType.GRID
         } else {
-            LINEAR
+            ViewType.LINEAR
         }
         notifyDataSetChanged()
     }
