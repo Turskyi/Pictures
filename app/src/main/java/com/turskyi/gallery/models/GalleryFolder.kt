@@ -4,5 +4,6 @@ data class GalleryFolder(
     val folderPath: String,
     val firstPicturePath: String,
     val name: String,
-    var images: MutableList<GalleryPicture>
+    var images: MutableList<GalleryPicture>,
+    val id: Long
 )

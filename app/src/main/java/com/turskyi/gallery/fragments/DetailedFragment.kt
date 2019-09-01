@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.bumptech.glide.Glide
+import com.turskyi.gallery.R
 import com.turskyi.gallery.interfaces.IOnBackPressed
 import com.turskyi.gallery.models.GalleryPicture
 import kotlinx.android.synthetic.main.fragment_detailed.*
@@ -60,15 +61,16 @@ class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment(),
                 val deleteUri: Uri = ContentUris
                     .withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
                 activity?.contentResolver?.delete(deleteUri, null, null)
+                onBackPressed()
             } else {
-                Toast.makeText(context, "File is not exist", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.file_is_not_exist), Toast.LENGTH_LONG).show()
             }
         }
     }
 
     override fun onBackPressed() {
         activity?.bottomNavigationView?.visibility = View.VISIBLE
-        //TODO: what is going on when I press on "back press arrow"?
+        //TODO: what is happening when I press on "back press arrow"?
         // Why does not observer  receive the changes?
         // How can I fix this bug?
         fragmentManager?.popBackStack()

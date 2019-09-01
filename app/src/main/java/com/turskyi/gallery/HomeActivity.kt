@@ -48,12 +48,12 @@ open class HomeActivity : AppCompatActivity() {
 
                 /** If request is cancelled, the result array is empty. */
                 if ((grantResult.isNotEmpty() && grantResult[0] == PackageManager.PERMISSION_GRANTED)) {
-                    emptyView.visibility = View.GONE
+                    getPermissionView.visibility = View.GONE
                     showFragment()
                 } else {
                     /** shows the "get permission view" */
-                    emptyView.visibility = View.VISIBLE
-                    emptyView.setOnClickListener {
+                    getPermissionView.visibility = View.VISIBLE
+                    getPermissionView.setOnClickListener {
                         requestPermission()
                     }
                 }

@@ -10,12 +10,9 @@ import com.turskyi.gallery.models.ViewType
 class PicturesInFolderViewModel(application: Application) : AndroidViewModel(application) {
 
     var selectedPictures: MutableList<GalleryPicture> = mutableListOf()
-    var  staggeredGridLayoutManager: StaggeredGridLayoutManager? = null
-
-//    val listOfPicturesInFolder = galleryFolder?.images
+    var staggeredGridLayoutManager: StaggeredGridLayoutManager? = null
 
     val viewTypes = MutableLiveData<ViewType>()
-    var currentViewType: ViewType = ViewType.STAGGERED
 
     fun changeLayoutView() {
         when {
@@ -23,5 +20,9 @@ class PicturesInFolderViewModel(application: Application) : AndroidViewModel(app
             viewTypes.value == ViewType.LINEAR -> viewTypes.value = ViewType.STAGGERED
             else -> viewTypes.value = ViewType.LINEAR
         }
+    }
+
+    fun setViewType(viewType: ViewType){
+        viewTypes.value = viewType
     }
 }

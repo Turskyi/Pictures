@@ -16,14 +16,17 @@ class PicturesViewModel(application: Application) : AndroidViewModel(application
     private val repository = FilesRepository()
     val listOfPictures = repository.getGalleryImages(application)
 
-    val viewTypes = MutableLiveData<ViewType>()
-    var currentViewType: ViewType = ViewType.GRID
+    val viewTypes = MutableLiveData<ViewType?>()
 
-    fun changeLayoutView() {
+    fun updateLayoutView() {
         when {
             selectedPictures.isNotEmpty() -> viewTypes.value = ViewType.DELETE
             viewTypes.value == ViewType.LINEAR -> viewTypes.value = ViewType.GRID
             else -> viewTypes.value = ViewType.LINEAR
         }
+    }
+
+    fun setViewType(viewType: ViewType){
+        viewTypes.value = viewType
     }
 }

@@ -18,13 +18,16 @@ class FoldersViewModel(application: Application) : AndroidViewModel(application)
     val listOfFolders = repository.getGalleryFolders(application)
 
     val viewTypes = MutableLiveData<ViewType>()
-    var currentViewType: ViewType = ViewType.GRID
 
-    fun changeLayoutView() {
+    fun updateLayoutView() {
         when {
             selectedFolders.isNotEmpty() -> viewTypes.value = ViewType.DELETE
             viewTypes.value == LINEAR -> viewTypes.value = ViewType.GRID
             else -> viewTypes.value = LINEAR
         }
+    }
+
+    fun setViewType(viewType: ViewType){
+        viewTypes.value = viewType
     }
 }

@@ -9,20 +9,55 @@ import com.turskyi.gallery.models.GalleryPicture
 
 class FilesRepository {
 
+    fun getDataOfImageList(from: Int, to: Int, context: Context): List<GalleryPicture> {
+        /** Create a list of urls pictures */
+        val listOfImages = mutableListOf<GalleryPicture>()
+
+        /** Get all columns of type images */
+        // TODO: How to get rid of deprecated "DATA" string?
+        val columns = arrayOf(DATA, Images.Media._ID)
+
+        /** order data by date */
+        //TODO: How correctly to get rid of the following warning in "DATE_TAKEN"?
+        val orderBy = Images.Media.DATE_TAKEN
+
+        /** This cursor will hold the result of the query
+        and put all data in Cursor by sorting in descending order */
+        //TODO: How correctly to get rid of the following warning in "query"?
+        val cursor = context.contentResolver.query(
+            Images.Media.EXTERNAL_CONTENT_URI,
+            columns, null, null, "$orderBy DESC"
+        )
+
+        cursor?.let {
+            for (i in from until to + from) {
+                if ( it.moveToNext() && i < it.count) {
+                    do {
+                        val dataColumnIndex = it.getColumnIndex(DATA)
+                        val id =
+                            it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                        val galleryPicture = GalleryPicture(it.getString(dataColumnIndex), id)
+                        listOfImages.add(galleryPicture)
+                    } while (it.moveToNext())
+                }
+            }
+            it.close()
+        }
+        return listOfImages
+    }
+
     /** finds pictures, nothing else */
     fun getGalleryImages(context: Context): MutableList<GalleryPicture> {
 
         /** Get all columns of type images */
         // TODO: How to get rid of deprecated "DATA" string?
-        val columns = arrayOf(
-            DATA,
-            Images.Media._ID
-        )
+        val columns = arrayOf(DATA, Images.Media._ID)
 
         /** Create a list of urls pictures */
         val galleryImageUrls: MutableList<GalleryPicture> = mutableListOf()
 
         /** order data by date */
+        //TODO: How correctly to get rid of the following warning in "DATE_TAKEN"?
         val orderBy = Images.Media.DATE_TAKEN
 
         /** This cursor will hold the result of the query
@@ -48,12 +83,61 @@ class FilesRepository {
         return galleryImageUrls
     }
 
+    fun getDataOfFolderList(from: Int, to: Int, context: Context): List<GalleryFolder> {
+
+        /** Create a list of folders */
+        val listOfFolders = mutableListOf<GalleryFolder>()
+
+        //TODO: Why is this val must be here or I can move it inside the body?
+        val galleryFolderPaths: MutableSet<String> = mutableSetOf()
+
+        val columns = arrayOf(DATA, Images.Media._ID)
+
+        /** order data by date */
+        //TODO: How correctly to get rid of the following warning in "DATE_TAKEN"?
+        val orderBy = Images.Media.DATE_TAKEN
+
+        /** This cursor will hold the result of the query
+        and put all data in Cursor by sorting in descending order */
+        //TODO: How correctly to get rid of the following warning in "query"?
+        val cursor = context.contentResolver.query(
+            Images.Media.EXTERNAL_CONTENT_URI,
+            columns, null, null, "$orderBy DESC"
+        )
+
+        cursor?.let {
+            for (i in from until to + from) {
+                if ( it.moveToFirst() && i < getGalleryFolders(context).size) {
+                    do {
+                        val dataColumnIndex = it.getColumnIndex(DATA)
+                        val id =
+                            it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                        val pictureInFolderPath = it.getString(dataColumnIndex)
+                        val pathArrayOfStrings = pictureInFolderPath.split('/')
+                        val folderName = pathArrayOfStrings[pathArrayOfStrings.size - 2]
+                        val folderPath = getFolderPath(pathArrayOfStrings)
+
+                        /** If we found copy of the folder path we skip the rest of the function
+                        and go to the next picture */
+                        if (galleryFolderPaths.contains(folderPath)) continue
+
+                        galleryFolderPaths.add(folderPath)
+
+                        val images = getImagesInFolder(context, folderPath)
+                        val galleryFolder =
+                            GalleryFolder(folderPath, pictureInFolderPath, folderName, images, id)
+                        listOfFolders.add(galleryFolder)
+                    } while (it.moveToNext())
+                }
+            }
+            it.close()
+        }
+        return listOfFolders
+    }
+
     fun getGalleryFolders(context: Context): MutableSet<GalleryFolder> {
 
-        val columns = arrayOf(
-            DATA,
-            Images.Media._ID
-        )
+        val columns = arrayOf(DATA, Images.Media._ID)
 
         /** My set of folders */
         val galleryFolderUrls: MutableSet<GalleryFolder> = mutableSetOf()
@@ -62,7 +146,6 @@ class FilesRepository {
         val galleryFolderPaths: MutableSet<String> = mutableSetOf()
 
         /** order data by date */
-        //TODO: How correctly to get rid of the following warning in "DATE_TAKEN"?
         val orderBy = Images.Media.DATE_TAKEN
 
         /** This cursor will hold the result of the query
@@ -77,19 +160,22 @@ class FilesRepository {
             if (it.moveToFirst()) {
                 do {
                     val dataColumnIndex = it.getColumnIndex(DATA)
-                    val picturePath = it.getString(dataColumnIndex)
-                    val pathArrayOfStrings = picturePath.split('/')
+                    val id =
+                        it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                    val pictureInFolderPath = it.getString(dataColumnIndex)
+                    val pathArrayOfStrings = pictureInFolderPath.split('/')
                     val folderName = pathArrayOfStrings[pathArrayOfStrings.size - 2]
                     val folderPath = getFolderPath(pathArrayOfStrings)
 
-                    /* if we found copy of the folder path we skip the rest of the function
-                      and go to the next picture */
+                    /** If we found copy of the folder path we skip the rest of the function
+                    and go to the next picture */
                     if (galleryFolderPaths.contains(folderPath)) continue
 
                     galleryFolderPaths.add(folderPath)
 
                     val images = getImagesInFolder(context, folderPath)
-                    val galleryFolder = GalleryFolder(folderPath, picturePath, folderName, images)
+                    val galleryFolder =
+                        GalleryFolder(folderPath, pictureInFolderPath, folderName, images, id)
                     galleryFolderUrls.add(galleryFolder)
                 } while (it.moveToNext())
                 it.close()
@@ -101,7 +187,7 @@ class FilesRepository {
     private fun getFolderPath(pathArrayOfStrings: List<String>): String {
         var folderPath = ""
 
-        /** building a folderPath out of firstPicturePathString in the folder */
+        /** Building a folderPath out of firstPicturePathString in the folder */
         for (index in pathArrayOfStrings.indices) {
             if (index == pathArrayOfStrings.size - 1) break
             folderPath += pathArrayOfStrings[index] + "/"
@@ -157,5 +243,49 @@ class FilesRepository {
             }
         }
         return images
+    }
+
+    fun getDataOfImagesInFolderList(from: Int, to: Int, context: Context, folderPath: String?): List<GalleryPicture> {
+        /** Create a list of urls pictures */
+        val listOfImages = mutableListOf<GalleryPicture>()
+
+        /** Get all columns of type images */
+        // TODO: How to get rid of deprecated "DATA" string?
+        val columns = arrayOf(DATA, Images.Media._ID)
+
+        /** order data by date */
+        //TODO: How correctly to get rid of the following warning in "DATE_TAKEN"?
+        val orderBy = Images.Media.DATE_TAKEN
+
+        /** This cursor will hold the result of the query
+        and put all data in Cursor by sorting in descending order */
+        //TODO: How correctly to get rid of the following warning in "query"?
+        val cursor = context.contentResolver.query(
+            Images.Media.EXTERNAL_CONTENT_URI,
+            columns, null, null, "$orderBy DESC"
+        )
+
+        cursor?.let {
+            for (i in from until to + from) {
+                if ( it.moveToNext() && i < it.count) {
+                    do {
+                        val dataColumnIndex = it.getColumnIndex(DATA)
+                        val id =
+                            it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                        val picturePath = it.getString(dataColumnIndex)
+                        val pathArrayOfStrings = picturePath.split('/')
+                        val currentFolderPath = getFolderPath(pathArrayOfStrings)
+                        /** collecting images in particular folder */
+                        if (currentFolderPath == folderPath) {
+                            val galleryPicture = GalleryPicture(picturePath, id)
+                            /** zeroing a folder and add an element of the list */
+                            listOfImages.add(galleryPicture)
+                        }
+                    } while (it.moveToNext())
+                }
+            }
+            it.close()
+        }
+        return listOfImages
     }
 }
