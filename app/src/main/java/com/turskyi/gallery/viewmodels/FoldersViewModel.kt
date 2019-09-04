@@ -6,12 +6,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.GridLayoutManager
 import com.turskyi.gallery.data.FilesRepository
 import com.turskyi.gallery.models.GalleryFolder
+import com.turskyi.gallery.models.GalleryPicture
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.models.ViewType.LINEAR
 
 class FoldersViewModel(application: Application) : AndroidViewModel(application) {
 
     var selectedFolders: MutableList<GalleryFolder> = mutableListOf()
+    var selectedImages: MutableList<GalleryPicture> = mutableListOf()
     var gridLayoutManager: GridLayoutManager? = null
 
     private val repository = FilesRepository()

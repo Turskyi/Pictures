@@ -16,6 +16,7 @@ import com.turskyi.gallery.R
 import com.turskyi.gallery.data.Constants
 import com.turskyi.gallery.fragments.PicturesInFolderFragment
 import com.turskyi.gallery.models.GalleryFolder
+import kotlinx.android.synthetic.main.folder_list_item.view.*
 import java.io.File
 
 class FolderListViewHolder(itemView: View, private val context: Context) :
@@ -30,13 +31,6 @@ class FolderListViewHolder(itemView: View, private val context: Context) :
         parent.context
     )
 
-    //TODO холдер є тільки для доступу до айтемів, в ньому не відбувається жодних оголошень,
-    // бо вони мінливі
-    // занесення даних повинне відбуватися в он бінд, коли холдер повертається на екран
-    // крім того об'єкти холдери можуть використовуватися повторно з іншими ресурсами.
-    // роблячи так ти блокуєш цю функцію
-    private val folderNameTV: TextView =
-        itemView.findViewById(com.turskyi.gallery.R.id.folderName)
     val previewIV: ImageView =
         itemView.findViewById(com.turskyi.gallery.R.id.folderPreviewIV)
     val selectedFolder: ImageView =
@@ -45,12 +39,11 @@ class FolderListViewHolder(itemView: View, private val context: Context) :
     fun bindView(galleryFolder: GalleryFolder) {
         /** Makes the cover of a folder with a picture */
         val file = File(galleryFolder.firstPicturePath)
-        folderNameTV.text = galleryFolder.name
+        itemView.folderName.text = galleryFolder.name
         val uri: Uri = Uri.fromFile(file)
-        Glide.with(context).load(uri).into(previewIV)
-        previewIV.setImageBitmap(BitmapFactory.decodeFile(galleryFolder.firstPicturePath))
+        Glide.with(context).load(uri).into(itemView.folderPreviewIV)
 
-        previewIV.setOnClickListener {
+        itemView.folderPreviewIV.setOnClickListener {
             val fragmentManager: FragmentTransaction =
                 (context as AppCompatActivity).supportFragmentManager.beginTransaction()
             val picturesInFolderFragment = PicturesInFolderFragment(galleryFolder)

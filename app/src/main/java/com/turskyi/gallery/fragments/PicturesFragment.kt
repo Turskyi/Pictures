@@ -6,9 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -34,24 +32,17 @@ import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
 import java.util.concurrent.Executors
 
-class PicturesFragment : Fragment(), OnPictureClickListener {
+class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickListener {
 
-    //TODO в активності тільки те, що безпосередньо потрібне для відображення View
-    //done
     private lateinit var picturesViewModel: PicturesViewModel
     private lateinit var listViewAdapter: PictureListAdapter
     private lateinit var gridViewAdapter: PictureGridAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         picturesViewModel = ViewModelProvider(this).get(PicturesViewModel::class.java)
-        return inflater.inflate(com.turskyi.gallery.R.layout.fragment_pictures, container, false)
     }
 
-    // TODO: fix wrong thread
     @SuppressLint("WrongThread")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -74,10 +65,11 @@ class PicturesFragment : Fragment(), OnPictureClickListener {
                     btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_remove32)
                 }
                 ViewType.GRID -> {
+                    picturesViewModel.gridLayoutManager?.spanCount = 2
                     btnViewChanger.setImageResource(ic_view_list_white)
-                    listViewAdapter.changeViewType()
                 }
                 else -> {
+                    picturesViewModel.gridLayoutManager?.spanCount = 1
                     btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_grid)
                 }
             }
@@ -87,16 +79,16 @@ class PicturesFragment : Fragment(), OnPictureClickListener {
             when {
                 picturesViewModel.selectedPictures.size > 0 -> deleteAllSelected()
                 picturesViewModel.viewTypes.value == ViewType.GRID -> {
-                    listViewAdapter = PictureListAdapter(picturesViewModel.listOfPictures, this)
                     picturesViewModel.setViewType(ViewType.LINEAR)
-                    updateAnimation()
                     listViewAdapter.submitList(pagedList)
                     recyclerView.adapter = listViewAdapter
+                    gridViewAdapter.changeViewType()
                 }
                 picturesViewModel.viewTypes.value == ViewType.LINEAR -> {
                     picturesViewModel.setViewType(ViewType.GRID)
-                    updateAnimation()
                     gridViewAdapter.submitList(pagedList)
+                    recyclerView.adapter = gridViewAdapter
+                    gridViewAdapter.changeViewType()
                 }
             }
         }
@@ -112,7 +104,6 @@ class PicturesFragment : Fragment(), OnPictureClickListener {
         updateLayoutManager()
 
         /* Without this line nothing going to show up */
-
         recyclerView.adapter = gridViewAdapter
     }
 
@@ -147,9 +138,9 @@ class PicturesFragment : Fragment(), OnPictureClickListener {
 
     private var sendToGoogleImages: View.OnClickListener = View.OnClickListener {
         val url = Constants.GOOGLE_IMAGES
-        val i = Intent(Intent.ACTION_VIEW)
-        i.data = Uri.parse(url)
-        startActivity(i)
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse(url)
+        startActivity(intent)
     }
 
     private fun deleteAllSelected() {
@@ -178,21 +169,10 @@ class PicturesFragment : Fragment(), OnPictureClickListener {
         activity?.startActivity(newIntent)
     }
 
-    //TODO: should I combine this method and absolutely the same in the "FoldersFragment" somewhere
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.INVISIBLE
         picturesViewModel.gridLayoutManager = GridLayoutManager(context, 2)
         picturesViewModel.viewTypes.value = ViewType.GRID
         recyclerView.layoutManager = picturesViewModel.gridLayoutManager
-    }
-
-    /* I am going to use this method later to make an animation effect.
-     For now if I do not use "changeViewType()" I will have animation, but loose listview */
-    private fun updateAnimation() {
-        if (picturesViewModel.viewTypes.value == ViewType.GRID) {
-            picturesViewModel.gridLayoutManager?.spanCount = 2
-        } else {
-            picturesViewModel.gridLayoutManager?.spanCount = 1
-        }
     }
 }

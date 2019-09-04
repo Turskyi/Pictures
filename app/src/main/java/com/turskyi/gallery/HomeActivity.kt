@@ -12,7 +12,7 @@ import com.turskyi.gallery.fragments.BottomNavigationFragment
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 
-open class HomeActivity : AppCompatActivity() {
+open class HomeActivity : AppCompatActivity(R.layout.activity_home) {
 
     //TODO: Should I move this constant to constants class?
     companion object {
@@ -21,7 +21,6 @@ open class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
 
         /* permission must be here, in "onCreate" */
         checkPermission()

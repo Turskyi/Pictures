@@ -5,9 +5,7 @@ import android.content.ContentUris
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -33,7 +31,7 @@ import java.io.File
 import java.util.concurrent.Executors
 
 class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
-    Fragment(),
+    Fragment(R.layout.fragment_pictures),
     OnPictureClickListener,
     IOnBackPressed {
 
@@ -41,17 +39,12 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
     private lateinit var staggeredViewAdapter: PictureInFolderStaggeredAdapter
     private lateinit var listViewAdapter: PictureInFolderListAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         picturesInFolderViewModel =
             ViewModelProvider(this).get(PicturesInFolderViewModel::class.java)
-        return inflater.inflate(com.turskyi.gallery.R.layout.fragment_pictures, container, false)
     }
 
-    // TODO: fix wrong thread
     @SuppressLint("WrongThread")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,8 +52,6 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
         btnArrowBack.setOnClickListener {
             onBackPressed()
         }
-
-        val listOfPicturesInFolder = galleryFolder?.images
 
         val dataSource = PicturesInFolderPositionalDataSource(
             activity?.applicationContext!!,
@@ -83,9 +74,11 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
                     btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_remove32)
                 }
                 ViewType.STAGGERED -> {
+                    picturesInFolderViewModel.staggeredGridLayoutManager?.spanCount = 2
                     btnViewChanger.setImageResource(R.drawable.ic_view_list_white)
                 }
                 else -> {
+                    picturesInFolderViewModel.staggeredGridLayoutManager?.spanCount = 1
                     btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_grid)
                 }
             }
@@ -95,23 +88,26 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
             when {
                 picturesInFolderViewModel.selectedPictures.size > 0 -> deleteAllSelected()
                 picturesInFolderViewModel.viewTypes.value == ViewType.STAGGERED -> {
-                    listViewAdapter = PictureInFolderListAdapter(listOfPicturesInFolder, this)
                     picturesInFolderViewModel.setViewType(ViewType.LINEAR)
-                    updateAnimation()
                     listViewAdapter.submitList(pagedList)
                     recyclerView.adapter = listViewAdapter
+                    staggeredViewAdapter.changeViewType()
                 }
                 picturesInFolderViewModel.viewTypes.value == ViewType.LINEAR -> {
                     picturesInFolderViewModel.setViewType(ViewType.STAGGERED)
-                    updateAnimation()
                     staggeredViewAdapter.submitList(pagedList)
-                    listViewAdapter.changeViewType()
+                    recyclerView.adapter = staggeredViewAdapter
+                    staggeredViewAdapter.changeViewType()
                 }
             }
         }
 
-        staggeredViewAdapter = PictureInFolderStaggeredAdapter(listOfPicturesInFolder, this)
-        listViewAdapter = PictureInFolderListAdapter(listOfPicturesInFolder, this)
+        staggeredViewAdapter = context?.let {
+            PictureInFolderStaggeredAdapter(it, galleryFolder, this)
+        }!!
+        listViewAdapter = context?.let {
+            PictureInFolderListAdapter(it, galleryFolder, this)
+        }!!
 
         staggeredViewAdapter.submitList(pagedList)
 
@@ -168,13 +164,6 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
             StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         picturesInFolderViewModel.viewTypes.value = ViewType.STAGGERED
         recyclerView.layoutManager = picturesInFolderViewModel.staggeredGridLayoutManager
-    }
-
-    /* I will change this method later to make an animation effect */
-    private fun updateAnimation() {
-        if (picturesInFolderViewModel.viewTypes.value == ViewType.STAGGERED)
-            picturesInFolderViewModel.staggeredGridLayoutManager?.spanCount = 2
-        else picturesInFolderViewModel.staggeredGridLayoutManager?.spanCount = 1
     }
 
     override fun onBackPressed() {

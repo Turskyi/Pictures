@@ -19,7 +19,7 @@ android {
     dataBinding {
         enabled = true
     }
-    buildToolsVersion "29.0.1"
+    buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.turskyi.gallery"
         minSdkVersion 21
@@ -45,7 +45,14 @@ dependencies {
     /* Kotlin */
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    /* this is needed to use the updated AppCompatActivity */
+    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+
+    /* These new versions add the ability to pass the layout ID to the constructor
+ of the Activity or Fragment base class,
+ and it will handle inflation behind-the-scenes. */
+    implementation 'androidx.activity:activity-ktx:1.1.0-alpha02'
+    implementation 'androidx.fragment:fragment-ktx:1.2.0-alpha02'
 
     /* Constraint Layout */
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'

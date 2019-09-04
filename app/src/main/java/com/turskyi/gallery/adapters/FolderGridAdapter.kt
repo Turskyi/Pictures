@@ -47,14 +47,14 @@ class FolderGridAdapter(
                     oldItem: GalleryFolder,
                     newItem: GalleryFolder
                 ): Boolean {
-                    return oldItem.id == newItem.id
+                    return oldItem == newItem
                 }
 
                 override fun areContentsTheSame(
                     oldItem: GalleryFolder,
                     newItem: GalleryFolder
                 ): Boolean {
-                    return oldItem.images == newItem.images
+                    return oldItem.folderPath == newItem.folderPath
                 }
             }
     }

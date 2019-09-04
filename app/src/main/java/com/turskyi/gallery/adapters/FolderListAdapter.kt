@@ -16,29 +16,6 @@ class FolderListAdapter(
     private val onFolderClickListener: OnFolderClickListener
 ) : PagedListAdapter<GalleryFolder, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
 
-    //TODO в котліні не треба створювати функцію для заповнення масива,
-    // під його оголошенням можна написати
-    // set(value) {
-    // field = value
-    // notifyDataSetChanged() }
-
-    // якщо я заповню масив таким чином то втрачу можливість використати
-    // його конструктор в "FoldersAdapter" і нічого не відобразиться,
-    // а як уникнути цього я не знаю
-//private var foldersList: MutableSet<GalleryFolder>? = null
-//        get() = field
-//    set(foldersList) {
-//        field = foldersList
-//        notifyDataSetChanged()
-//    }
-
-//example:
-//    private var number = 0
-//        set(number) {
-//            field = number
-//        }
-//        get() = field
-
     companion object {
         val DIFF_CALLBACK: DiffUtil.ItemCallback<GalleryFolder> =
             object : DiffUtil.ItemCallback<GalleryFolder>() {
@@ -46,14 +23,14 @@ class FolderListAdapter(
                     oldItem: GalleryFolder,
                     newItem: GalleryFolder
                 ): Boolean {
-                    return oldItem.id == newItem.id
+                    return oldItem == newItem
                 }
 
                 override fun areContentsTheSame(
                     oldItem: GalleryFolder,
                     newItem: GalleryFolder
                 ): Boolean {
-                    return oldItem.images == newItem.images
+                    return oldItem.folderPath == newItem.folderPath
                 }
             }
     }

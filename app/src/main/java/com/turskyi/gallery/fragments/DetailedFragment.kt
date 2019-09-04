@@ -4,9 +4,7 @@ import android.content.ContentUris
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -14,20 +12,12 @@ import com.bumptech.glide.Glide
 import com.turskyi.gallery.R
 import com.turskyi.gallery.interfaces.IOnBackPressed
 import com.turskyi.gallery.models.GalleryPicture
-import kotlinx.android.synthetic.main.fragment_detailed.*
 import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
+import kotlinx.android.synthetic.main.fragment_detailed.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
 
-class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment(), IOnBackPressed {
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(com.turskyi.gallery.R.layout.fragment_detailed, container, false)
-    }
+class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment(R.layout.fragment_detailed), IOnBackPressed {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -71,7 +61,8 @@ class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment(),
     override fun onBackPressed() {
         activity?.bottomNavigationView?.visibility = View.VISIBLE
         //TODO: what is happening when I press on "back press arrow"?
-        // Why does not observer  receive the changes?
+        // Why does not observer  receive the changes
+        // that it was a different layout before it was open?
         // How can I fix this bug?
         fragmentManager?.popBackStack()
     }
