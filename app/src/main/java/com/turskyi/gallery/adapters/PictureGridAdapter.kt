@@ -12,7 +12,6 @@ import com.turskyi.gallery.viewholders.PictureGridViewHolder
 import com.turskyi.gallery.viewholders.PictureListViewHolder
 
 class PictureGridAdapter(
-    private var picturesList: MutableList<GalleryPicture>?,
     private val onPictureClickListener: OnPictureClickListener
 ) : PagedListAdapter<GalleryPicture, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
 
@@ -52,11 +51,11 @@ class PictureGridAdapter(
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedImage.visibility == View.INVISIBLE) {
                     holder.selectedImage.visibility = View.VISIBLE
-                    onPictureClickListener.addOnLongClick(picturesList?.elementAt(position)!!)
+                    onPictureClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedImage.visibility = View.INVISIBLE
                     onPictureClickListener.removeOnLongClick(
-                        picturesList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }
@@ -66,11 +65,11 @@ class PictureGridAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedImage.visibility == View.INVISIBLE) {
                     holder.selectedImage.visibility = View.VISIBLE
-                    onPictureClickListener.addOnLongClick(picturesList?.elementAt(position)!!)
+                    onPictureClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedImage.visibility = View.INVISIBLE
                     onPictureClickListener.removeOnLongClick(
-                        picturesList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }
@@ -82,11 +81,11 @@ class PictureGridAdapter(
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedImage.visibility == View.INVISIBLE) {
                     holder.selectedImage.visibility = View.VISIBLE
-                    onPictureClickListener.addOnLongClick(picturesList?.elementAt(position)!!)
+                    onPictureClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedImage.visibility = View.INVISIBLE
                     onPictureClickListener.removeOnLongClick(
-                        picturesList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }
@@ -96,11 +95,11 @@ class PictureGridAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedImage.visibility == View.INVISIBLE) {
                     holder.selectedImage.visibility = View.VISIBLE
-                    onPictureClickListener.addOnLongClick(picturesList?.elementAt(position)!!)
+                    onPictureClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedImage.visibility = View.INVISIBLE
                     onPictureClickListener.removeOnLongClick(
-                        picturesList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }

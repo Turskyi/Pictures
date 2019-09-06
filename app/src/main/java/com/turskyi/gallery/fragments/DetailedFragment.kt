@@ -17,7 +17,8 @@ import kotlinx.android.synthetic.main.fragment_detailed.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
 
-class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment(R.layout.fragment_detailed), IOnBackPressed {
+class DetailedFragment(private val galleryPicture: GalleryPicture) :
+    Fragment(R.layout.fragment_detailed), IOnBackPressed {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,29 +32,22 @@ class DetailedFragment(private val galleryPicture: GalleryPicture) : Fragment(R.
 
         btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_remove32)
 
-        /* First way to implement the picture on full screen with Glide*/
+        /** Opens the picture in full size*/
         val imagePath = galleryPicture.path
         val file = File(imagePath)
         val uri: Uri = Uri.fromFile(file)
         Glide.with(this).load(uri).into(imageViewEnlarged)
 
-        /* Second way to open picture full screen without Glide */
-//        val aBundle: Bundle? = activity?.intent!!.extras
-//        aBundle?.let {
-//            val aBitmap = BitmapFactory.decodeFile(aBundle.getString(imagePath))
-//            imageViewEnlarged.setImageBitmap(aBitmap)
-//        }
-
-        val id = galleryPicture.id
-
         btnViewChanger.setOnClickListener {
             if (file.exists()) {
+                val id = galleryPicture.id
                 val deleteUri: Uri = ContentUris
                     .withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
                 activity?.contentResolver?.delete(deleteUri, null, null)
                 onBackPressed()
             } else {
-                Toast.makeText(context, getString(R.string.file_is_not_exist), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.picture_does_not_exist), Toast.LENGTH_LONG)
+                    .show()
             }
         }
     }

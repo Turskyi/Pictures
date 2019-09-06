@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +26,7 @@ import com.turskyi.gallery.models.GalleryFolder
 import com.turskyi.gallery.models.GalleryPicture
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewmodels.PicturesInFolderViewModel
+import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 import kotlinx.android.synthetic.main.fragment_pictures.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
@@ -42,13 +44,16 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         picturesInFolderViewModel =
-            ViewModelProvider(this).get(PicturesInFolderViewModel::class.java)
+            ViewModelProvider(activity!!).get(PicturesInFolderViewModel::class.java)
     }
 
     @SuppressLint("WrongThread")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        updateFragment()
+    }
 
+    private fun updateFragment() {
         btnArrowBack.setOnClickListener {
             onBackPressed()
         }
@@ -71,7 +76,7 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
         picturesInFolderViewModel.viewTypes.observe(this, Observer { viewType ->
             when (viewType) {
                 ViewType.DELETE -> {
-                    btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_remove32)
+                    btnViewChanger.setImageResource(R.drawable.ic_remove32)
                 }
                 ViewType.STAGGERED -> {
                     picturesInFolderViewModel.staggeredGridLayoutManager?.spanCount = 2
@@ -79,7 +84,7 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
                 }
                 else -> {
                     picturesInFolderViewModel.staggeredGridLayoutManager?.spanCount = 1
-                    btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_grid)
+                    btnViewChanger.setImageResource(R.drawable.ic_grid)
                 }
             }
         })
@@ -103,17 +108,28 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
         }
 
         staggeredViewAdapter = context?.let {
-            PictureInFolderStaggeredAdapter(it, galleryFolder, this)
+            PictureInFolderStaggeredAdapter(this)
         }!!
         listViewAdapter = context?.let {
-            PictureInFolderListAdapter(it, galleryFolder, this)
+            PictureInFolderListAdapter(this)
         }!!
 
         staggeredViewAdapter.submitList(pagedList)
 
+        checkIfListEmpty(pagedList)
+
         updateLayoutManager()
 
         recyclerView.adapter = staggeredViewAdapter
+    }
+
+    private fun checkIfListEmpty(pagedList: PagedList<GalleryPicture>) {
+        val fragmentActivity: FragmentActivity? = activity
+        if (pagedList.size < 1) {
+            onBackPressed()
+        } else {
+            fragmentActivity?.bottomNavigationView?.visibility = View.VISIBLE
+        }
     }
 
     override fun addOnLongClick(galleryPicture: GalleryPicture) {
@@ -142,20 +158,12 @@ class PicturesInFolderFragment(private val galleryFolder: GalleryFolder?) :
                 } else {
                     Toast.makeText(
                         context,
-                        getString(R.string.file_is_not_exist),
+                        getString(R.string.picture_does_not_exist),
                         Toast.LENGTH_LONG
                     ).show()
                 }
             }
         }
-    }
-
-    private fun updateFragment() {
-        val fragmentManager: FragmentTransaction =
-            (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-        val picturesInFolderFragment = PicturesInFolderFragment(galleryFolder)
-        fragmentManager
-            .replace(R.id.container, picturesInFolderFragment).commit()
     }
 
     private fun updateLayoutManager() {

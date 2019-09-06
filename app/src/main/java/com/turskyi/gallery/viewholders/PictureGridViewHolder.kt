@@ -48,8 +48,8 @@ class PictureGridViewHolder(itemView: View, private val context: Context) :
 //            .override(600, 200) // overriding does not help with optimisation
             .into(itemView.picturePreviewIV)
 
-        // showing photos without glide ( very slow)
-//        previewIV.setImageBitmap(BitmapFactory.decodeFile(galleryPicture.path))
+        // showing photos without glide (very slow)
+// previewIV.setImageBitmap(BitmapFactory.decodeFile(galleryPicture.path))
 
         itemView.picturePreviewIV.setOnClickListener {
             val fragmentManager: FragmentTransaction =

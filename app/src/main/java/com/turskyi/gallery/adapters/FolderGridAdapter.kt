@@ -12,7 +12,6 @@ import com.turskyi.gallery.viewholders.FolderGridViewHolder
 import com.turskyi.gallery.viewholders.FolderListViewHolder
 
 class FolderGridAdapter(
-    private var foldersList: MutableSet<GalleryFolder>?,
     private val onFolderClickListener: OnFolderClickListener
 ) : PagedListAdapter<GalleryFolder, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
 
@@ -21,11 +20,13 @@ class FolderGridAdapter(
     // set(value) {
     // field = value
     // notifyDataSetChanged() }
+//done
 
-    // якщо я заповню масив таким чином то втрачу можливість використати
-    // його конструктор в "FoldersAdapter" і нічого не відобразиться,
-    // а як уникнути цього я не знаю
-//private var foldersList: MutableSet<GalleryFolder>? = null
+    //позбавився функції для заповнення масиву і навіть цей метод не знадобився,
+    // бо я використовую PagedList у фрагменті,
+    // а він підтягує усю необхідну інформацію з PositionalDataSource
+
+    //private var foldersList: MutableSet<GalleryFolder>? = null
 //        get() = field
 //    set(foldersList) {
 //        field = foldersList
@@ -47,14 +48,14 @@ class FolderGridAdapter(
                     oldItem: GalleryFolder,
                     newItem: GalleryFolder
                 ): Boolean {
-                    return oldItem == newItem
+                    return oldItem.folderPath == newItem.folderPath
                 }
 
                 override fun areContentsTheSame(
                     oldItem: GalleryFolder,
                     newItem: GalleryFolder
                 ): Boolean {
-                    return oldItem.folderPath == newItem.folderPath
+                    return oldItem.firstPicturePath == newItem.firstPicturePath
                 }
             }
     }
@@ -76,11 +77,11 @@ class FolderGridAdapter(
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(foldersList?.elementAt(position)!!)
+                    onFolderClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
                     onFolderClickListener.removeOnLongClick(
-                        foldersList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }
@@ -90,11 +91,11 @@ class FolderGridAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(foldersList?.elementAt(position)!!)
+                    onFolderClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
                     onFolderClickListener.removeOnLongClick(
-                        foldersList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }
@@ -103,14 +104,15 @@ class FolderGridAdapter(
             holder.bindView(getItem(position)!!)
         } else if (holder is FolderListViewHolder) {
             /** making "check sign visible and invisible onLongClick */
+//            holder.previewIV.setOnLongClickListener {
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(foldersList?.elementAt(position)!!)
+                    onFolderClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
                     onFolderClickListener.removeOnLongClick(
-                        foldersList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }
@@ -120,11 +122,11 @@ class FolderGridAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(foldersList?.elementAt(position)!!)
+                    onFolderClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
                     onFolderClickListener.removeOnLongClick(
-                        foldersList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }

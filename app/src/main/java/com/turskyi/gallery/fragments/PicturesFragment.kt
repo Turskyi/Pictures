@@ -14,7 +14,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
-import com.turskyi.gallery.HomeActivity
 import com.turskyi.gallery.R
 import com.turskyi.gallery.R.drawable.ic_view_list_white
 import com.turskyi.gallery.adapters.PictureGridAdapter
@@ -35,18 +34,21 @@ import java.util.concurrent.Executors
 class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickListener {
 
     private lateinit var picturesViewModel: PicturesViewModel
-    private lateinit var listViewAdapter: PictureListAdapter
     private lateinit var gridViewAdapter: PictureGridAdapter
+    private lateinit var listViewAdapter: PictureListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        picturesViewModel = ViewModelProvider(this).get(PicturesViewModel::class.java)
+        picturesViewModel = ViewModelProvider(activity!!).get(PicturesViewModel::class.java)
     }
 
     @SuppressLint("WrongThread")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        updateFragment()
+    }
 
+    private fun updateFragment() {
         val dataSource = PicturesPositionalDataSource(activity?.applicationContext!!)
 
         val config: PagedList.Config = PagedList.Config.Builder()
@@ -62,7 +64,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
         picturesViewModel.viewTypes.observe(this, Observer { viewType ->
             when (viewType) {
                 ViewType.DELETE -> {
-                    btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_remove32)
+                    btnViewChanger.setImageResource(R.drawable.ic_remove32)
                 }
                 ViewType.GRID -> {
                     picturesViewModel.gridLayoutManager?.spanCount = 2
@@ -70,7 +72,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
                 }
                 else -> {
                     picturesViewModel.gridLayoutManager?.spanCount = 1
-                    btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_grid)
+                    btnViewChanger.setImageResource(R.drawable.ic_grid)
                 }
             }
         })
@@ -82,6 +84,8 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
                     picturesViewModel.setViewType(ViewType.LINEAR)
                     listViewAdapter.submitList(pagedList)
                     recyclerView.adapter = listViewAdapter
+                    //this method cannot be in "picturesViewModel.viewTypes.observe"
+                    // because then it changes layout after delete
                     gridViewAdapter.changeViewType()
                 }
                 picturesViewModel.viewTypes.value == ViewType.LINEAR -> {
@@ -93,12 +97,12 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
             }
         }
 
-        listViewAdapter = PictureListAdapter(picturesViewModel.listOfPictures, this)
-        gridViewAdapter = PictureGridAdapter(picturesViewModel.listOfPictures, this)
+        gridViewAdapter = PictureGridAdapter(this)
+        listViewAdapter = PictureListAdapter(this)
 
         gridViewAdapter.submitList(pagedList)
 
-        checkIfListEmpty()
+        checkIfListEmpty(pagedList)
 
         /** get number of columns and switch between listView and gridView */
         updateLayoutManager()
@@ -107,11 +111,11 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
         recyclerView.adapter = gridViewAdapter
     }
 
-    private fun checkIfListEmpty() {
+    private fun checkIfListEmpty(pagedList: PagedList<GalleryPicture>) {
         val fragmentActivity: FragmentActivity? = activity
-        if (picturesViewModel.listOfPictures.size == 0) {
+        if (pagedList.size < 1) {
             setUpAnEmptyViewImage(fragmentActivity)
-        } else if (picturesViewModel.listOfPictures.size > 0) {
+        } else {
             fragmentActivity?.bottomNavigationView?.visibility = View.VISIBLE
         }
     }
@@ -152,21 +156,16 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
                     val deleteUri: Uri = ContentUris
                         .withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
                     activity?.contentResolver?.delete(deleteUri, null, null)
-                    updateActivity()
+                    updateFragment()
                 } else {
                     Toast.makeText(
                         context,
-                        getString(R.string.file_is_not_exist),
+                        getString(R.string.picture_does_not_exist),
                         Toast.LENGTH_LONG
                     ).show()
                 }
             }
         }
-    }
-
-    private fun updateActivity() {
-        val newIntent = Intent(context, HomeActivity::class.java)
-        activity?.startActivity(newIntent)
     }
 
     private fun updateLayoutManager() {

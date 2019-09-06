@@ -8,10 +8,8 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
@@ -36,8 +34,8 @@ import java.util.concurrent.Executors
 
 class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
     OnFolderClickListener {
-
     //TODO в активності тільки те, що безпосередньо потрібне для відображення View
+    //done
     //TODO не інформативна назва змінної, чого Enum і як це стосується її функції
     //done
     private lateinit var foldersViewModel: FoldersViewModel
@@ -46,14 +44,20 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        foldersViewModel = ViewModelProvider(this).get(FoldersViewModel::class.java)
+        // I cannot move this method to Home activity, when I tried I failed
+        foldersViewModel = ViewModelProvider(activity!!).get(FoldersViewModel::class.java)
     }
 
     // TODO: fix wrong thread
     @SuppressLint("WrongThread")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // I made a function out of this code here because I have to call it again,
+        // when I delete the folder
+        updateFragment()
+    }
 
+    private fun updateFragment() {
         val dataSource = FoldersPositionalDataSource(activity?.applicationContext!!)
 
         val config: PagedList.Config = PagedList.Config.Builder()
@@ -100,12 +104,12 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
             }
         }
 
-        gridViewAdapter = FolderGridAdapter(foldersViewModel.listOfFolders, this)
-        listViewAdapter = FolderListAdapter(foldersViewModel.listOfFolders, this)
+        gridViewAdapter = FolderGridAdapter(this)
+        listViewAdapter = FolderListAdapter(this)
 
         gridViewAdapter.submitList(pagedList)
 
-        checkIfListEmpty()
+        checkIfListEmpty(pagedList)
 
         /** get number of columns and switch between listView and gridView */
         updateLayoutManager()
@@ -114,20 +118,25 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
         recyclerView.adapter = gridViewAdapter
     }
 
-    private fun checkIfListEmpty() {
+    private fun checkIfListEmpty(pagedList: PagedList<GalleryFolder>) {
         val fragmentActivity: FragmentActivity? = activity
-        if (foldersViewModel.listOfFolders.size == 0) {
+        if (pagedList.size == 0) {
             setUpAnEmptyViewImage(fragmentActivity)
-        } else if (foldersViewModel.listOfFolders.size > 0) {
+        } else {
             fragmentActivity?.bottomNavigationView?.visibility = View.VISIBLE
         }
     }
 
-    private val repository = FilesRepository()
     override fun addOnLongClick(galleryFolder: GalleryFolder) {
+        val repository = FilesRepository()
         foldersViewModel.selectedFolders.add(galleryFolder)
-//        add all images, located in the selected folder to the selected pictures
-        for (i in activity?.applicationContext?.let { repository.getImagesInFolder(it,galleryFolder.folderPath) }!!) {
+//        adds all images, located in the selected folder to the selected pictures
+        for (i in activity?.applicationContext?.let {
+            repository.getSetOfImagesInFolder(
+                it,
+                galleryFolder.folderPath
+            )
+        }!!) {
             foldersViewModel.selectedImages.add(i)
         }
         foldersViewModel.updateLayoutView()
@@ -175,7 +184,7 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
                             } else {
                                 Toast.makeText(
                                     context,
-                                    getString(R.string.file_is_not_exist),
+                                    getString(R.string.picture_does_not_exist),
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
@@ -187,19 +196,12 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
                 } else {
                     Toast.makeText(
                         context,
-                        getString(com.turskyi.gallery.R.string.file_is_not_exist),
+                        getString(com.turskyi.gallery.R.string.folder_does_not_exist),
                         Toast.LENGTH_LONG
                     ).show()
                 }
             }
         }
-    }
-
-    private fun updateFragment() {
-        val fragmentManager: FragmentTransaction =
-            (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-        val foldersFragment = FoldersFragment()
-        fragmentManager.replace(com.turskyi.gallery.R.id.container, foldersFragment).commit()
     }
 
     //TODO: should I combine this method and absolutely the same in the "FoldersFragment" somewhere

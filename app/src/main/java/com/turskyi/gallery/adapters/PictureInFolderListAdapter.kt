@@ -1,22 +1,17 @@
 package com.turskyi.gallery.adapters
 
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.turskyi.gallery.data.FilesRepository
 import com.turskyi.gallery.interfaces.OnPictureClickListener
-import com.turskyi.gallery.models.GalleryFolder
 import com.turskyi.gallery.models.GalleryPicture
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewholders.PictureListViewHolder
 import com.turskyi.gallery.viewholders.PictureStaggeredViewHolder
 
 class PictureInFolderListAdapter(
-    context: Context,
-    galleryFolder: GalleryFolder?,
     private val onPictureClickListener: OnPictureClickListener
 ) : PagedListAdapter<GalleryPicture, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
 
@@ -39,11 +34,6 @@ class PictureInFolderListAdapter(
             }
     }
 
-    private val repository = FilesRepository()
-    private var picturesList: MutableList<GalleryPicture>? = repository.getImagesInFolder(context,
-        galleryFolder?.folderPath
-    )
-
     private var viewType: ViewType = ViewType.LINEAR
 
     /** switch between layouts */
@@ -61,11 +51,11 @@ class PictureInFolderListAdapter(
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedImage.visibility == View.INVISIBLE) {
                     holder.selectedImage.visibility = View.VISIBLE
-                    onPictureClickListener.addOnLongClick(picturesList?.elementAt(position)!!)
+                    onPictureClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedImage.visibility = View.INVISIBLE
                     onPictureClickListener.removeOnLongClick(
-                        picturesList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }
@@ -75,11 +65,11 @@ class PictureInFolderListAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedImage.visibility == View.INVISIBLE) {
                     holder.selectedImage.visibility = View.VISIBLE
-                    onPictureClickListener.addOnLongClick(picturesList?.elementAt(position)!!)
+                    onPictureClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedImage.visibility = View.INVISIBLE
                     onPictureClickListener.removeOnLongClick(
-                        picturesList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }
@@ -91,11 +81,11 @@ class PictureInFolderListAdapter(
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedImage.visibility == View.INVISIBLE) {
                     holder.selectedImage.visibility = View.VISIBLE
-                    onPictureClickListener.addOnLongClick(picturesList?.elementAt(position)!!)
+                    onPictureClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedImage.visibility = View.INVISIBLE
                     onPictureClickListener.removeOnLongClick(
-                        picturesList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }
@@ -105,11 +95,11 @@ class PictureInFolderListAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedImage.visibility == View.INVISIBLE) {
                     holder.selectedImage.visibility = View.VISIBLE
-                    onPictureClickListener.addOnLongClick(picturesList?.elementAt(position)!!)
+                    onPictureClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedImage.visibility = View.INVISIBLE
                     onPictureClickListener.removeOnLongClick(
-                        picturesList?.elementAt(position)!!,
+                        getItem(position)!!,
                         viewType
                     )
                 }

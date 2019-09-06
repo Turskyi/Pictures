@@ -22,6 +22,8 @@
 
     <!-- Subtitle text for the empty view that prompts the user to add an image [CHAR LIMIT=50] -->
     <string name="empty_view_subtitle_text">Get started by adding an image.</string>
+
     <string name="image_with_empty_house">image with empty house</string>
-    <string name="file_is_not_exist">File is not exist</string>
+    <string name="folder_does_not_exist">Folder does not exist</string>
+    <string name="picture_does_not_exist">Picture does not exist</string>
 </resources>
