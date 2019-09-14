@@ -3,36 +3,17 @@ package com.turskyi.gallery.adapters
 import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.turskyi.gallery.interfaces.OnFolderClickListener
-import com.turskyi.gallery.models.GalleryFolder
+import com.turskyi.gallery.data.DiffUtilComparators.FOLDERS_DIFF_CALLBACK
+import com.turskyi.gallery.interfaces.OnFolderLongClickListener
+import com.turskyi.gallery.models.Folder
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewholders.FolderGridViewHolder
 import com.turskyi.gallery.viewholders.FolderListViewHolder
 
 class FolderListAdapter(
-    private val onFolderClickListener: OnFolderClickListener
-) : PagedListAdapter<GalleryFolder, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
-
-    companion object {
-        val DIFF_CALLBACK: DiffUtil.ItemCallback<GalleryFolder> =
-            object : DiffUtil.ItemCallback<GalleryFolder>() {
-                override fun areItemsTheSame(
-                    oldItem: GalleryFolder,
-                    newItem: GalleryFolder
-                ): Boolean {
-                    return oldItem.folderPath == newItem.folderPath
-                }
-
-                override fun areContentsTheSame(
-                    oldItem: GalleryFolder,
-                    newItem: GalleryFolder
-                ): Boolean {
-                    return oldItem.firstPicturePath == newItem.firstPicturePath
-                }
-            }
-    }
+    private val onFolderLongClickListener: OnFolderLongClickListener
+) : PagedListAdapter<Folder, RecyclerView.ViewHolder>(FOLDERS_DIFF_CALLBACK) {
 
     private var viewType: ViewType = ViewType.LINEAR
 
@@ -51,10 +32,10 @@ class FolderListAdapter(
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(getItem(position)!!)
+                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderClickListener.removeOnLongClick(
+                    onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
                     )
@@ -65,10 +46,10 @@ class FolderListAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(getItem(position)!!)
+                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderClickListener.removeOnLongClick(
+                    onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
                     )
@@ -81,10 +62,10 @@ class FolderListAdapter(
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(getItem(position)!!)
+                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderClickListener.removeOnLongClick(
+                    onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
                     )
@@ -95,10 +76,10 @@ class FolderListAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(getItem(position)!!)
+                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderClickListener.removeOnLongClick(
+                    onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
                     )

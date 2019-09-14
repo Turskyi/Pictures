@@ -11,9 +11,9 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.turskyi.gallery.R
-import com.turskyi.gallery.data.Constants
+import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.fragments.DetailedFragment
-import com.turskyi.gallery.models.GalleryPicture
+import com.turskyi.gallery.models.Picture
 import kotlinx.android.synthetic.main.picture_item.view.*
 import java.io.File
 
@@ -39,8 +39,8 @@ class PictureGridViewHolder(itemView: View, private val context: Context) :
     val selectedImage: ImageView =
         itemView.findViewById(R.id.selectedPicture)
 
-    fun bindView(galleryPicture: GalleryPicture) {
-        val file = File(galleryPicture.path)
+    fun bindView(picture: Picture) {
+        val file = File(picture.path)
         itemView.pictureName.text = file.name
         val uri: Uri = Uri.fromFile(file)
         Glide.with(context)
@@ -49,24 +49,24 @@ class PictureGridViewHolder(itemView: View, private val context: Context) :
             .into(itemView.picturePreviewIV)
 
         // showing photos without glide (very slow)
-// previewIV.setImageBitmap(BitmapFactory.decodeFile(galleryPicture.path))
+// previewIV.setImageBitmap(BitmapFactory.decodeFile(picture.path))
 
         itemView.picturePreviewIV.setOnClickListener {
             val fragmentManager: FragmentTransaction =
                 (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-            val detailedFragment = DetailedFragment(galleryPicture)
+            val detailedFragment = DetailedFragment(picture)
             fragmentManager
-                .replace(R.id.container, detailedFragment, Constants.TAG_DETAILED_FRAGMENT)
-                .addToBackStack(Constants.TAG_DETAILED_FRAGMENT).commit()
+                .replace(R.id.container, detailedFragment, GalleryConstants.TAG_DETAILED_FRAGMENT)
+                .addToBackStack(GalleryConstants.TAG_DETAILED_FRAGMENT).commit()
         }
 
         itemView.setOnClickListener {
             val fragmentManager: FragmentTransaction =
                 (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-            val detailedFragment = DetailedFragment(galleryPicture)
+            val detailedFragment = DetailedFragment(picture)
             fragmentManager
-                .replace(R.id.container, detailedFragment, Constants.TAG_DETAILED_FRAGMENT)
-                .addToBackStack(Constants.TAG_DETAILED_FRAGMENT).commit()
+                .replace(R.id.container, detailedFragment, GalleryConstants.TAG_DETAILED_FRAGMENT)
+                .addToBackStack(GalleryConstants.TAG_DETAILED_FRAGMENT).commit()
         }
     }
 }

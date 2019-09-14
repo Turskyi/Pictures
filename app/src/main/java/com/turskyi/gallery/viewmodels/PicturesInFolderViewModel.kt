@@ -4,12 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.turskyi.gallery.models.GalleryPicture
+import com.turskyi.gallery.models.Picture
 import com.turskyi.gallery.models.ViewType
 
 class PicturesInFolderViewModel(application: Application) : AndroidViewModel(application) {
 
-    var selectedPictures: MutableList<GalleryPicture> = mutableListOf()
+    var selectedPictures: MutableList<Picture> = mutableListOf()
     var staggeredGridLayoutManager: StaggeredGridLayoutManager? = null
 
     val viewTypes = MutableLiveData<ViewType>()

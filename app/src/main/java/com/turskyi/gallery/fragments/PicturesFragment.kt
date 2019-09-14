@@ -1,6 +1,5 @@
 package com.turskyi.gallery.fragments
 
-import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Intent
 import android.net.Uri
@@ -14,15 +13,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
+import butterknife.ButterKnife
 import com.turskyi.gallery.R
 import com.turskyi.gallery.R.drawable.ic_view_list_white
 import com.turskyi.gallery.adapters.PictureGridAdapter
 import com.turskyi.gallery.adapters.PictureListAdapter
 import com.turskyi.gallery.controllers.MainThreadExecutor
 import com.turskyi.gallery.controllers.PicturesPositionalDataSource
-import com.turskyi.gallery.data.Constants
-import com.turskyi.gallery.interfaces.OnPictureClickListener
-import com.turskyi.gallery.models.GalleryPicture
+import com.turskyi.gallery.data.GalleryConstants
+import com.turskyi.gallery.interfaces.OnPictureLongClickListener
+import com.turskyi.gallery.models.Picture
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewmodels.PicturesViewModel
 import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
@@ -31,18 +31,17 @@ import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
 import java.util.concurrent.Executors
 
-class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickListener {
+class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClickListener {
 
-    private lateinit var picturesViewModel: PicturesViewModel
     private lateinit var gridViewAdapter: PictureGridAdapter
     private lateinit var listViewAdapter: PictureListAdapter
+    private lateinit var picturesViewModel: PicturesViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         picturesViewModel = ViewModelProvider(activity!!).get(PicturesViewModel::class.java)
     }
 
-    @SuppressLint("WrongThread")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateFragment()
@@ -56,7 +55,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
             .setPageSize(10)
             .build()
 
-        val pagedList: PagedList<GalleryPicture> = PagedList.Builder(dataSource, config)
+        val pagedList: PagedList<Picture> = PagedList.Builder(dataSource, config)
             .setFetchExecutor(Executors.newSingleThreadExecutor())
             .setNotifyExecutor(MainThreadExecutor())
             .build()
@@ -83,7 +82,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
                 picturesViewModel.viewTypes.value == ViewType.GRID -> {
                     picturesViewModel.setViewType(ViewType.LINEAR)
                     listViewAdapter.submitList(pagedList)
-                    recyclerView.adapter = listViewAdapter
+                    picturesRecyclerView.adapter = listViewAdapter
                     //this method cannot be in "picturesViewModel.viewTypes.observe"
                     // because then it changes layout after delete
                     gridViewAdapter.changeViewType()
@@ -91,7 +90,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
                 picturesViewModel.viewTypes.value == ViewType.LINEAR -> {
                     picturesViewModel.setViewType(ViewType.GRID)
                     gridViewAdapter.submitList(pagedList)
-                    recyclerView.adapter = gridViewAdapter
+                    picturesRecyclerView.adapter = gridViewAdapter
                     gridViewAdapter.changeViewType()
                 }
             }
@@ -108,10 +107,10 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
         updateLayoutManager()
 
         /* Without this line nothing going to show up */
-        recyclerView.adapter = gridViewAdapter
+        picturesRecyclerView.adapter = gridViewAdapter
     }
 
-    private fun checkIfListEmpty(pagedList: PagedList<GalleryPicture>) {
+    private fun checkIfListEmpty(pagedList: PagedList<Picture>) {
         val fragmentActivity: FragmentActivity? = activity
         if (pagedList.size < 1) {
             setUpAnEmptyViewImage(fragmentActivity)
@@ -120,14 +119,14 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
         }
     }
 
-    override fun addOnLongClick(galleryPicture: GalleryPicture) {
-        picturesViewModel.selectedPictures.add(galleryPicture)
+    override fun addOnLongClick(picture: Picture) {
+        picturesViewModel.selectedPictures.add(picture)
         picturesViewModel.updateLayoutView()
     }
 
-    override fun removeOnLongClick(galleryPicture: GalleryPicture, viewType: ViewType) {
+    override fun removeOnLongClick(picture: Picture, viewType: ViewType) {
         picturesViewModel.updateLayoutView()
-        picturesViewModel.selectedPictures.remove(galleryPicture)
+        picturesViewModel.selectedPictures.remove(picture)
         if (picturesViewModel.selectedPictures.isEmpty()) {
             picturesViewModel.viewTypes.value = viewType
         }
@@ -141,7 +140,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
     }
 
     private var sendToGoogleImages: View.OnClickListener = View.OnClickListener {
-        val url = Constants.GOOGLE_IMAGES
+        val url = GalleryConstants.GOOGLE_IMAGES
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = Uri.parse(url)
         startActivity(intent)
@@ -172,6 +171,6 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureClickLis
         btnArrowBack.visibility = View.INVISIBLE
         picturesViewModel.gridLayoutManager = GridLayoutManager(context, 2)
         picturesViewModel.viewTypes.value = ViewType.GRID
-        recyclerView.layoutManager = picturesViewModel.gridLayoutManager
+        picturesRecyclerView.layoutManager = picturesViewModel.gridLayoutManager
     }
 }

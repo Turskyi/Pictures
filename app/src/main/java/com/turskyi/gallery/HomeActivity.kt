@@ -8,18 +8,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
+import com.turskyi.gallery.data.GalleryConstants.PERMISSION_EXTERNAL_STORAGE
 import com.turskyi.gallery.fragments.BottomNavigationFragment
-import com.turskyi.gallery.viewmodels.FoldersViewModel
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 
 open class HomeActivity : AppCompatActivity(R.layout.activity_home) {
-
-    //TODO: Should I move this constant to constants class?
-    companion object {
-        private const val PERMISSION_EXTERNAL_STORAGE = 10001
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +24,10 @@ open class HomeActivity : AppCompatActivity(R.layout.activity_home) {
     /** check if we have permission */
     private fun checkPermission() {
         val permissionGranted =
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
         if (permissionGranted != PackageManager.PERMISSION_GRANTED) {
             requestPermission()
         } else {
@@ -47,7 +44,9 @@ open class HomeActivity : AppCompatActivity(R.layout.activity_home) {
             PERMISSION_EXTERNAL_STORAGE -> {
 
                 /** If request is cancelled, the result array is empty. */
-                if ((grantResult.isNotEmpty() && grantResult[0] == PackageManager.PERMISSION_GRANTED)) {
+                if ((grantResult.isNotEmpty()
+                            && grantResult[0] == PackageManager.PERMISSION_GRANTED)
+                ) {
                     getPermissionView.visibility = View.GONE
                     showFragment()
                 } else {

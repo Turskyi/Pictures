@@ -3,62 +3,42 @@ package com.turskyi.gallery.adapters
 import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.turskyi.gallery.interfaces.OnFolderClickListener
-import com.turskyi.gallery.models.GalleryFolder
+import com.turskyi.gallery.data.DiffUtilComparators.FOLDERS_DIFF_CALLBACK
+import com.turskyi.gallery.interfaces.OnFolderLongClickListener
+import com.turskyi.gallery.models.Folder
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewholders.FolderGridViewHolder
 import com.turskyi.gallery.viewholders.FolderListViewHolder
 
 class FolderGridAdapter(
-    private val onFolderClickListener: OnFolderClickListener
-) : PagedListAdapter<GalleryFolder, RecyclerView.ViewHolder>(DIFF_CALLBACK) {
+    private val onFolderLongClickListener: OnFolderLongClickListener
+) : PagedListAdapter<Folder, RecyclerView.ViewHolder>(FOLDERS_DIFF_CALLBACK) {
 
     //TODO в котліні не треба створювати функцію для заповнення масива,
     // під його оголошенням можна написати
     // set(value) {
     // field = value
     // notifyDataSetChanged() }
-//done
 
-    //позбавився функції для заповнення масиву і навіть цей метод не знадобився,
-    // бо я використовую PagedList у фрагменті,
-    // а він підтягує усю необхідну інформацію з PositionalDataSource
-
-    //private var foldersList: MutableSet<GalleryFolder>? = null
-//        get() = field
-//    set(foldersList) {
-//        field = foldersList
-//        notifyDataSetChanged()
-//    }
-
-//example:
+    //example:
 //    private var number = 0
 //        set(number) {
 //            field = number
 //        }
 //        get() = field
 
-    //TODO: How properly can I move this constant to constants class?
-    companion object {
-        val DIFF_CALLBACK: DiffUtil.ItemCallback<GalleryFolder> =
-            object : DiffUtil.ItemCallback<GalleryFolder>() {
-                override fun areItemsTheSame(
-                    oldItem: GalleryFolder,
-                    newItem: GalleryFolder
-                ): Boolean {
-                    return oldItem.folderPath == newItem.folderPath
-                }
+    //private var foldersList: MutableSet<Folder>? = null
+//        get() = field
+//    set(foldersList) {
+//        field = foldersList
+//        notifyDataSetChanged()
+//    }
 
-                override fun areContentsTheSame(
-                    oldItem: GalleryFolder,
-                    newItem: GalleryFolder
-                ): Boolean {
-                    return oldItem.firstPicturePath == newItem.firstPicturePath
-                }
-            }
-    }
+//done
+    //позбавився функції для заповнення масиву і навіть цей метод не знадобився,
+    // бо я використовую PagedList у фрагменті,
+    // а він підтягує усю необхідну інформацію з PositionalDataSource
 
     private var viewType: ViewType = ViewType.GRID
 
@@ -77,10 +57,10 @@ class FolderGridAdapter(
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(getItem(position)!!)
+                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderClickListener.removeOnLongClick(
+                    onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
                     )
@@ -91,10 +71,10 @@ class FolderGridAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(getItem(position)!!)
+                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderClickListener.removeOnLongClick(
+                    onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
                     )
@@ -108,10 +88,10 @@ class FolderGridAdapter(
             holder.previewIV.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(getItem(position)!!)
+                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderClickListener.removeOnLongClick(
+                    onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
                     )
@@ -122,10 +102,10 @@ class FolderGridAdapter(
             holder.itemView.setOnLongClickListener {
                 if (holder.selectedFolder.visibility == View.INVISIBLE) {
                     holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderClickListener.addOnLongClick(getItem(position)!!)
+                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
                     holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderClickListener.removeOnLongClick(
+                    onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
                     )

@@ -3,4 +3,8 @@
     <color name="colorPrimary">#6715F7</color>
     <color name="colorPrimaryDark">#3D128C</color>
     <color name="colorAccent">#D427F1</color>
+    <color name="pickerColorGradientOverlay">#44000000</color>
+    <color name="pickerColorSelectedOverlay">#66ffffff</color>
+    <color name="pickerColorBackground">#ffffffff</color>
+    <color name="pickerColorDarkOverlay">#dd000000</color>
 </resources>

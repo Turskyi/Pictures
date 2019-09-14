@@ -1,6 +1,6 @@
 package com.turskyi.gallery.models
 
-data class GalleryFolder(
+data class Folder(
     val folderPath: String,
     val firstPicturePath: String,
     val name: String

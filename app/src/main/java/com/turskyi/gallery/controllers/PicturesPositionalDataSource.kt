@@ -3,21 +3,21 @@ package com.turskyi.gallery.controllers
 import android.content.Context
 import android.util.Log
 import androidx.paging.PositionalDataSource
-import com.turskyi.gallery.data.Constants
+import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.data.FilesRepository
-import com.turskyi.gallery.models.GalleryPicture
+import com.turskyi.gallery.models.Picture
 
 class PicturesPositionalDataSource(private val context: Context) :
-    PositionalDataSource<GalleryPicture>() {
+    PositionalDataSource<Picture>() {
 
     private val repository = FilesRepository()
 
     override fun loadInitial(
         params: LoadInitialParams,
-        callback: LoadInitialCallback<GalleryPicture>
+        callback: LoadInitialCallback<Picture>
     ) {
         Log.d(
-            Constants.TAG_DATA_SOURCE, "start = ${params.requestedStartPosition}, " +
+            GalleryConstants.TAG_DATA_SOURCE, "start = ${params.requestedStartPosition}, " +
                     "load size =  ${params.requestedLoadSize}"
         )
         val list = repository.getDataOfImageList(
@@ -30,10 +30,10 @@ class PicturesPositionalDataSource(private val context: Context) :
 
     override fun loadRange(
         params: PositionalDataSource.LoadRangeParams,
-        callback: PositionalDataSource.LoadRangeCallback<GalleryPicture>
+        callback: PositionalDataSource.LoadRangeCallback<Picture>
     ) {
         Log.d(
-            Constants.TAG_DATA_SOURCE, "start = ${params.startPosition}," +
+            GalleryConstants.TAG_DATA_SOURCE, "start = ${params.startPosition}," +
                     " load size =  ${params.loadSize}"
         )
         val list = repository.getDataOfImageList(

@@ -20,10 +20,10 @@ import com.turskyi.gallery.adapters.FolderGridAdapter
 import com.turskyi.gallery.adapters.FolderListAdapter
 import com.turskyi.gallery.controllers.FoldersPositionalDataSource
 import com.turskyi.gallery.controllers.MainThreadExecutor
-import com.turskyi.gallery.data.Constants
+import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.data.FilesRepository
-import com.turskyi.gallery.interfaces.OnFolderClickListener
-import com.turskyi.gallery.models.GalleryFolder
+import com.turskyi.gallery.interfaces.OnFolderLongClickListener
+import com.turskyi.gallery.models.Folder
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewmodels.FoldersViewModel
 import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
@@ -33,7 +33,7 @@ import java.io.File
 import java.util.concurrent.Executors
 
 class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
-    OnFolderClickListener {
+    OnFolderLongClickListener {
     //TODO в активності тільки те, що безпосередньо потрібне для відображення View
     //done
     //TODO не інформативна назва змінної, чого Enum і як це стосується її функції
@@ -65,7 +65,7 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
             .setPageSize(10)
             .build()
 
-        val pagedList: PagedList<GalleryFolder> = PagedList.Builder(dataSource, config)
+        val pagedList: PagedList<Folder> = PagedList.Builder(dataSource, config)
             .setFetchExecutor(Executors.newSingleThreadExecutor())
             .setNotifyExecutor(MainThreadExecutor())
             .build()
@@ -92,13 +92,13 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
                 foldersViewModel.viewTypes.value == ViewType.GRID -> {
                     foldersViewModel.setViewType(ViewType.LINEAR)
                     listViewAdapter.submitList(pagedList)
-                    recyclerView.adapter = listViewAdapter
+                    foldersRecyclerView.adapter = listViewAdapter
                     gridViewAdapter.changeViewType()
                 }
                 foldersViewModel.viewTypes.value == ViewType.LINEAR -> {
                     foldersViewModel.setViewType(ViewType.GRID)
                     gridViewAdapter.submitList(pagedList)
-                    recyclerView.adapter = gridViewAdapter
+                    foldersRecyclerView.adapter = gridViewAdapter
                     gridViewAdapter.changeViewType()
                 }
             }
@@ -115,10 +115,10 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
         updateLayoutManager()
 
         /* Without this line nothing gonna shows up */
-        recyclerView.adapter = gridViewAdapter
+        foldersRecyclerView.adapter = gridViewAdapter
     }
 
-    private fun checkIfListEmpty(pagedList: PagedList<GalleryFolder>) {
+    private fun checkIfListEmpty(pagedList: PagedList<Folder>) {
         val fragmentActivity: FragmentActivity? = activity
         if (pagedList.size == 0) {
             setUpAnEmptyViewImage(fragmentActivity)
@@ -127,14 +127,14 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
         }
     }
 
-    override fun addOnLongClick(galleryFolder: GalleryFolder) {
+    override fun addOnLongClick(folder: Folder) {
         val repository = FilesRepository()
-        foldersViewModel.selectedFolders.add(galleryFolder)
+        foldersViewModel.selectedFolders.add(folder)
 //        adds all images, located in the selected folder to the selected pictures
         for (i in activity?.applicationContext?.let {
             repository.getSetOfImagesInFolder(
                 it,
-                galleryFolder.folderPath
+                folder.folderPath
             )
         }!!) {
             foldersViewModel.selectedImages.add(i)
@@ -142,9 +142,9 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
         foldersViewModel.updateLayoutView()
     }
 
-    override fun removeOnLongClick(galleryFolder: GalleryFolder, viewType: ViewType) {
+    override fun removeOnLongClick(folder: Folder, viewType: ViewType) {
         foldersViewModel.updateLayoutView()
-        foldersViewModel.selectedFolders.remove(galleryFolder)
+        foldersViewModel.selectedFolders.remove(folder)
         if (foldersViewModel.selectedFolders.isEmpty()) {
             foldersViewModel.viewTypes.value = viewType
         }
@@ -158,7 +158,7 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
     }
 
     private var sendToGoogleImages: View.OnClickListener = View.OnClickListener {
-        val url = Constants.GOOGLE_IMAGES
+        val url = GalleryConstants.GOOGLE_IMAGES
         val i = Intent(Intent.ACTION_VIEW)
         i.data = Uri.parse(url)
         startActivity(i)
@@ -209,6 +209,6 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
         btnArrowBack.visibility = View.INVISIBLE
         foldersViewModel.gridLayoutManager = GridLayoutManager(context, 2)
         foldersViewModel.viewTypes.value = ViewType.GRID
-        recyclerView.layoutManager = foldersViewModel.gridLayoutManager
+        foldersRecyclerView.layoutManager = foldersViewModel.gridLayoutManager
     }
 }

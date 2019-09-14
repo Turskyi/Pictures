@@ -26,4 +26,16 @@
     <string name="image_with_empty_house">image with empty house</string>
     <string name="folder_does_not_exist">Folder does not exist</string>
     <string name="picture_does_not_exist">Picture does not exist</string>
+    <string name="online">Online</string>
+    <string name="checked">Checked</string>
+    <string name="unsplash">Unsplash</string>
+    <string name="back">Back</string>
+    <string name="done">Done</string>
+    <string name="search">Search free pictures</string>
+    <string name="clear">Clear</string>
+    <string name="no_result">No search results</string>
+    <string name="photo">Photo</string>
+    <string name="photos_selected">%1$d pictures selected</string>
+    <string name="photo_selected">1 photo selected</string>
+    <string name="because_there_is_no_internet">Because there is no internet</string>
 </resources>

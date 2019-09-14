@@ -43,16 +43,16 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     /* Kotlin */
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     /* this is needed to use the updated AppCompatActivity */
-    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
 
     /* These new versions add the ability to pass the layout ID to the constructor
- of the Activity or Fragment base class,
- and it will handle inflation behind-the-scenes. */
-    implementation 'androidx.activity:activity-ktx:1.1.0-alpha02'
-    implementation 'androidx.fragment:fragment-ktx:1.2.0-alpha02'
+     of the Activity or Fragment base class,
+     and it will handle inflation behind-the-scenes. */
+    implementation 'androidx.activity:activity-ktx:1.1.0-alpha03'
+    implementation 'androidx.fragment:fragment-ktx:1.2.0-alpha03'
 
     /* Constraint Layout */
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
@@ -62,26 +62,42 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     /* Material Design */
-    implementation 'com.google.android.material:material:1.1.0-alpha09'
+    implementation 'com.google.android.material:material:1.1.0-alpha10'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    /* RecyclerView */
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
 
-    // ViewModel and LiveData
-    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0-alpha03"
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.0.0"
+    /* ViewModel and LiveData */
+    def lifecycle_version = "2.2.0-alpha04"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
     /* Core */
-    implementation 'androidx.core:core-ktx:1.0.2'
+    implementation 'androidx.core:core-ktx:1.1.0'
 
     /* Room DB */
     implementation "androidx.room:room-runtime:${project.ext.room_db_version}"
     kapt "androidx.room:room-compiler:${project.ext.room_db_version}"
 
     /* Paging */
-    implementation "android.arch.paging:runtime:1.0.1"
+    def paging_version = "2.1.0"
+    implementation "androidx.paging:paging-runtime:$paging_version"
 
     /* Glide (Image caching and management) */
-    def glideVersion = "4.8.0"
+    def glideVersion = "4.9.0"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
-    implementation "com.github.bumptech.glide:glide:4.9.0"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+
+    /* Retrofit */
+    def retrofit_version = "2.6.1"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation 'com.squareup.retrofit2:converter-moshi:2.4.0'
+
+    /* misc */
+    implementation 'com.jakewharton:butterknife:10.0.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }

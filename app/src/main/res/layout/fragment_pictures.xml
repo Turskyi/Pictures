@@ -7,14 +7,14 @@
         android:id="@+id/titleConstraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragments.FoldersFragment">
+        tools:context=".fragments.PicturesFragment">
 
     <include
             android:id="@+id/toolbar"
             layout="@layout/toolbar" />
 
     <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+            android:id="@+id/picturesRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
@@ -38,7 +38,7 @@
             app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
-                android:id="@+id/empty_image"
+                android:id="@+id/emptyImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
@@ -49,10 +49,10 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-                android:id="@+id/empty_title_text"
+                android:id="@+id/emptyTitleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/empty_image"
+                android:layout_alignBottom="@+id/emptyImage"
                 android:layout_centerHorizontal="true"
                 android:fontFamily="sans-serif-medium"
                 android:paddingTop="16dp"
@@ -60,14 +60,14 @@
                 android:textAppearance="?android:textAppearanceMedium"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/empty_image"
-                app:layout_constraintBottom_toTopOf="@id/empty_subtitle_text"/>
+                app:layout_constraintTop_toBottomOf="@id/emptyImage"
+                app:layout_constraintBottom_toTopOf="@id/emptySubtitleText"/>
 
         <TextView
-                android:id="@+id/empty_subtitle_text"
+                android:id="@+id/emptySubtitleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/empty_title_text"
+                android:layout_below="@+id/emptyTitleText"
                 android:layout_centerHorizontal="true"
                 android:fontFamily="sans-serif"
                 android:paddingTop="8dp"
@@ -76,7 +76,7 @@
                 android:textColor="#A2AAB0"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/empty_title_text"
+                app:layout_constraintTop_toBottomOf="@id/emptyTitleText"
                 app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

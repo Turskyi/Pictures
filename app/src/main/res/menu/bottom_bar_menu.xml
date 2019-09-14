@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- I use this xml file for the bottomNavigationView
-     in HomeFragment and in fragment_home -->
+     in BottomNavigationFragment and in fragment_home -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
             android:id="@+id/picturesMenu"
@@ -12,4 +12,9 @@
             android:id="@+id/foldersMenu"
             android:icon="@drawable/ic_folder"
             android:title="@string/folders" />
+
+    <item
+            android:id="@+id/onlineMenu"
+            android:icon="@drawable/white_globe_32"
+            android:title="@string/online" />
 </menu>

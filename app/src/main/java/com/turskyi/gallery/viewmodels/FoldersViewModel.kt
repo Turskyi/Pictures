@@ -4,15 +4,15 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.GridLayoutManager
-import com.turskyi.gallery.models.GalleryFolder
-import com.turskyi.gallery.models.GalleryPicture
+import com.turskyi.gallery.models.Folder
+import com.turskyi.gallery.models.Picture
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.models.ViewType.LINEAR
 
 class FoldersViewModel(application: Application) : AndroidViewModel(application) {
 
-    var selectedFolders: MutableList<GalleryFolder> = mutableListOf()
-    var selectedImages: MutableList<GalleryPicture> = mutableListOf()
+    var selectedFolders: MutableList<Folder> = mutableListOf()
+    var selectedImages: MutableList<Picture> = mutableListOf()
     var gridLayoutManager: GridLayoutManager? = null
 //
 //    private val repository = FilesRepository()
@@ -39,13 +39,13 @@ class FoldersViewModel(application: Application) : AndroidViewModel(application)
     }
 
 //    @SuppressLint("StaticFieldLeak")
-//    inner class LoadData(private val application: Application) : AsyncTask<Unit, Unit, MutableSet<GalleryFolder>>() {
+//    inner class LoadData(private val application: Application) : AsyncTask<Unit, Unit, MutableSet<Folder>>() {
 //
-//        override fun doInBackground(vararg p0: Unit?): MutableSet<GalleryFolder>? {
+//        override fun doInBackground(vararg p0: Unit?): MutableSet<Folder>? {
 //            return repository.getGalleryFolders(application)
 //        }
 //
-//        override fun onPostExecute(result: MutableSet<GalleryFolder>?) {
+//        override fun onPostExecute(result: MutableSet<Folder>?) {
 //            super.onPostExecute(result)
 //            listOfFolders.value = result
 //        }

@@ -11,9 +11,9 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.turskyi.gallery.R
-import com.turskyi.gallery.data.Constants
+import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.fragments.PicturesInFolderFragment
-import com.turskyi.gallery.models.GalleryFolder
+import com.turskyi.gallery.models.Folder
 import kotlinx.android.synthetic.main.folder_list_item.view.*
 import java.io.File
 
@@ -34,29 +34,31 @@ class FolderListViewHolder(itemView: View, private val context: Context) :
     val selectedFolder: ImageView =
         itemView.findViewById(com.turskyi.gallery.R.id.selectedFolder)
 
-    fun bindView(galleryFolder: GalleryFolder) {
+    fun bindView(folder: Folder) {
         /** Makes the cover of a folder with a picture */
-        val file = File(galleryFolder.firstPicturePath)
-        itemView.folderName.text = galleryFolder.name
+        val file = File(folder.firstPicturePath)
+        itemView.folderName.text = folder.name
         val uri: Uri = Uri.fromFile(file)
         Glide.with(context).load(uri).into(itemView.folderPreviewIV)
 
         itemView.folderPreviewIV.setOnClickListener {
             val fragmentManager: FragmentTransaction =
                 (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-            val picturesInFolderFragment = PicturesInFolderFragment(galleryFolder)
+            val picturesInFolderFragment =
+                PicturesInFolderFragment(folder)
             fragmentManager
-                .replace(R.id.container, picturesInFolderFragment, Constants.TAG_PICS_IN_FOLDER)
-                .addToBackStack(Constants.TAG_PICS_IN_FOLDER).commit()
+                .replace(R.id.container, picturesInFolderFragment, GalleryConstants.TAG_PICS_IN_FOLDER)
+                .addToBackStack(GalleryConstants.TAG_PICS_IN_FOLDER).commit()
         }
 
         itemView.setOnClickListener {
             val fragmentManager: FragmentTransaction =
                 (context as AppCompatActivity).supportFragmentManager.beginTransaction()
-            val picturesInFolderFragment = PicturesInFolderFragment(galleryFolder)
+            val picturesInFolderFragment =
+                PicturesInFolderFragment(folder)
             fragmentManager
-                .replace(R.id.container, picturesInFolderFragment, Constants.TAG_PICS_IN_FOLDER)
-                .addToBackStack(Constants.TAG_PICS_IN_FOLDER).commit()
+                .replace(R.id.container, picturesInFolderFragment, GalleryConstants.TAG_PICS_IN_FOLDER)
+                .addToBackStack(GalleryConstants.TAG_PICS_IN_FOLDER).commit()
         }
     }
 }

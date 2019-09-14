@@ -1,34 +1,39 @@
 package com.turskyi.gallery.data
 
 import android.content.Context
+import android.os.Build
 import android.provider.MediaStore
 import android.provider.MediaStore.Images
 import android.provider.MediaStore.Images.Media.DATA
-import com.turskyi.gallery.models.GalleryFolder
-import com.turskyi.gallery.models.GalleryPicture
+import com.turskyi.gallery.models.Folder
+import com.turskyi.gallery.models.Picture
 
 class FilesRepository {
 
-    fun getDataOfImageList(from: Int, to: Int, context: Context): List<GalleryPicture> {
+    fun getDataOfImageList(from: Int, to: Int, context: Context): List<Picture> {
         /** Create a list of urls pictures */
-        val listOfImages = mutableListOf<GalleryPicture>()
+        val listOfImages = mutableListOf<Picture>()
 
         /** Get all columns of type images */
         // TODO: How to get rid of deprecated "DATA" string?
+        //    this method does not help ->
+        //    val pFileDescriptor = context.contentResolver.openFileDescriptor(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "r")
         val columns = arrayOf(DATA, Images.Media._ID)
 
         /** order data by date */
-        //TODO: How correctly to get rid of the following warning in "DATE_TAKEN"?
-        val orderBy = Images.Media.DATE_TAKEN
+        val orderBy =
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                Images.Media.DATE_TAKEN
+            } else {
+                Images.Media._ID
+            }
 
         /** This cursor will hold the result of the query
         and put all data in Cursor by sorting in descending order */
-        //TODO: How correctly to get rid of the following warning in "query"?
         val cursor = context.contentResolver.query(
             Images.Media.EXTERNAL_CONTENT_URI,
             columns, null, null, "$orderBy DESC"
         )
-
         cursor?.let {
             for (i in from until to + from) {
                 if (it.moveToNext() && i < it.columnCount - 1) {
@@ -36,18 +41,19 @@ class FilesRepository {
                         val dataColumnIndex = it.getColumnIndex(DATA)
                         val id =
                             it.getLong(it.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
-                        val galleryPicture = GalleryPicture(it.getString(dataColumnIndex), id)
+                        val galleryPicture = Picture(it.getString(dataColumnIndex), id)
                         listOfImages.add(galleryPicture)
                     } while (it.moveToNext())
                 }
             }
-            it.close()
         }
+        cursor?.close()
         return listOfImages
     }
 
-    fun getDataOfFolderList(from: Int, to: Int, context: Context): List<GalleryFolder> {
-        val listOfFolders = mutableListOf<GalleryFolder>()
+
+    fun getDataOfFolderList(from: Int, to: Int, context: Context): List<Folder> {
+        val listOfFolders = mutableListOf<Folder>()
         val setOfFolders = getSetOfFolders(context)
         for (i in from until to + from) {
             if (i < setOfFolders.size) {
@@ -57,17 +63,21 @@ class FilesRepository {
         return listOfFolders
     }
 
-    private fun getSetOfFolders(context: Context): MutableSet<GalleryFolder> {
-
+    private fun getSetOfFolders(context: Context): MutableSet<Folder> {
         val columns = arrayOf(DATA, Images.Media._ID)
 
         /** My set of folders */
-        val galleryFolderUrls: MutableSet<GalleryFolder> = mutableSetOf()
+        val folderUrls: MutableSet<Folder> = mutableSetOf()
 
         val galleryFolderPaths: MutableSet<String> = mutableSetOf()
 
         /** order data by date */
-        val orderBy = Images.Media.DATE_TAKEN
+        val orderBy =
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                Images.Media.DATE_TAKEN
+            } else {
+                Images.Media.DATE_ADDED
+            }
 
         /** This cursor will hold the result of the query
          * and get all data in Cursor by sorting in descending order */
@@ -75,7 +85,6 @@ class FilesRepository {
             Images.Media.EXTERNAL_CONTENT_URI,
             columns, null, null, "$orderBy DESC"
         )
-
         cursor?.let {
             //TODO: Why "moveToFirst" and not "moveToNext()"?
             if (it.moveToFirst()) {
@@ -92,13 +101,13 @@ class FilesRepository {
 
                     galleryFolderPaths.add(folderPath)
 
-                    val galleryFolder = GalleryFolder(folderPath, pictureInFolderPath, folderName)
-                    galleryFolderUrls.add(galleryFolder)
+                    val galleryFolder = Folder(folderPath, pictureInFolderPath, folderName)
+                    folderUrls.add(galleryFolder)
                 } while (it.moveToNext())
-                it.close()
             }
         }
-        return galleryFolderUrls
+        cursor?.close()
+        return folderUrls
     }
 
     private fun getFolderPath(pathArrayOfStrings: List<String>): String {
@@ -115,18 +124,20 @@ class FilesRepository {
     fun getSetOfImagesInFolder(
         context: Context,
         folderPath: String?
-    ): MutableSet<GalleryPicture> {
-
+    ): MutableSet<Picture> {
         val columns = arrayOf(
             DATA,
             Images.Media._ID
         )
-
-        val images = mutableSetOf<GalleryPicture>()
+        val images = mutableSetOf<Picture>()
 
         /** order data by date */
-        val orderBy = Images.Media.DATE_TAKEN
-
+        val orderBy =
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                Images.Media.DATE_TAKEN
+            } else {
+                Images.Media.DEFAULT_SORT_ORDER
+            }
         /** This cursor will hold the result of the query
          * and get all data in Cursor by sorting in descending order */
         val cursor = context.contentResolver.query(
@@ -136,7 +147,6 @@ class FilesRepository {
             null,
             "$orderBy DESC"
         )
-
         cursor?.let {
             if (it.moveToFirst()) {
                 do {
@@ -149,26 +159,25 @@ class FilesRepository {
 
                     /** collecting images in particular folder */
                     if (currentFolderPath == folderPath) {
-                        val galleryPicture = GalleryPicture(picturePath, id)
+                        val galleryPicture = Picture(picturePath, id)
                         /** zeroing a folder and add an element of the list */
                         images.add(galleryPicture)
                     }
                 } while (it.moveToNext())
-                it.close()
             }
         }
+        cursor?.close()
         return images
     }
-
 
     fun getDataOfImagesInFolderList(
         from: Int,
         to: Int,
         context: Context,
         folderPath: String?
-    ): List<GalleryPicture> {
+    ): List<Picture> {
         /** Create a list of urls pictures */
-        val listOfImages = mutableListOf<GalleryPicture>()
+        val listOfImages = mutableListOf<Picture>()
         val setOfImages = getSetOfImagesInFolder(context, folderPath)
         for (i in from until to + from) {
             if (i < setOfImages.size) {
