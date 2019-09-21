@@ -1,7 +1,6 @@
 package com.turskyi.gallery.viewholders
 
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.turskyi.gallery.R
 import com.turskyi.gallery.data.GalleryConstants
-import com.turskyi.gallery.models.OnlinePictureRepo
 import com.turskyi.gallery.fragments.OnlineDetailedFragment
+import com.turskyi.gallery.models.OnlinePictureRepo
 import kotlinx.android.synthetic.main.picture_list_item.view.*
 
 /**

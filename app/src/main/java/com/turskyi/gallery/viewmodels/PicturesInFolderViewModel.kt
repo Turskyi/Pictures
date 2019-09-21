@@ -3,16 +3,33 @@ package com.turskyi.gallery.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.turskyi.gallery.models.Picture
 import com.turskyi.gallery.models.ViewType
 
 class PicturesInFolderViewModel(application: Application) : AndroidViewModel(application) {
 
     var selectedPictures: MutableList<Picture> = mutableListOf()
-    var staggeredGridLayoutManager: StaggeredGridLayoutManager? = null
-
     val viewTypes = MutableLiveData<ViewType>()
+
+//    private val repository = FilesRepository()
+//    private val listOfFolders = repository.getSetOfFolders(application)
+//    var pagedList: PagedList<Picture>
+//
+//    init {
+//     val dataSource = PicturesInFolderPositionalDataSource(
+//            application, /* ??? */
+//        )
+//
+//        val config: PagedList.Config = PagedList.Config.Builder()
+//            .setEnablePlaceholders(false)
+//            .setPageSize(10)
+//            .build()
+//
+//        pagedList = PagedList.Builder(dataSource, config)
+//            .setFetchExecutor(Executors.newSingleThreadExecutor())
+//            .setNotifyExecutor(MainThreadExecutor())
+//            .build()
+//    }
 
     fun changeLayoutView() {
         when {
@@ -22,7 +39,7 @@ class PicturesInFolderViewModel(application: Application) : AndroidViewModel(app
         }
     }
 
-    fun setViewType(viewType: ViewType){
+    fun setViewType(viewType: ViewType) {
         viewTypes.value = viewType
     }
 }

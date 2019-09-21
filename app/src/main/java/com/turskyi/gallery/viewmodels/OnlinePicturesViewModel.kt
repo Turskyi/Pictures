@@ -6,9 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import androidx.recyclerview.widget.GridLayoutManager
-import com.turskyi.gallery.controllers.domain.OnlineDataSourceFactory
-import com.turskyi.gallery.controllers.domain.OnlinePicturesDataSource
+import com.turskyi.gallery.dataSources.OnlineDataSourceFactory
+import com.turskyi.gallery.dataSources.OnlinePicturesDataSource
 import com.turskyi.gallery.models.OnlinePictureRepo
 import com.turskyi.gallery.models.ViewType
 import java.util.concurrent.Executor
@@ -20,6 +19,8 @@ class OnlinePicturesViewModel(application: Application) : AndroidViewModel(appli
     private var dataSourceMutableLiveData: MutableLiveData<OnlinePicturesDataSource>
     var executor: Executor
     var pagedListLiveData: LiveData<PagedList<OnlinePictureRepo>>
+    var selectedPictureRepos: MutableList<OnlinePictureRepo> = mutableListOf()
+    val viewTypes = MutableLiveData<ViewType?>()
 
     init {
         dataSourceMutableLiveData = onlineDataSourceFactory.sourceLiveData
@@ -35,10 +36,6 @@ class OnlinePicturesViewModel(application: Application) : AndroidViewModel(appli
                 .setFetchExecutor(executor)
                 .build()
     }
-
-    var selectedPictureRepos: MutableList<OnlinePictureRepo> = mutableListOf()
-    var gridLayoutManager: GridLayoutManager? = null
-    val viewTypes = MutableLiveData<ViewType?>()
 
     //TODO: Add "share" function
     fun updateLayoutView() {

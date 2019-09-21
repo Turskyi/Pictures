@@ -1,4 +1,4 @@
-package com.turskyi.gallery.controllers.domain
+package com.turskyi.gallery.dataSources
 
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource

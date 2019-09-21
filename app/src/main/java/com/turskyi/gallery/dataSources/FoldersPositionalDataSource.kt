@@ -1,4 +1,4 @@
-package com.turskyi.gallery.controllers
+package com.turskyi.gallery.dataSources
 
 import android.content.Context
 import android.util.Log

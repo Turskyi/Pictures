@@ -3,28 +3,36 @@ package com.turskyi.gallery.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.paging.PagedList
+import com.turskyi.gallery.dataSources.FoldersPositionalDataSource
+import com.turskyi.gallery.utils.MainThreadExecutor
 import com.turskyi.gallery.models.Folder
 import com.turskyi.gallery.models.Picture
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.models.ViewType.LINEAR
+import java.util.concurrent.Executors
 
 class FoldersViewModel(application: Application) : AndroidViewModel(application) {
 
     var selectedFolders: MutableList<Folder> = mutableListOf()
     var selectedImages: MutableList<Picture> = mutableListOf()
-    var gridLayoutManager: GridLayoutManager? = null
-//
-//    private val repository = FilesRepository()
-
-//    val listOfFolders = repository.getGalleryFolders(application)
-//
     val viewTypes = MutableLiveData<ViewType>()
-//
-//
-//    init {
-//        LoadData(application).execute()
-//    }
+    var pagedList: PagedList<Folder>
+
+    init {
+        val dataSource =
+            FoldersPositionalDataSource(application)
+
+        val config: PagedList.Config = PagedList.Config.Builder()
+            .setEnablePlaceholders(false)
+            .setPageSize(10)
+            .build()
+
+        pagedList = PagedList.Builder(dataSource, config)
+            .setFetchExecutor(Executors.newSingleThreadExecutor())
+            .setNotifyExecutor(MainThreadExecutor())
+            .build()
+    }
 
     fun updateLayoutView() {
         when {
@@ -38,6 +46,14 @@ class FoldersViewModel(application: Application) : AndroidViewModel(application)
         viewTypes.value = viewType
     }
 
+    /* I would use the following method if I did not use the pagedList */
+    //    private val repository = FilesRepository()
+//    val listOfFolders = repository.getGalleryFolders(application)
+
+//    init {
+//        LoadData(application).execute()
+//    }
+
 //    @SuppressLint("StaticFieldLeak")
 //    inner class LoadData(private val application: Application) : AsyncTask<Unit, Unit, MutableSet<Folder>>() {
 //
@@ -49,6 +65,5 @@ class FoldersViewModel(application: Application) : AndroidViewModel(application)
 //            super.onPostExecute(result)
 //            listOfFolders.value = result
 //        }
-//
 //    }
 }

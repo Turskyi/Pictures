@@ -1,6 +1,5 @@
 package com.turskyi.gallery.fragments
 
-import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Intent
 import android.net.Uri
@@ -18,10 +17,8 @@ import com.turskyi.gallery.R
 import com.turskyi.gallery.R.drawable.ic_view_list_white
 import com.turskyi.gallery.adapters.FolderGridAdapter
 import com.turskyi.gallery.adapters.FolderListAdapter
-import com.turskyi.gallery.controllers.FoldersPositionalDataSource
-import com.turskyi.gallery.controllers.MainThreadExecutor
-import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.data.FilesRepository
+import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.interfaces.OnFolderLongClickListener
 import com.turskyi.gallery.models.Folder
 import com.turskyi.gallery.models.ViewType
@@ -30,7 +27,6 @@ import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 import kotlinx.android.synthetic.main.fragment_folders.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
-import java.util.concurrent.Executors
 
 class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
     OnFolderLongClickListener {
@@ -41,6 +37,7 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
     private lateinit var foldersViewModel: FoldersViewModel
     private lateinit var gridViewAdapter: FolderGridAdapter
     private lateinit var listViewAdapter: FolderListAdapter
+    private var gridLayoutManager: GridLayoutManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +45,6 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
         foldersViewModel = ViewModelProvider(activity!!).get(FoldersViewModel::class.java)
     }
 
-    // TODO: fix wrong thread
-    @SuppressLint("WrongThread")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // I made a function out of this code here because I have to call it again,
@@ -58,17 +53,6 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
     }
 
     private fun updateFragment() {
-        val dataSource = FoldersPositionalDataSource(activity?.applicationContext!!)
-
-        val config: PagedList.Config = PagedList.Config.Builder()
-            .setEnablePlaceholders(false)
-            .setPageSize(10)
-            .build()
-
-        val pagedList: PagedList<Folder> = PagedList.Builder(dataSource, config)
-            .setFetchExecutor(Executors.newSingleThreadExecutor())
-            .setNotifyExecutor(MainThreadExecutor())
-            .build()
 
         foldersViewModel.viewTypes.observe(this, Observer { viewType ->
             when (viewType) {
@@ -76,11 +60,11 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
                     btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_remove32)
                 }
                 ViewType.GRID -> {
-                    foldersViewModel.gridLayoutManager?.spanCount = 2
+                 gridLayoutManager?.spanCount = 2
                     btnViewChanger.setImageResource(ic_view_list_white)
                 }
                 else -> {
-                    foldersViewModel.gridLayoutManager?.spanCount = 1
+       gridLayoutManager?.spanCount = 1
                     btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_grid)
                 }
             }
@@ -91,13 +75,13 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
                 foldersViewModel.selectedFolders.size > 0 -> deleteAllSelected()
                 foldersViewModel.viewTypes.value == ViewType.GRID -> {
                     foldersViewModel.setViewType(ViewType.LINEAR)
-                    listViewAdapter.submitList(pagedList)
+                    listViewAdapter.submitList(foldersViewModel.pagedList)
                     foldersRecyclerView.adapter = listViewAdapter
                     gridViewAdapter.changeViewType()
                 }
                 foldersViewModel.viewTypes.value == ViewType.LINEAR -> {
                     foldersViewModel.setViewType(ViewType.GRID)
-                    gridViewAdapter.submitList(pagedList)
+                    gridViewAdapter.submitList(foldersViewModel.pagedList)
                     foldersRecyclerView.adapter = gridViewAdapter
                     gridViewAdapter.changeViewType()
                 }
@@ -107,9 +91,9 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
         gridViewAdapter = FolderGridAdapter(this)
         listViewAdapter = FolderListAdapter(this)
 
-        gridViewAdapter.submitList(pagedList)
+        gridViewAdapter.submitList(foldersViewModel.pagedList)
 
-        checkIfListEmpty(pagedList)
+        checkIfListEmpty(foldersViewModel.pagedList)
 
         /** get number of columns and switch between listView and gridView */
         updateLayoutManager()
@@ -130,7 +114,7 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
     override fun addOnLongClick(folder: Folder) {
         val repository = FilesRepository()
         foldersViewModel.selectedFolders.add(folder)
-//        adds all images, located in the selected folder to the selected pictures
+/* adds all images, located in the selected folder to the selected pictures list */
         for (i in activity?.applicationContext?.let {
             repository.getSetOfImagesInFolder(
                 it,
@@ -207,8 +191,8 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
     //TODO: should I combine this method and absolutely the same in the "FoldersFragment" somewhere
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.INVISIBLE
-        foldersViewModel.gridLayoutManager = GridLayoutManager(context, 2)
+gridLayoutManager = GridLayoutManager(context, 2)
         foldersViewModel.viewTypes.value = ViewType.GRID
-        foldersRecyclerView.layoutManager = foldersViewModel.gridLayoutManager
+        foldersRecyclerView.layoutManager = gridLayoutManager
     }
 }

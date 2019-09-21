@@ -3,15 +3,33 @@ package com.turskyi.gallery.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.paging.PagedList
+import com.turskyi.gallery.utils.MainThreadExecutor
+import com.turskyi.gallery.dataSources.PicturesPositionalDataSource
 import com.turskyi.gallery.models.Picture
 import com.turskyi.gallery.models.ViewType
+import java.util.concurrent.Executors
 
 class PicturesViewModel(application: Application) : AndroidViewModel(application) {
 
     var selectedPictures: MutableList<Picture> = mutableListOf()
-    var gridLayoutManager: GridLayoutManager? = null
     val viewTypes = MutableLiveData<ViewType?>()
+    var pagedList: PagedList<Picture>
+
+    init {
+        val dataSource =
+            PicturesPositionalDataSource(application)
+
+        val config: PagedList.Config = PagedList.Config.Builder()
+            .setEnablePlaceholders(false)
+            .setPageSize(10)
+            .build()
+
+        pagedList = PagedList.Builder(dataSource, config)
+            .setFetchExecutor(Executors.newSingleThreadExecutor())
+            .setNotifyExecutor(MainThreadExecutor())
+            .build()
+    }
 
     fun updateLayoutView() {
         when {

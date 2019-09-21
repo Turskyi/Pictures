@@ -1,10 +1,5 @@
 package com.turskyi.gallery.data
 
-import androidx.recyclerview.widget.DiffUtil
-import com.turskyi.gallery.models.Folder
-import com.turskyi.gallery.models.OnlinePictureRepo
-import com.turskyi.gallery.models.Picture
-
 /**
  * API GalleryConstants for the Gallery app.
  */

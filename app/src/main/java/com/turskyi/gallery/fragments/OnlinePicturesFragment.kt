@@ -7,7 +7,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
-import butterknife.ButterKnife
 import com.turskyi.gallery.R.drawable.ic_view_list_white
 import com.turskyi.gallery.adapters.OnlineGridAdapter
 import com.turskyi.gallery.adapters.OnlineListAdapter
@@ -24,10 +23,10 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
     private lateinit var gridViewAdapter: OnlineGridAdapter
     private lateinit var listViewAdapter: OnlineListAdapter
     private lateinit var onlinePicturesViewModel: OnlinePicturesViewModel
+    private var gridLayoutManager: GridLayoutManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ButterKnife.bind(activity!!)
         onlinePicturesViewModel =
             ViewModelProvider(activity!!).get(OnlinePicturesViewModel::class.java)
     }
@@ -43,11 +42,11 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
             Observer { viewType ->
                 when (viewType) {
                     ViewType.GRID -> {
-                        onlinePicturesViewModel.gridLayoutManager?.spanCount = 2
+                        gridLayoutManager?.spanCount = 2
                         btnViewChanger.setImageResource(ic_view_list_white)
                     }
                     else -> {
-                        onlinePicturesViewModel.gridLayoutManager?.spanCount = 1
+                        gridLayoutManager?.spanCount = 1
                         btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_grid)
                     }
                 }
@@ -113,8 +112,8 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
 
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.INVISIBLE
-        onlinePicturesViewModel.gridLayoutManager = GridLayoutManager(context, 2)
+        gridLayoutManager = GridLayoutManager(context, 2)
         onlinePicturesViewModel.viewTypes.value = ViewType.GRID
-        onlineRecyclerView.layoutManager = onlinePicturesViewModel.gridLayoutManager
+        onlineRecyclerView.layoutManager = gridLayoutManager
     }
 }

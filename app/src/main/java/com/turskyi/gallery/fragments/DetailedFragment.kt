@@ -56,10 +56,8 @@ class DetailedFragment(private val picture: Picture) :
 
     override fun onBackPressed() {
         activity?.bottomNavigationView?.visibility = View.VISIBLE
-        //TODO: what is happening when I press on "back press arrow"?
-        // Why does not observer  receive the changes
-        // that it was a different layout before it was open?
-        // How can I fix this bug?
+        //TODO: make the ability to remember the changes which happened
+        // before changes of the fragment
         fragmentManager?.popBackStack()
     }
 }

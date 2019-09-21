@@ -1,6 +1,5 @@
 package com.turskyi.gallery.fragments
 
-import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.net.Uri
 import android.os.Bundle
@@ -16,16 +15,15 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.turskyi.gallery.R
 import com.turskyi.gallery.adapters.PictureInFolderListAdapter
 import com.turskyi.gallery.adapters.PictureInFolderStaggeredAdapter
-import com.turskyi.gallery.controllers.MainThreadExecutor
-import com.turskyi.gallery.controllers.PicturesInFolderPositionalDataSource
+import com.turskyi.gallery.dataSources.PicturesInFolderPositionalDataSource
 import com.turskyi.gallery.interfaces.IOnBackPressed
 import com.turskyi.gallery.interfaces.OnPictureLongClickListener
 import com.turskyi.gallery.models.Folder
 import com.turskyi.gallery.models.Picture
 import com.turskyi.gallery.models.ViewType
+import com.turskyi.gallery.utils.MainThreadExecutor
 import com.turskyi.gallery.viewmodels.PicturesInFolderViewModel
 import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
-import kotlinx.android.synthetic.main.fragment_online_pictures.*
 import kotlinx.android.synthetic.main.fragment_pictures.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
@@ -39,6 +37,7 @@ class PicturesInFolderFragment(private val folder: Folder?) :
     private lateinit var picturesInFolderViewModel: PicturesInFolderViewModel
     private lateinit var staggeredViewAdapter: PictureInFolderStaggeredAdapter
     private lateinit var listViewAdapter: PictureInFolderListAdapter
+    private var staggeredGridLayoutManager: StaggeredGridLayoutManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +45,6 @@ class PicturesInFolderFragment(private val folder: Folder?) :
             ViewModelProvider(activity!!).get(PicturesInFolderViewModel::class.java)
     }
 
-    @SuppressLint("WrongThread")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateFragment()
@@ -57,10 +55,13 @@ class PicturesInFolderFragment(private val folder: Folder?) :
             onBackPressed()
         }
 
-        val dataSource = PicturesInFolderPositionalDataSource(
-            activity?.applicationContext!!,
-            folder?.folderPath!!
-        )
+      //TODO: How to move "dataSource to viewModel" because I cannot get folderPath there.
+
+        val dataSource =
+            PicturesInFolderPositionalDataSource(
+                activity?.applicationContext!!,
+                folder?.folderPath!!
+            )
 
         val config: PagedList.Config = PagedList.Config.Builder()
             .setEnablePlaceholders(false)
@@ -78,11 +79,11 @@ class PicturesInFolderFragment(private val folder: Folder?) :
                     btnViewChanger.setImageResource(R.drawable.ic_remove32)
                 }
                 ViewType.STAGGERED -> {
-                    picturesInFolderViewModel.staggeredGridLayoutManager?.spanCount = 2
+        staggeredGridLayoutManager?.spanCount = 2
                     btnViewChanger.setImageResource(R.drawable.ic_view_list_white)
                 }
                 else -> {
-                    picturesInFolderViewModel.staggeredGridLayoutManager?.spanCount = 1
+            staggeredGridLayoutManager?.spanCount = 1
                     btnViewChanger.setImageResource(R.drawable.ic_grid)
                 }
             }
@@ -94,11 +95,13 @@ class PicturesInFolderFragment(private val folder: Folder?) :
                 picturesInFolderViewModel.viewTypes.value == ViewType.STAGGERED -> {
                     picturesInFolderViewModel.setViewType(ViewType.LINEAR)
                     listViewAdapter.submitList(pagedList)
+//                    listViewAdapter.submitList(picturesInFolderViewModel.pagedList)
                     picturesRecyclerView.adapter = listViewAdapter
                     staggeredViewAdapter.changeViewType()
                 }
                 picturesInFolderViewModel.viewTypes.value == ViewType.LINEAR -> {
                     picturesInFolderViewModel.setViewType(ViewType.STAGGERED)
+//                    staggeredViewAdapter.submitList(picturesInFolderViewModel.pagedList)
                     staggeredViewAdapter.submitList(pagedList)
                     picturesRecyclerView.adapter = staggeredViewAdapter
                     staggeredViewAdapter.changeViewType()
@@ -114,8 +117,10 @@ class PicturesInFolderFragment(private val folder: Folder?) :
         }!!
 
         staggeredViewAdapter.submitList(pagedList)
+//        staggeredViewAdapter.submitList(picturesInFolderViewModel.pagedList)
 
         checkIfListEmpty(pagedList)
+//        checkIfListEmpty(picturesInFolderViewModel.pagedList)
 
         updateLayoutManager()
 
@@ -167,15 +172,13 @@ class PicturesInFolderFragment(private val folder: Folder?) :
 
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.VISIBLE
-        picturesInFolderViewModel.staggeredGridLayoutManager =
+     staggeredGridLayoutManager =
             StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         picturesInFolderViewModel.viewTypes.value = ViewType.STAGGERED
-        picturesRecyclerView.layoutManager = picturesInFolderViewModel.staggeredGridLayoutManager
+        picturesRecyclerView.layoutManager = staggeredGridLayoutManager
     }
 
     override fun onBackPressed() {
-        // TODO: Why  when I change layout to ListView, then press click forward (on folder or image)
-        //  and then press back listView become grid?
         fragmentManager?.popBackStack()
     }
 }

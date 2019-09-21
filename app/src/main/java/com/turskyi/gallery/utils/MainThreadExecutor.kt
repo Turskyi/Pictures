@@ -1,4 +1,4 @@
-package com.turskyi.gallery.controllers
+package com.turskyi.gallery.utils
 
 import android.os.Handler
 import java.util.concurrent.Executor

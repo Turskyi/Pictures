@@ -46,6 +46,7 @@ class FolderListViewHolder(itemView: View, private val context: Context) :
                 (context as AppCompatActivity).supportFragmentManager.beginTransaction()
             val picturesInFolderFragment =
                 PicturesInFolderFragment(folder)
+//                PicturesInFolderFragment()
             fragmentManager
                 .replace(R.id.container, picturesInFolderFragment, GalleryConstants.TAG_PICS_IN_FOLDER)
                 .addToBackStack(GalleryConstants.TAG_PICS_IN_FOLDER).commit()
@@ -56,6 +57,7 @@ class FolderListViewHolder(itemView: View, private val context: Context) :
                 (context as AppCompatActivity).supportFragmentManager.beginTransaction()
             val picturesInFolderFragment =
                 PicturesInFolderFragment(folder)
+//                PicturesInFolderFragment()
             fragmentManager
                 .replace(R.id.container, picturesInFolderFragment, GalleryConstants.TAG_PICS_IN_FOLDER)
                 .addToBackStack(GalleryConstants.TAG_PICS_IN_FOLDER).commit()

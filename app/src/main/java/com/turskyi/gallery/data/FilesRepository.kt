@@ -17,7 +17,11 @@ class FilesRepository {
         /** Get all columns of type images */
         // TODO: How to get rid of deprecated "DATA" string?
         //    this method does not help ->
-        //    val pFileDescriptor = context.contentResolver.openFileDescriptor(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "r")
+//        val imagePath = picture.path
+//        val file = File(imagePath)
+//        val uri: Uri = Uri.fromFile(file)
+//            val pFileDescriptor = context.contentResolver.openFileDescriptor(uri, "r")
+
         val columns = arrayOf(DATA, Images.Media._ID)
 
         /** order data by date */
@@ -63,6 +67,7 @@ class FilesRepository {
         return listOfFolders
     }
 
+
     private fun getSetOfFolders(context: Context): MutableSet<Folder> {
         val columns = arrayOf(DATA, Images.Media._ID)
 
@@ -86,7 +91,7 @@ class FilesRepository {
             columns, null, null, "$orderBy DESC"
         )
         cursor?.let {
-            //TODO: Why "moveToFirst" and not "moveToNext()"?
+            // checking if first box of the array is not null
             if (it.moveToFirst()) {
                 do {
                     val dataColumnIndex = it.getColumnIndex(DATA)
@@ -110,7 +115,7 @@ class FilesRepository {
         return folderUrls
     }
 
-    private fun getFolderPath(pathArrayOfStrings: List<String>): String {
+  private fun getFolderPath(pathArrayOfStrings: List<String>): String {
         var folderPath = ""
 
         /** Building a folderPath out of firstPicturePathString in the folder */

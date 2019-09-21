@@ -13,13 +13,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
-import butterknife.ButterKnife
 import com.turskyi.gallery.R
 import com.turskyi.gallery.R.drawable.ic_view_list_white
 import com.turskyi.gallery.adapters.PictureGridAdapter
 import com.turskyi.gallery.adapters.PictureListAdapter
-import com.turskyi.gallery.controllers.MainThreadExecutor
-import com.turskyi.gallery.controllers.PicturesPositionalDataSource
 import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.interfaces.OnPictureLongClickListener
 import com.turskyi.gallery.models.Picture
@@ -29,13 +26,13 @@ import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 import kotlinx.android.synthetic.main.fragment_pictures.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
-import java.util.concurrent.Executors
 
 class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClickListener {
 
     private lateinit var gridViewAdapter: PictureGridAdapter
     private lateinit var listViewAdapter: PictureListAdapter
     private lateinit var picturesViewModel: PicturesViewModel
+    private var gridLayoutManager: GridLayoutManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,17 +45,6 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
     }
 
     private fun updateFragment() {
-        val dataSource = PicturesPositionalDataSource(activity?.applicationContext!!)
-
-        val config: PagedList.Config = PagedList.Config.Builder()
-            .setEnablePlaceholders(false)
-            .setPageSize(10)
-            .build()
-
-        val pagedList: PagedList<Picture> = PagedList.Builder(dataSource, config)
-            .setFetchExecutor(Executors.newSingleThreadExecutor())
-            .setNotifyExecutor(MainThreadExecutor())
-            .build()
 
         picturesViewModel.viewTypes.observe(this, Observer { viewType ->
             when (viewType) {
@@ -66,11 +52,11 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
                     btnViewChanger.setImageResource(R.drawable.ic_remove32)
                 }
                 ViewType.GRID -> {
-                    picturesViewModel.gridLayoutManager?.spanCount = 2
+                    gridLayoutManager?.spanCount = 2
                     btnViewChanger.setImageResource(ic_view_list_white)
                 }
                 else -> {
-                    picturesViewModel.gridLayoutManager?.spanCount = 1
+                    gridLayoutManager?.spanCount = 1
                     btnViewChanger.setImageResource(R.drawable.ic_grid)
                 }
             }
@@ -81,7 +67,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
                 picturesViewModel.selectedPictures.size > 0 -> deleteAllSelected()
                 picturesViewModel.viewTypes.value == ViewType.GRID -> {
                     picturesViewModel.setViewType(ViewType.LINEAR)
-                    listViewAdapter.submitList(pagedList)
+                    listViewAdapter.submitList(picturesViewModel.pagedList)
                     picturesRecyclerView.adapter = listViewAdapter
                     //this method cannot be in "picturesViewModel.viewTypes.observe"
                     // because then it changes layout after delete
@@ -89,7 +75,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
                 }
                 picturesViewModel.viewTypes.value == ViewType.LINEAR -> {
                     picturesViewModel.setViewType(ViewType.GRID)
-                    gridViewAdapter.submitList(pagedList)
+                    gridViewAdapter.submitList(picturesViewModel.pagedList)
                     picturesRecyclerView.adapter = gridViewAdapter
                     gridViewAdapter.changeViewType()
                 }
@@ -99,9 +85,9 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
         gridViewAdapter = PictureGridAdapter(this)
         listViewAdapter = PictureListAdapter(this)
 
-        gridViewAdapter.submitList(pagedList)
+        gridViewAdapter.submitList(picturesViewModel.pagedList)
 
-        checkIfListEmpty(pagedList)
+        checkIfListEmpty(picturesViewModel.pagedList)
 
         /** get number of columns and switch between listView and gridView */
         updateLayoutManager()
@@ -169,8 +155,8 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
 
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.INVISIBLE
-        picturesViewModel.gridLayoutManager = GridLayoutManager(context, 2)
+        gridLayoutManager = GridLayoutManager(context, 2)
         picturesViewModel.viewTypes.value = ViewType.GRID
-        picturesRecyclerView.layoutManager = picturesViewModel.gridLayoutManager
+        picturesRecyclerView.layoutManager = gridLayoutManager
     }
 }

@@ -1,4 +1,4 @@
-package com.turskyi.gallery.controllers.domain
+package com.turskyi.gallery.dataSources
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -6,6 +6,7 @@ import androidx.paging.PageKeyedDataSource
 import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.data.RetrofitClientInstance
 import com.turskyi.gallery.interfaces.OnlineClient
+import com.turskyi.gallery.models.NetworkState
 import com.turskyi.gallery.models.OnlinePictureRepo
 import retrofit2.Call
 import retrofit2.Callback
