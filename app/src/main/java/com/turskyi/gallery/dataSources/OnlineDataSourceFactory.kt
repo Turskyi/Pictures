@@ -8,8 +8,7 @@ import com.turskyi.gallery.models.OnlinePictureRepo
  * Android paging library data source factory.
  * This will create the load photo data source.
  */
-class OnlineDataSourceFactory :
-    DataSource.Factory<Long, OnlinePictureRepo>() {
+class OnlineDataSourceFactory : DataSource.Factory<Long, OnlinePictureRepo>() {
 
     private var source = OnlinePicturesDataSource()
     var sourceLiveData = MutableLiveData<OnlinePicturesDataSource>()

@@ -9,57 +9,34 @@ import com.turskyi.gallery.interfaces.OnFolderLongClickListener
 import com.turskyi.gallery.models.Folder
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewholders.FolderGridViewHolder
-import com.turskyi.gallery.viewholders.FolderListViewHolder
+import kotlinx.android.synthetic.main.folder_item.view.*
 
 class FolderGridAdapter(
     private val onFolderLongClickListener: OnFolderLongClickListener
 ) : PagedListAdapter<Folder, RecyclerView.ViewHolder>(FOLDERS_DIFF_CALLBACK) {
 
-    //TODO в котліні не треба створювати функцію для заповнення масива,
-    // під його оголошенням можна написати
-    // set(value) {
-    // field = value
-    // notifyDataSetChanged() }
-
-    //example:
-//    private var number = 0
-//        set(number) {
-//            field = number
-//        }
-//        get() = field
-
-    //private var foldersList: MutableSet<Folder>? = null
-//        get() = field
-//    set(foldersList) {
-//        field = foldersList
-//        notifyDataSetChanged()
-//    }
-
-//done
-    //позбавився функції для заповнення масиву і навіть цей метод не знадобився,
-    // бо я використовую PagedList у фрагменті,
-    // а він підтягує усю необхідну інформацію з PositionalDataSource
-
     private var viewType: ViewType = ViewType.GRID
 
-    /** switch between layouts */
+    /**
+     * @Description switch between layouts
+     * */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (this.viewType == ViewType.GRID) {
-            FolderGridViewHolder(parent)
-        } else {
-            FolderListViewHolder(parent)
-        }
+        return FolderGridViewHolder(parent)
     }
 
+    /**
+     * @Description making "check" sign visible and invisible onLongClick.
+     * Makes the cover of a folder with a picture
+     * */
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is FolderGridViewHolder) {
-            /** making "check sign visible and invisible onLongClick */
-            holder.previewIV.setOnLongClickListener {
-                if (holder.selectedFolder.visibility == View.INVISIBLE) {
-                    holder.selectedFolder.visibility = View.VISIBLE
+
+            holder.itemView.folderPreviewIV.setOnLongClickListener {
+                if (holder.itemView.selectedFolder.visibility == View.INVISIBLE) {
+                    holder.itemView.selectedFolder.visibility = View.VISIBLE
                     onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.selectedFolder.visibility = View.INVISIBLE
+                    holder.itemView.selectedFolder.visibility = View.INVISIBLE
                     onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -69,28 +46,11 @@ class FolderGridAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
-                if (holder.selectedFolder.visibility == View.INVISIBLE) {
-                    holder.selectedFolder.visibility = View.VISIBLE
+                if (holder.itemView.selectedFolder.visibility == View.INVISIBLE) {
+                    holder.itemView.selectedFolder.visibility = View.VISIBLE
                     onFolderLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderLongClickListener.removeOnLongClick(
-                        getItem(position)!!,
-                        viewType
-                    )
-                }
-                true
-            }
-            holder.bindView(getItem(position)!!)
-        } else if (holder is FolderListViewHolder) {
-            /** making "check sign visible and invisible onLongClick */
-//            holder.previewIV.setOnLongClickListener {
-            holder.previewIV.setOnLongClickListener {
-                if (holder.selectedFolder.visibility == View.INVISIBLE) {
-                    holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
-                } else {
-                    holder.selectedFolder.visibility = View.INVISIBLE
+                    holder.itemView.selectedFolder.visibility = View.INVISIBLE
                     onFolderLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -99,24 +59,47 @@ class FolderGridAdapter(
                 true
             }
 
-            holder.itemView.setOnLongClickListener {
-                if (holder.selectedFolder.visibility == View.INVISIBLE) {
-                    holder.selectedFolder.visibility = View.VISIBLE
-                    onFolderLongClickListener.addOnLongClick(getItem(position)!!)
-                } else {
-                    holder.selectedFolder.visibility = View.INVISIBLE
-                    onFolderLongClickListener.removeOnLongClick(
-                        getItem(position)!!,
-                        viewType
-                    )
-                }
-                true
-            }
             holder.bindView(getItem(position)!!)
+
+//            val file = File(getItem(position)!!.firstPicturePath)
+//            holder.itemView.folderName.text = getItem(position)!!.name
+//            val uri: Uri = Uri.fromFile(file)
+//            Glide.with(holder.itemView.context).load(uri).into(holder.itemView.folderPreviewIV)
+//
+//            holder.itemView.folderPreviewIV.setOnClickListener {
+//                val fragmentManager: FragmentTransaction =
+//                    (holder.itemView.context as AppCompatActivity).supportFragmentManager.beginTransaction()
+//                val picturesInFolderFragment =
+//                    PicturesInFolderFragment(getItem(position)!!)
+//                fragmentManager
+//                    .replace(
+//                        R.id.container,
+//                        picturesInFolderFragment,
+//                        GalleryConstants.TAG_PICS_IN_FOLDER
+//                    )
+//                    .addToBackStack(GalleryConstants.TAG_PICS_IN_FOLDER).commit()
+//            }
+//
+//            holder.itemView.setOnClickListener {
+//                val fragmentManager: FragmentTransaction =
+//                    (holder.itemView.context as AppCompatActivity).supportFragmentManager.beginTransaction()
+//                val picturesInFolderFragment =
+//                    PicturesInFolderFragment(getItem(position)!!)
+//                fragmentManager
+//                    .replace(
+//                        R.id.container,
+//                        picturesInFolderFragment,
+//                        GalleryConstants.TAG_PICS_IN_FOLDER
+//                    )
+//                    .addToBackStack(GalleryConstants.TAG_PICS_IN_FOLDER).commit()
+//            }
+//
         }
     }
 
-    /** This method to update the layout */
+    /**
+     * @Description updates the layout
+     */
     fun changeViewType() {
         viewType = if (viewType == ViewType.LINEAR) {
             ViewType.GRID

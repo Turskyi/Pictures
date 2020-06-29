@@ -5,7 +5,7 @@
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/getPermissionView"
             android:visibility="gone"
             android:layout_width="match_parent"
@@ -24,7 +24,7 @@
                 android:contentDescription="@string/image_with_no_permission_sign"
                 android:src="@drawable/ic_tap_to_give_permission" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
             android:id="@+id/frameLayout"

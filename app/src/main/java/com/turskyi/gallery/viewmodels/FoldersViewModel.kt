@@ -7,7 +7,7 @@ import androidx.paging.PagedList
 import com.turskyi.gallery.dataSources.FoldersPositionalDataSource
 import com.turskyi.gallery.utils.MainThreadExecutor
 import com.turskyi.gallery.models.Folder
-import com.turskyi.gallery.models.Picture
+import com.turskyi.gallery.models.PictureUri
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.models.ViewType.LINEAR
 import java.util.concurrent.Executors
@@ -15,7 +15,7 @@ import java.util.concurrent.Executors
 class FoldersViewModel(application: Application) : AndroidViewModel(application) {
 
     var selectedFolders: MutableList<Folder> = mutableListOf()
-    var selectedImages: MutableList<Picture> = mutableListOf()
+    var selectedImages: MutableList<PictureUri> = mutableListOf()
     val viewTypes = MutableLiveData<ViewType>()
     var pagedList: PagedList<Folder>
 
@@ -47,7 +47,7 @@ class FoldersViewModel(application: Application) : AndroidViewModel(application)
     }
 
     /* I would use the following method if I did not use the pagedList */
-    //    private val repository = FilesRepository()
+//        private val repository = FilesRepository()
 //    val listOfFolders = repository.getGalleryFolders(application)
 
 //    init {

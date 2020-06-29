@@ -1,10 +1,8 @@
 package com.turskyi.gallery.fragments
 
-import android.content.ContentUris
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -28,12 +26,9 @@ import kotlinx.android.synthetic.main.fragment_folders.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
 
-class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
+class FoldersFragment : Fragment(R.layout.fragment_folders),
     OnFolderLongClickListener {
-    //TODO в активності тільки те, що безпосередньо потрібне для відображення View
-    //done
-    //TODO не інформативна назва змінної, чого Enum і як це стосується її функції
-    //done
+
     private lateinit var foldersViewModel: FoldersViewModel
     private lateinit var gridViewAdapter: FolderGridAdapter
     private lateinit var listViewAdapter: FolderListAdapter
@@ -41,8 +36,7 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // I cannot move this method to Home activity, when I tried I failed
-        foldersViewModel = ViewModelProvider(activity!!).get(FoldersViewModel::class.java)
+        foldersViewModel = ViewModelProvider(requireActivity()).get(FoldersViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,18 +48,18 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
 
     private fun updateFragment() {
 
-        foldersViewModel.viewTypes.observe(this, Observer { viewType ->
+        foldersViewModel.viewTypes.observe(viewLifecycleOwner, Observer { viewType ->
             when (viewType) {
                 ViewType.DELETE -> {
-                    btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_remove32)
+                    btnViewChanger.setImageResource(R.drawable.ic_remove32)
                 }
                 ViewType.GRID -> {
-                 gridLayoutManager?.spanCount = 2
+                    gridLayoutManager?.spanCount = 2
                     btnViewChanger.setImageResource(ic_view_list_white)
                 }
                 else -> {
-       gridLayoutManager?.spanCount = 1
-                    btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_grid)
+                    gridLayoutManager?.spanCount = 1
+                    btnViewChanger.setImageResource(R.drawable.ic_grid)
                 }
             }
         })
@@ -92,14 +86,12 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
         listViewAdapter = FolderListAdapter(this)
 
         gridViewAdapter.submitList(foldersViewModel.pagedList)
+        listViewAdapter.submitList(foldersViewModel.pagedList)
 
         checkIfListEmpty(foldersViewModel.pagedList)
 
         /** get number of columns and switch between listView and gridView */
         updateLayoutManager()
-
-        /* Without this line nothing gonna shows up */
-        foldersRecyclerView.adapter = gridViewAdapter
     }
 
     private fun checkIfListEmpty(pagedList: PagedList<Folder>) {
@@ -117,8 +109,7 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
 /* adds all images, located in the selected folder to the selected pictures list */
         for (i in activity?.applicationContext?.let {
             repository.getSetOfImagesInFolder(
-                it,
-                folder.folderPath
+                it
             )
         }!!) {
             foldersViewModel.selectedImages.add(i)
@@ -155,24 +146,27 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
                 if (folder.exists() && folder.isDirectory) {
                     // delete all pictures in folders
                     foldersViewModel.selectedImages.let {
-                        for (selectedPicture in foldersViewModel.selectedImages) {
-                            val file = File(selectedPicture.path)
-                            val id = selectedPicture.id
-                            if (file.exists()) {
-                                val deleteUri: Uri = ContentUris
-                                    .withAppendedId(
-                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                        id
-                                    )
-                                activity?.contentResolver?.delete(deleteUri, null, null)
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    getString(R.string.picture_does_not_exist),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        }
+//                        for (selectedPicture in foldersViewModel.selectedImages) {
+//                            val file = File(selectedPicture.path)
+//                            val id = selectedPicture.id
+//                            if (file.exists()) {
+//                                val deleteUri: Uri = ContentUris
+//                                    .withAppendedId(
+//                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                                        id
+//                                    )
+//                                activity?.contentResolver?.delete(
+//                                    deleteUri, null,
+//                                    null
+//                                )
+//                            } else {
+//                                Toast.makeText(
+//                                    context,
+//                                    getString(R.string.picture_does_not_exist),
+//                                    Toast.LENGTH_LONG
+//                                ).show()
+//                            }
+//                        }
                     }
                     //TODO: Delete empty folder
                     folder.delete()
@@ -180,7 +174,7 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
                 } else {
                     Toast.makeText(
                         context,
-                        getString(com.turskyi.gallery.R.string.folder_does_not_exist),
+                        getString(R.string.folder_does_not_exist),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -188,11 +182,19 @@ class FoldersFragment : Fragment(com.turskyi.gallery.R.layout.fragment_folders),
         }
     }
 
-    //TODO: should I combine this method and absolutely the same in the "FoldersFragment" somewhere
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.INVISIBLE
-gridLayoutManager = GridLayoutManager(context, 2)
-        foldersViewModel.viewTypes.value = ViewType.GRID
+        if (foldersViewModel.viewTypes.value == null ||
+            foldersViewModel.viewTypes.value == ViewType.GRID
+        ) {
+            foldersViewModel.viewTypes.value = ViewType.GRID
+            gridLayoutManager = GridLayoutManager(context, 2)
+            /* Without this line nothing gonna shows up */
+            foldersRecyclerView.adapter = gridViewAdapter
+        } else if (foldersViewModel.viewTypes.value == ViewType.LINEAR) {
+            gridLayoutManager = GridLayoutManager(context, 1)
+            foldersRecyclerView.adapter = listViewAdapter
+        }
         foldersRecyclerView.layoutManager = gridLayoutManager
     }
 }

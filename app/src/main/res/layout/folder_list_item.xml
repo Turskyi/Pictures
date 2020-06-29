@@ -6,7 +6,7 @@
         android:orientation="horizontal">
 
     <ImageView
-            android:id="@+id/folderPreviewIV"
+            android:id="@+id/folderListPreviewIV"
             android:layout_width="60dp"
             android:layout_height="40dp"
             android:layout_margin="4dp"
@@ -15,7 +15,7 @@
             tools:ignore="ContentDescription" />
 
     <TextView
-            android:id="@+id/folderName"
+            android:id="@+id/folderListName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"

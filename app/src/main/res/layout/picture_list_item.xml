@@ -6,7 +6,7 @@
         android:orientation="horizontal">
 
     <ImageView
-            android:id="@+id/picturePreviewIV"
+            android:id="@+id/pictureListPreviewIV"
             android:layout_width="60dp"
             android:layout_height="40dp"
             android:layout_margin="4dp"
@@ -15,7 +15,7 @@
             tools:ignore="ContentDescription" />
 
     <TextView
-            android:id="@+id/pictureName"
+            android:id="@+id/pictureListName"
             android:visibility="visible"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

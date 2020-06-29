@@ -17,7 +17,7 @@ class OnlinePicturesViewModel(application: Application) : AndroidViewModel(appli
 
     private var onlineDataSourceFactory: OnlineDataSourceFactory = OnlineDataSourceFactory()
     private var dataSourceMutableLiveData: MutableLiveData<OnlinePicturesDataSource>
-    var executor: Executor
+    private var executor: Executor
     var pagedListLiveData: LiveData<PagedList<OnlinePictureRepo>>
     var selectedPictureRepos: MutableList<OnlinePictureRepo> = mutableListOf()
     val viewTypes = MutableLiveData<ViewType?>()
@@ -31,16 +31,15 @@ class OnlinePicturesViewModel(application: Application) : AndroidViewModel(appli
             .setPrefetchDistance(4)
             .build()
         executor = Executors.newFixedThreadPool(5)
-        pagedListLiveData =
-            LivePagedListBuilder<Long, OnlinePictureRepo>(onlineDataSourceFactory, config)
+        pagedListLiveData = LivePagedListBuilder(onlineDataSourceFactory, config)
                 .setFetchExecutor(executor)
                 .build()
     }
 
     //TODO: Add "share" function
     fun updateLayoutView() {
-        when {
-            viewTypes.value == ViewType.LINEAR -> viewTypes.value = ViewType.GRID
+        when (viewTypes.value) {
+            ViewType.LINEAR -> viewTypes.value = ViewType.GRID
             else -> viewTypes.value = ViewType.LINEAR
         }
     }

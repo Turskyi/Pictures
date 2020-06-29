@@ -1,12 +1,9 @@
 package com.turskyi.gallery.fragments
 
-import android.content.ContentUris
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
@@ -19,13 +16,12 @@ import com.turskyi.gallery.adapters.PictureGridAdapter
 import com.turskyi.gallery.adapters.PictureListAdapter
 import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.interfaces.OnPictureLongClickListener
-import com.turskyi.gallery.models.Picture
+import com.turskyi.gallery.models.PictureUri
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewmodels.PicturesViewModel
 import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 import kotlinx.android.synthetic.main.fragment_pictures.*
 import kotlinx.android.synthetic.main.toolbar.*
-import java.io.File
 
 class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClickListener {
 
@@ -36,7 +32,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        picturesViewModel = ViewModelProvider(activity!!).get(PicturesViewModel::class.java)
+        picturesViewModel = ViewModelProvider(requireActivity()).get(PicturesViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,11 +42,9 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
 
     private fun updateFragment() {
 
-        picturesViewModel.viewTypes.observe(this, Observer { viewType ->
+        picturesViewModel.viewTypes.observe(viewLifecycleOwner, Observer { viewType ->
             when (viewType) {
-                ViewType.DELETE -> {
-                    btnViewChanger.setImageResource(R.drawable.ic_remove32)
-                }
+                ViewType.DELETE -> btnViewChanger.setImageResource(R.drawable.ic_remove32)
                 ViewType.GRID -> {
                     gridLayoutManager?.spanCount = 2
                     btnViewChanger.setImageResource(ic_view_list_white)
@@ -58,6 +52,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
                 else -> {
                     gridLayoutManager?.spanCount = 1
                     btnViewChanger.setImageResource(R.drawable.ic_grid)
+
                 }
             }
         })
@@ -86,17 +81,18 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
         listViewAdapter = PictureListAdapter(this)
 
         gridViewAdapter.submitList(picturesViewModel.pagedList)
+        listViewAdapter.submitList(picturesViewModel.pagedList)
 
         checkIfListEmpty(picturesViewModel.pagedList)
 
-        /** get number of columns and switch between listView and gridView */
+        /**
+         *@Description gets number of columns and switch between listView and gridView
+         * */
         updateLayoutManager()
 
-        /* Without this line nothing going to show up */
-        picturesRecyclerView.adapter = gridViewAdapter
     }
 
-    private fun checkIfListEmpty(pagedList: PagedList<Picture>) {
+    private fun checkIfListEmpty(pagedList: PagedList<PictureUri>) {
         val fragmentActivity: FragmentActivity? = activity
         if (pagedList.size < 1) {
             setUpAnEmptyViewImage(fragmentActivity)
@@ -105,14 +101,14 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
         }
     }
 
-    override fun addOnLongClick(picture: Picture) {
-        picturesViewModel.selectedPictures.add(picture)
+    override fun addOnLongClick(pictureUri: PictureUri) {
+        picturesViewModel.selectedPictures.add(pictureUri)
         picturesViewModel.updateLayoutView()
     }
 
-    override fun removeOnLongClick(picture: Picture, viewType: ViewType) {
+    override fun removeOnLongClick(pictureUri: PictureUri, viewType: ViewType) {
         picturesViewModel.updateLayoutView()
-        picturesViewModel.selectedPictures.remove(picture)
+        picturesViewModel.selectedPictures.remove(pictureUri)
         if (picturesViewModel.selectedPictures.isEmpty()) {
             picturesViewModel.viewTypes.value = viewType
         }
@@ -134,29 +130,40 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
 
     private fun deleteAllSelected() {
         picturesViewModel.selectedPictures.let {
-            for (selectedPicture in it) {
-                val file = File(selectedPicture.path)
-                val id = selectedPicture.id
-                if (file.exists()) {
-                    val deleteUri: Uri = ContentUris
-                        .withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-                    activity?.contentResolver?.delete(deleteUri, null, null)
-                    updateFragment()
-                } else {
-                    Toast.makeText(
-                        context,
-                        getString(R.string.picture_does_not_exist),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
+//            for (selectedPicture in it) {
+//                val file = File(selectedPicture.path)
+//                val id = selectedPicture.id
+//                if (file.exists()) {
+//                    val deleteUri: Uri = ContentUris
+//                        .withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+//                    activity?.contentResolver?.delete(deleteUri, null, null)
+//                    updateFragment()
+//                } else {
+//                    Toast.makeText(
+//                        context,
+//                        getString(R.string.picture_does_not_exist),
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                }
+//            }
         }
     }
 
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.INVISIBLE
-        gridLayoutManager = GridLayoutManager(context, 2)
-        picturesViewModel.viewTypes.value = ViewType.GRID
+        if (picturesViewModel.viewTypes.value == null
+            || picturesViewModel.viewTypes.value == ViewType.GRID) {
+            picturesViewModel.viewTypes.value = ViewType.GRID
+            gridLayoutManager = GridLayoutManager(context, 2)
+//            /* Without this line nothing going to show up */
+            picturesRecyclerView.adapter = gridViewAdapter
+            picturesRecyclerView.layoutManager = gridLayoutManager
+        } else if (picturesViewModel.viewTypes.value == ViewType.LINEAR){
+            gridLayoutManager = GridLayoutManager(context, 1)
+//            /* Without this line nothing going to show up */
+            picturesRecyclerView.adapter = listViewAdapter
+            picturesRecyclerView.layoutManager = gridLayoutManager
+        }
         picturesRecyclerView.layoutManager = gridLayoutManager
     }
 }

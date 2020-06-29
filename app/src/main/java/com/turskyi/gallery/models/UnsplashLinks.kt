@@ -9,5 +9,5 @@ data class UnsplashLinks(
     @SerializedName("likes") val likes: String?,
     @SerializedName("portfolio") val portfolio: String?,
     @SerializedName("download") val download: String?,
-    @SerializedName("download_location") val download_location: String?
+    @SerializedName("download_location") val downloadLocation: String?
 )

@@ -19,6 +19,9 @@ class BottomNavigationFragment : Fragment(R.layout.fragment_bottom_navigation){
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             initFragment(item.itemId)
         }
+        savedInstanceState?.let {
+            fragmentId = it.getInt(GalleryConstants.KEY_WORD_FRAGMENT_ID)
+        }
     }
 
     override fun onResume() {
@@ -28,7 +31,7 @@ class BottomNavigationFragment : Fragment(R.layout.fragment_bottom_navigation){
 
     /**  replaces container with a fragment */
     private fun initFragment(id: Int): Boolean {
-        val fragmentManager: FragmentTransaction = fragmentManager!!.beginTransaction()
+        val fragmentManager: FragmentTransaction = parentFragmentManager.beginTransaction()
         fragmentId = id
 
         val fragment: Fragment = when (id) {
@@ -45,13 +48,5 @@ class BottomNavigationFragment : Fragment(R.layout.fragment_bottom_navigation){
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(GalleryConstants.KEY_WORD_FRAGMENT_ID, fragmentId)
         super.onSaveInstanceState(outState)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        savedInstanceState?.let {
-            fragmentId = it.getInt(GalleryConstants.KEY_WORD_FRAGMENT_ID)
-        }
     }
 }

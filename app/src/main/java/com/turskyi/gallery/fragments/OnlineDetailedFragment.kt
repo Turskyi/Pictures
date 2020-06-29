@@ -20,22 +20,19 @@ class OnlineDetailedFragment(private val pictureRepo: OnlinePictureRepo) : Fragm
         super.onViewCreated(view, savedInstanceState)
 
         val fragmentActivity: FragmentActivity? = activity
-        fragmentActivity?.bottomNavigationView?.visibility = View.GONE
+        fragmentActivity?.bottomNavigationView?.visibility = GONE
 
         btnArrowBack.setOnClickListener {
             onBackPressed()
         }
 
         // loading the image thanks to its url
-        Glide.with(this).load(pictureRepo.urls?.full).into(imageViewEnlarged)
+        Glide.with(this).load(pictureRepo.urls?.full).into(ivEnlarged)
         btnViewChanger.visibility = GONE
     }
 
         override fun onBackPressed() {
             activity?.bottomNavigationView?.visibility = View.VISIBLE
-            //TODO: to make observer  receive the changes
-            // that it was a different layout before it was open?
-            // Fix this bug.
-            fragmentManager?.popBackStack()
+            activity?.supportFragmentManager?.popBackStack()
         }
 }

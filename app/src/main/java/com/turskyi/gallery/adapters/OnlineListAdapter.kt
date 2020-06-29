@@ -5,11 +5,12 @@ import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.turskyi.gallery.data.DiffUtilComparators.ONLINE_PICTURES_DIFF_CALLBACK
-import com.turskyi.gallery.models.OnlinePictureRepo
 import com.turskyi.gallery.interfaces.OnOnlinePictureLongClickListener
+import com.turskyi.gallery.models.OnlinePictureRepo
 import com.turskyi.gallery.models.ViewType
-import com.turskyi.gallery.viewholders.OnlineGridViewHolder
 import com.turskyi.gallery.viewholders.OnlineListViewHolder
+import kotlinx.android.synthetic.main.picture_item.view.selectedPicture
+import kotlinx.android.synthetic.main.picture_list_item.view.*
 
 class OnlineListAdapter constructor(
     private val onPictureLongClickListener: OnOnlinePictureLongClickListener
@@ -17,23 +18,21 @@ class OnlineListAdapter constructor(
 
     private var viewType: ViewType = ViewType.LINEAR
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (this.viewType == ViewType.GRID) {
-            OnlineGridViewHolder(parent)
-        } else {
-            OnlineListViewHolder(parent)
-        }
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        OnlineListViewHolder(parent)
 
+    /**
+     * @Description making "check" sign visible and invisible onLongClick.
+     * */
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is OnlineGridViewHolder) {
-            /** making "check sign visible and invisible onLongClick */
-            holder.previewIV.setOnLongClickListener {
-                if (holder.selectedImage.visibility == View.INVISIBLE) {
-                    holder.selectedImage.visibility = View.VISIBLE
+        if (holder is OnlineListViewHolder) {
+
+            holder.itemView.pictureListPreviewIV.setOnLongClickListener {
+                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
+                    holder.itemView.selectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.selectedImage.visibility = View.INVISIBLE
+                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -42,40 +41,11 @@ class OnlineListAdapter constructor(
                 true
             }
             holder.itemView.setOnLongClickListener {
-                if (holder.selectedImage.visibility == View.INVISIBLE) {
-                    holder.selectedImage.visibility = View.VISIBLE
+                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
+                    holder.itemView.selectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.selectedImage.visibility = View.INVISIBLE
-                    onPictureLongClickListener.removeOnLongClick(
-                        getItem(position)!!,
-                        viewType
-                    )
-                }
-                true
-            }
-            holder.bindView(getItem(position)!!)
-        } else if (holder is OnlineListViewHolder) {
-            /** making "check sign visible and invisible onLongClick */
-            holder.previewIV.setOnLongClickListener {
-                if (holder.selectedImage.visibility == View.INVISIBLE) {
-                    holder.selectedImage.visibility = View.VISIBLE
-                    onPictureLongClickListener.addOnLongClick(getItem(position)!!)
-                } else {
-                    holder.selectedImage.visibility = View.INVISIBLE
-                    onPictureLongClickListener.removeOnLongClick(
-                        getItem(position)!!,
-                        viewType
-                    )
-                }
-                true
-            }
-            holder.itemView.setOnLongClickListener {
-                if (holder.selectedImage.visibility == View.INVISIBLE) {
-                    holder.selectedImage.visibility = View.VISIBLE
-                    onPictureLongClickListener.addOnLongClick(getItem(position)!!)
-                } else {
-                    holder.selectedImage.visibility = View.INVISIBLE
+                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType

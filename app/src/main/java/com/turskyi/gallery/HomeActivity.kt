@@ -13,15 +13,15 @@ import com.turskyi.gallery.fragments.BottomNavigationFragment
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 
-open class HomeActivity : AppCompatActivity(R.layout.activity_home) {
+/** Gallery with three bottom navigation tabs: pictures, folders and random online photos */
+class HomeActivity : AppCompatActivity(R.layout.activity_home) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /* permission must be here, in "onCreate" */
+        /* permission must in "onCreate" */
         checkPermission()
     }
 
-    /** check if we have permission */
     private fun checkPermission() {
         val permissionGranted =
             ContextCompat.checkSelfPermission(
@@ -35,11 +35,27 @@ open class HomeActivity : AppCompatActivity(R.layout.activity_home) {
         }
     }
 
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE).toTypedArray(),
+            PERMISSION_EXTERNAL_STORAGE
+        )
+    }
+
+    private fun showFragment() {
+        val homeFragment = BottomNavigationFragment()
+        homeFragment.arguments = intent.extras
+        val fragmentManager = supportFragmentManager.beginTransaction()
+        fragmentManager.add(R.id.frameLayout, homeFragment).commit()
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResult: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResult)
         when (requestCode) {
             PERMISSION_EXTERNAL_STORAGE -> {
 
@@ -58,21 +74,6 @@ open class HomeActivity : AppCompatActivity(R.layout.activity_home) {
                 }
             }
         }
-    }
-
-    private fun showFragment() {
-        val homeFragment = BottomNavigationFragment()
-        homeFragment.arguments = intent.extras
-        val fragmentManager = supportFragmentManager.beginTransaction()
-        fragmentManager.add(R.id.frameLayout, homeFragment).commit()
-    }
-
-    private fun requestPermission() {
-        ActivityCompat.requestPermissions(
-            this,
-            listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE).toTypedArray(),
-            PERMISSION_EXTERNAL_STORAGE
-        )
     }
 
     override fun onBackPressed() {

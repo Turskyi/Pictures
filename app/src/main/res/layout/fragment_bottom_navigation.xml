@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             app:itemBackground="@android:color/black"
-            app:itemIconTint="@drawable/selector"
+            app:itemIconTint="@drawable/selector_bottom_navigation"
             app:itemTextColor="@android:color/white"
             app:layout_constraintTop_toBottomOf="@id/container"
             android:visibility="gone"

@@ -10,8 +10,8 @@ data class OnlinePictureUser(
     @SerializedName("bio") val bio: String?,
     @SerializedName("location") val location: String?,
     @SerializedName("total_likes") val total_likes: Int,
-    @SerializedName("total_photos") val total_photos: Int,
+    @SerializedName("total_photos") val totalPhotos: Int,
     @SerializedName("total_collection") val total_collection: Int,
-    @SerializedName("profile_image") val profile_image: OnlinePictureUrl,
+    @SerializedName("profile_image") val profileImage: OnlinePictureUrl,
     @SerializedName("links") val links: UnsplashLinks
 )

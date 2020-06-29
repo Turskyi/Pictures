@@ -3,7 +3,7 @@ package com.turskyi.gallery.data
 import androidx.recyclerview.widget.DiffUtil
 import com.turskyi.gallery.models.Folder
 import com.turskyi.gallery.models.OnlinePictureRepo
-import com.turskyi.gallery.models.Picture
+import com.turskyi.gallery.models.PictureUri
 
 object DiffUtilComparators {
     val ONLINE_PICTURES_DIFF_CALLBACK =
@@ -36,20 +36,20 @@ object DiffUtilComparators {
                 return oldItem.firstPicturePath == newItem.firstPicturePath
             }
         }
-    val PICTURES_DIFF_CALLBACK: DiffUtil.ItemCallback<Picture> =
-        object : DiffUtil.ItemCallback<Picture>() {
+    val PICTURES_DIFF_CALLBACK: DiffUtil.ItemCallback<PictureUri> =
+        object : DiffUtil.ItemCallback<PictureUri>() {
             override fun areItemsTheSame(
-                oldItem: Picture,
-                newItem: Picture
+                oldItem: PictureUri,
+                newItem: PictureUri
             ): Boolean {
-                return oldItem.id == newItem.id
+                return oldItem == newItem
             }
 
             override fun areContentsTheSame(
-                oldItem: Picture,
-                newItem: Picture
+                oldItem: PictureUri,
+                newItem: PictureUri
             ): Boolean {
-                return oldItem.path == newItem.path
+                return oldItem.uri == newItem.uri
             }
         }
 }

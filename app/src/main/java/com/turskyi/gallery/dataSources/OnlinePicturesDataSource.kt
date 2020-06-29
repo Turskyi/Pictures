@@ -16,14 +16,13 @@ import retrofit2.Response
  * Android paging library data source.
  * This will load the pictures and allow an infinite scroll on the screen.
  */
-class OnlinePicturesDataSource :
-    PageKeyedDataSource<Long, OnlinePictureRepo>() {
+class OnlinePicturesDataSource : PageKeyedDataSource<Long, OnlinePictureRepo>() {
 
     val networkState = MutableLiveData<NetworkState>()
     private var lastPage: Int? = null
 
     override fun loadInitial(
-        params: PageKeyedDataSource.LoadInitialParams<Long>,
+        params: LoadInitialParams<Long>,
         callback: LoadInitialCallback<Long, OnlinePictureRepo>
     ) {
         Log.d(
@@ -60,8 +59,8 @@ class OnlinePicturesDataSource :
     }
 
     override fun loadAfter(
-        params: PageKeyedDataSource.LoadParams<Long>,
-        callback: PageKeyedDataSource.LoadCallback<Long, OnlinePictureRepo>
+        params: LoadParams<Long>,
+        callback: LoadCallback<Long, OnlinePictureRepo>
     ) {
         // updating the network state to loading
         networkState.postValue(NetworkState.LOADING)
@@ -93,16 +92,16 @@ class OnlinePicturesDataSource :
 
             // if the response is not successful
             // we update the network state to error along with the error message
-            override fun onFailure(call: Call<List<OnlinePictureRepo>>, t: Throwable) {
+            override fun onFailure(call: Call<List<OnlinePictureRepo>>, t: Throwable) =
                 // we update the network state to error along with the error message
                 networkState.postValue(NetworkState.error(t.message))
-            }
+
         })
     }
 
     override fun loadBefore(
-        params: PageKeyedDataSource.LoadParams<Long>,
-        callback: PageKeyedDataSource.LoadCallback<Long, OnlinePictureRepo>
+        params: LoadParams<Long>,
+        callback: LoadCallback<Long, OnlinePictureRepo>
     ) {
         // we do nothing here because everything will be loaded
     }

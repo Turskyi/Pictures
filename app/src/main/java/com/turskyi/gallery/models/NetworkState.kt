@@ -8,11 +8,8 @@ data class NetworkState(
     val msg: String? = null
 ) {
     companion object {
-        val SUCCESS =
-            NetworkState(Status.SUCCESS)
-        val LOADING =
-            NetworkState(Status.LOADING)
-        fun error(msg: String?) =
-            NetworkState(Status.FAILURE, msg)
+        val SUCCESS = NetworkState(Status.SUCCESS)
+        val LOADING = NetworkState(Status.LOADING)
+        fun error(msg: String?) = NetworkState(Status.FAILURE, msg)
     }
 }

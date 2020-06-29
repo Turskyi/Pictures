@@ -7,7 +7,7 @@
     <include layout="@layout/toolbar" />
 
     <com.github.chrisbanes.photoview.PhotoView
-            android:id="@+id/imageViewEnlarged"
+            android:id="@+id/ivEnlarged"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 

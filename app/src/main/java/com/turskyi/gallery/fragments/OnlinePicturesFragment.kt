@@ -5,7 +5,6 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.paging.PagedList
 import androidx.recyclerview.widget.GridLayoutManager
 import com.turskyi.gallery.R.drawable.ic_view_list_white
 import com.turskyi.gallery.adapters.OnlineGridAdapter
@@ -28,7 +27,7 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         onlinePicturesViewModel =
-            ViewModelProvider(activity!!).get(OnlinePicturesViewModel::class.java)
+            ViewModelProvider(requireActivity()).get(OnlinePicturesViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -38,7 +37,7 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
 
     private fun updateFragment() {
         pagedListObserver()
-        onlinePicturesViewModel.viewTypes.observe(this,
+        onlinePicturesViewModel.viewTypes.observe(viewLifecycleOwner,
             Observer { viewType ->
                 when (viewType) {
                     ViewType.GRID -> {
@@ -53,8 +52,8 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
             })
 
         btnViewChanger.setOnClickListener {
-            when {
-                onlinePicturesViewModel.viewTypes.value == ViewType.GRID -> {
+            when (onlinePicturesViewModel.viewTypes.value) {
+                ViewType.GRID -> {
                     onlinePicturesViewModel.setViewType(ViewType.LINEAR)
                     onlineRecyclerView.adapter = listViewAdapter
                     //this method cannot be in "onlinePicturesViewModel.viewTypes.observe"
@@ -62,10 +61,18 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
                     gridViewAdapter.changeViewType()
                     pagedListObserver()
                 }
-                onlinePicturesViewModel.viewTypes.value == ViewType.LINEAR -> {
+                ViewType.LINEAR -> {
                     onlinePicturesViewModel.setViewType(ViewType.GRID)
                     onlineRecyclerView.adapter = gridViewAdapter
                     gridViewAdapter.changeViewType()
+                }
+                else -> {
+                    onlinePicturesViewModel.setViewType(ViewType.LINEAR)
+                    onlineRecyclerView.adapter = listViewAdapter
+                    //this method cannot be in "onlinePicturesViewModel.viewTypes.observe"
+                    // because then it changes layout after delete
+                    gridViewAdapter.changeViewType()
+                    pagedListObserver()
                 }
             }
         }
@@ -74,17 +81,15 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
         listViewAdapter = OnlineListAdapter(this)
 
         gridViewAdapter.submitList(onlinePicturesViewModel.pagedListLiveData.value)
+        listViewAdapter.submitList(onlinePicturesViewModel.pagedListLiveData.value)
 
         /** get number of columns and switch between listView and gridView */
         updateLayoutManager()
-
-        /* Without this line nothing going to show up */
-        onlineRecyclerView.adapter = gridViewAdapter
     }
 
     private fun pagedListObserver() {
-        onlinePicturesViewModel.pagedListLiveData.observe(this,
-            Observer<PagedList<OnlinePictureRepo>> { pagedList ->
+        onlinePicturesViewModel.pagedListLiveData.observe(viewLifecycleOwner,
+            Observer { pagedList ->
                 if (onlinePicturesViewModel.viewTypes.value == ViewType.GRID) {
                     gridViewAdapter.submitList(pagedList)
                     onlineRecyclerView.adapter = gridViewAdapter
@@ -112,8 +117,15 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
 
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.INVISIBLE
-        gridLayoutManager = GridLayoutManager(context, 2)
-        onlinePicturesViewModel.viewTypes.value = ViewType.GRID
+        if (onlinePicturesViewModel.viewTypes.value == null || onlinePicturesViewModel.viewTypes.value == ViewType.GRID){
+            onlinePicturesViewModel.viewTypes.value = ViewType.GRID
+            gridLayoutManager = GridLayoutManager(context, 2)
+            /* Without this line nothing going to show up */
+            onlineRecyclerView.adapter = gridViewAdapter
+        } else if (onlinePicturesViewModel.viewTypes.value == ViewType.LINEAR){
+            gridLayoutManager = GridLayoutManager(context, 1)
+            onlineRecyclerView.adapter = listViewAdapter
+        }
         onlineRecyclerView.layoutManager = gridLayoutManager
     }
 }
