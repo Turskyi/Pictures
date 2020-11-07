@@ -17,9 +17,6 @@ import com.turskyi.gallery.models.PictureUri
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewholders.PictureGridViewHolder
 import kotlinx.android.synthetic.main.picture_item.view.*
-import kotlinx.android.synthetic.main.picture_item.view.picturePreviewIV
-import kotlinx.android.synthetic.main.picture_item.view.selectedPicture
-import java.io.File
 
 class PictureGridAdapter(
     private val onPictureLongClickListener: OnPictureLongClickListener
@@ -75,7 +72,9 @@ class PictureGridAdapter(
                 .into(holder.itemView.picturePreviewIV)
 
             // showing photos without glide (very slow)
-// previewIV.setImageBitmap(BitmapFactory.decodeFile(picture.path))
+//            val options = BitmapFactory.Options()
+//            options.inSampleSize = 2
+//            holder.itemView.picturePreviewIV.setImageBitmap(BitmapFactory.decodeFile(getItem(position)?.path, options))
 
             holder.itemView.picturePreviewIV.setOnClickListener {
                 val fragmentManager: FragmentTransaction =

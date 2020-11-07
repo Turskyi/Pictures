@@ -52,7 +52,6 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
                 else -> {
                     gridLayoutManager?.spanCount = 1
                     btnViewChanger.setImageResource(R.drawable.ic_grid)
-
                 }
             }
         })
@@ -64,8 +63,8 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
                     picturesViewModel.setViewType(ViewType.LINEAR)
                     listViewAdapter.submitList(picturesViewModel.pagedList)
                     picturesRecyclerView.adapter = listViewAdapter
-                    //this method cannot be in "picturesViewModel.viewTypes.observe"
-                    // because then it changes layout after delete
+                    /*this method cannot be in "picturesViewModel.viewTypes.observe"
+                     because then it changes layout after delete */
                     gridViewAdapter.changeViewType()
                 }
                 picturesViewModel.viewTypes.value == ViewType.LINEAR -> {
@@ -152,15 +151,16 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
     private fun updateLayoutManager() {
         btnArrowBack.visibility = View.INVISIBLE
         if (picturesViewModel.viewTypes.value == null
-            || picturesViewModel.viewTypes.value == ViewType.GRID) {
+            || picturesViewModel.viewTypes.value == ViewType.GRID
+        ) {
             picturesViewModel.viewTypes.value = ViewType.GRID
             gridLayoutManager = GridLayoutManager(context, 2)
-//            /* Without this line nothing going to show up */
+            /* Without this line nothing going to show up */
             picturesRecyclerView.adapter = gridViewAdapter
             picturesRecyclerView.layoutManager = gridLayoutManager
-        } else if (picturesViewModel.viewTypes.value == ViewType.LINEAR){
+        } else if (picturesViewModel.viewTypes.value == ViewType.LINEAR) {
             gridLayoutManager = GridLayoutManager(context, 1)
-//            /* Without this line nothing going to show up */
+            /* Without this line nothing going to show up */
             picturesRecyclerView.adapter = listViewAdapter
             picturesRecyclerView.layoutManager = gridLayoutManager
         }

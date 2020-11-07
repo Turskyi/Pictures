@@ -8,7 +8,9 @@ import com.turskyi.gallery.R
 import com.turskyi.gallery.data.GalleryConstants
 import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 
-/** This fragment controls the "bottomNavigationView" which set another fragment for the whole screen */
+/**
+ *  This fragment controls the "bottomNavigationView" which set another fragment for the whole screen
+ *  */
 class BottomNavigationFragment : Fragment(R.layout.fragment_bottom_navigation){
 
     private var fragmentId = 0

@@ -6,9 +6,48 @@ import android.os.Build
 import android.provider.MediaStore.Images
 import android.provider.MediaStore.Images.Media.DATA
 import com.turskyi.gallery.models.Folder
+import com.turskyi.gallery.models.Picture
 import com.turskyi.gallery.models.PictureUri
 
 class FilesRepository {
+
+    fun getImagePathList(from: Int, to: Int, context: Context): List<Picture> {
+        /** Create a list of urls pictures */
+        val listOfImages = mutableListOf<Picture>()
+
+        /** Get all columns of type images */
+        val columns = arrayOf(DATA, Images.Media._ID)
+
+        /** order data by date */
+        val orderBy =
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                Images.Media.DATE_TAKEN
+            } else {
+                Images.Media._ID
+            }
+
+        /** This cursor will hold the result of the query
+        and put all data in Cursor by sorting in descending order */
+        val cursor = context.contentResolver.query(
+            Images.Media.EXTERNAL_CONTENT_URI,
+            columns, null, null, "$orderBy DESC"
+        )
+        cursor?.let { file ->
+            for (i in from until to + from) {
+                if (file.moveToNext() && i < file.columnCount - 1) {
+                    do {
+                        val dataColumnIndex = file.getColumnIndex(DATA)
+                        val id =
+                            file.getLong(file.getColumnIndexOrThrow(Images.Media._ID))
+                        val galleryPicture = Picture(file.getString(dataColumnIndex), id)
+                        listOfImages.add(galleryPicture)
+                    } while (file.moveToNext())
+                }
+            }
+        }
+        cursor?.close()
+        return listOfImages
+    }
 
     fun getDataOfImageList(from: Int, to: Int, context: Context): List<PictureUri> {
 
@@ -25,11 +64,11 @@ class FilesRepository {
             Images.Media.EXTERNAL_CONTENT_URI,
             columns, null, null, "$orderBy DESC"
         )
-        cursor?.let {
-            val columnIndexID: Int = it.getColumnIndexOrThrow(Images.Media._ID)
+        cursor?.let { fileCursor ->
+            val columnIndexID: Int = fileCursor.getColumnIndexOrThrow(Images.Media._ID)
             for (i in from until to + from) {
-                while (it.moveToNext() && i < it.columnCount) {
-                val id = it.getLong(columnIndexID)
+                while (fileCursor.moveToNext() && i < fileCursor.columnCount) {
+                val id = fileCursor.getLong(columnIndexID)
                     val uriImage =
                         Uri.withAppendedPath(
                             Images.Media.EXTERNAL_CONTENT_URI,
@@ -56,7 +95,7 @@ class FilesRepository {
 
 
     private fun getSetOfFolders(context: Context): MutableSet<Folder> {
-        @Suppress("DEPRECATION") val columns = arrayOf(DATA, Images.Media._ID)
+      val columns = arrayOf(DATA, Images.Media._ID)
 
         /** My set of folders */
         val folderUrls: MutableSet<Folder> = mutableSetOf()
@@ -78,10 +117,10 @@ class FilesRepository {
             columns, null, null, "$orderBy DESC"
         )
         cursor?.let {
-            // checking if first box of the array is not null
+            /* checking if first box of the array is not null */
             if (it.moveToFirst()) {
                 do {
-                    @Suppress("DEPRECATION") val dataColumnIndex = it.getColumnIndex(DATA)
+               val dataColumnIndex = it.getColumnIndex(DATA)
                     val pictureInFolderPath = it.getString(dataColumnIndex)
                     val pathArrayOfStrings = pictureInFolderPath.split('/')
                     val folderName = pathArrayOfStrings[pathArrayOfStrings.size - 2]
@@ -117,7 +156,7 @@ class FilesRepository {
     fun getSetOfImagesInFolder(
         context: Context
     ): MutableSet<PictureUri> {
-        @Suppress("DEPRECATION") val columns = arrayOf(
+      val columns = arrayOf(
             DATA,
             Images.Media._ID
         )

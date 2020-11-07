@@ -11,15 +11,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.turskyi.gallery"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
         vectorDrawables.useSupportLibrary = true
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -40,19 +40,19 @@ dependencies {
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     /* this is needed to use the updated AppCompatActivity */
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
 
     /* These new versions add the ability to pass the layout ID to the constructor
      of the Activity or Fragment base class,
      and it will handle inflation behind-the-scenes. */
-    implementation 'androidx.activity:activity-ktx:1.2.0-alpha06'
-    implementation 'androidx.fragment:fragment-ktx:1.3.0-alpha06'
+    implementation 'androidx.activity:activity-ktx:1.2.0-beta01'
+    implementation 'androidx.fragment:fragment-ktx:1.3.0-beta01'
 
     /* Constraint Layout */
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     /* Material Design */
-    implementation 'com.google.android.material:material:1.3.0-alpha01'
+    implementation 'com.google.android.material:material:1.3.0-alpha03'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     /* RecyclerView */
@@ -64,11 +64,11 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
     /* Core */
-    implementation 'androidx.core:core-ktx:1.3.0'
+    implementation 'androidx.core:core-ktx:1.3.2'
 
     /* Paging */
     def paging_version = "2.1.2"
-    implementation "androidx.paging:paging-runtime:$paging_version"
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
     /* Glide (Image caching and management) */
     def glideVersion = "4.11.0"
@@ -77,7 +77,7 @@ dependencies {
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
 
     /* Retrofit */
-    def retrofit_version = "2.7.1"
+    def retrofit_version = "2.9.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation 'com.squareup.retrofit2:converter-moshi:2.7.1'
@@ -87,7 +87,7 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
-    testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'junit:junit:4.13.1'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
