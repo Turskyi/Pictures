@@ -31,12 +31,12 @@ class PictureListAdapter(
      * @Description making "check" sign visible and invisible onLongClick
      * */
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-             (holder as PictureListViewHolder).pictureListPreviewIV.setOnLongClickListener {
-                if (holder.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.selectedPicture.visibility = View.VISIBLE
+             (holder as PictureListViewHolder).ivPictureListItemPreview.setOnLongClickListener {
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -45,11 +45,11 @@ class PictureListAdapter(
                 true
             }
             holder.itemView.setOnLongClickListener {
-                if (holder.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.selectedPicture.visibility = View.VISIBLE
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -62,12 +62,12 @@ class PictureListAdapter(
             Glide.with(holder.itemView.context)
                 .load(uri)
 //            .override(600, 200) // overriding does not help with optimisation
-                .into(holder.pictureListPreviewIV)
+                .into(holder.ivPictureListItemPreview)
 
             // showing photos without glide (very slow)
 // previewIV.setImageBitmap(BitmapFactory.decodeFile(picture.path))
 
-            holder.pictureListPreviewIV.setOnClickListener {
+            holder.ivPictureListItemPreview.setOnClickListener {
                 val fragmentManager: FragmentTransaction =
                     (holder.itemView.context as AppCompatActivity).supportFragmentManager.beginTransaction()
                 val detailedFragment = DetailedFragment(getItem(position)!!)

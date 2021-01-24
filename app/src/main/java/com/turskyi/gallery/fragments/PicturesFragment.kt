@@ -3,7 +3,11 @@ package com.turskyi.gallery.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
@@ -15,20 +19,32 @@ import com.turskyi.gallery.R.drawable.ic_view_list_white
 import com.turskyi.gallery.adapters.PictureGridAdapter
 import com.turskyi.gallery.adapters.PictureListAdapter
 import com.turskyi.gallery.data.GalleryConstants
+import com.turskyi.gallery.databinding.FragmentPicturesBinding
 import com.turskyi.gallery.interfaces.OnPictureLongClickListener
 import com.turskyi.gallery.models.PictureUri
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewmodels.PicturesViewModel
-import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
-import kotlinx.android.synthetic.main.fragment_pictures.*
-import kotlinx.android.synthetic.main.toolbar.*
 
-class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClickListener {
+class PicturesFragment : Fragment(), OnPictureLongClickListener {
+
+    private var _binding: FragmentPicturesBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
 
     private lateinit var gridViewAdapter: PictureGridAdapter
     private lateinit var listViewAdapter: PictureListAdapter
     private lateinit var picturesViewModel: PicturesViewModel
     private var gridLayoutManager: GridLayoutManager? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPicturesBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,29 +56,34 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
         updateFragment()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun updateFragment() {
 
-        picturesViewModel.viewTypes.observe(viewLifecycleOwner, Observer { viewType ->
+        picturesViewModel.viewTypes.observe(viewLifecycleOwner, { viewType ->
             when (viewType) {
-                ViewType.DELETE -> btnViewChanger.setImageResource(R.drawable.ic_remove32)
+                ViewType.DELETE -> binding.toolbar.btnViewChanger.setImageResource(R.drawable.ic_remove32)
                 ViewType.GRID -> {
                     gridLayoutManager?.spanCount = 2
-                    btnViewChanger.setImageResource(ic_view_list_white)
+                    binding.toolbar.btnViewChanger.setImageResource(ic_view_list_white)
                 }
                 else -> {
                     gridLayoutManager?.spanCount = 1
-                    btnViewChanger.setImageResource(R.drawable.ic_grid)
+                    binding.toolbar.btnViewChanger.setImageResource(R.drawable.ic_grid)
                 }
             }
         })
 
-        btnViewChanger.setOnClickListener {
+        binding.toolbar.btnViewChanger.setOnClickListener {
             when {
                 picturesViewModel.selectedPictures.size > 0 -> deleteAllSelected()
                 picturesViewModel.viewTypes.value == ViewType.GRID -> {
                     picturesViewModel.setViewType(ViewType.LINEAR)
                     listViewAdapter.submitList(picturesViewModel.pagedList)
-                    picturesRecyclerView.adapter = listViewAdapter
+                    binding.picturesRecyclerView.adapter = listViewAdapter
                     /*this method cannot be in "picturesViewModel.viewTypes.observe"
                      because then it changes layout after delete */
                     gridViewAdapter.changeViewType()
@@ -70,7 +91,7 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
                 picturesViewModel.viewTypes.value == ViewType.LINEAR -> {
                     picturesViewModel.setViewType(ViewType.GRID)
                     gridViewAdapter.submitList(picturesViewModel.pagedList)
-                    picturesRecyclerView.adapter = gridViewAdapter
+                    binding.picturesRecyclerView.adapter = gridViewAdapter
                     gridViewAdapter.changeViewType()
                 }
             }
@@ -96,7 +117,9 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
         if (pagedList.size < 1) {
             setUpAnEmptyViewImage(fragmentActivity)
         } else {
-            fragmentActivity?.bottomNavigationView?.visibility = View.VISIBLE
+            (fragmentActivity?.supportFragmentManager
+                ?.findFragmentById(R.id.bottomNavigationView) as BottomNavigationFragment?)
+                ?.setVisibility(VISIBLE)
         }
     }
 
@@ -114,10 +137,12 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
     }
 
     private fun setUpAnEmptyViewImage(fragmentActivity: FragmentActivity?) {
-        emptyView.visibility = View.VISIBLE
-        fragmentActivity?.bottomNavigationView?.visibility = View.GONE
-        btnViewChanger.visibility = View.GONE
-        emptyView.setOnClickListener(sendToGoogleImages)
+        binding.emptyView.visibility = VISIBLE
+        (fragmentActivity?.supportFragmentManager
+            ?.findFragmentById(R.id.bottomNavigationView) as BottomNavigationFragment?)
+            ?.setVisibility(GONE)
+        binding.toolbar.btnViewChanger.visibility = GONE
+        binding.emptyView.setOnClickListener(sendToGoogleImages)
     }
 
     private var sendToGoogleImages: View.OnClickListener = View.OnClickListener {
@@ -129,41 +154,28 @@ class PicturesFragment : Fragment(R.layout.fragment_pictures), OnPictureLongClic
 
     private fun deleteAllSelected() {
         picturesViewModel.selectedPictures.let {
-//            for (selectedPicture in it) {
-//                val file = File(selectedPicture.path)
-//                val id = selectedPicture.id
-//                if (file.exists()) {
-//                    val deleteUri: Uri = ContentUris
-//                        .withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-//                    activity?.contentResolver?.delete(deleteUri, null, null)
-//                    updateFragment()
-//                } else {
-//                    Toast.makeText(
-//                        context,
-//                        getString(R.string.picture_does_not_exist),
-//                        Toast.LENGTH_LONG
-//                    ).show()
-//                }
-//            }
+            for (selectedPicture in it) {
+//                TODO: implement deleting
+            }
         }
     }
 
     private fun updateLayoutManager() {
-        btnArrowBack.visibility = View.INVISIBLE
+        binding.toolbar.btnArrowBack.visibility = View.INVISIBLE
         if (picturesViewModel.viewTypes.value == null
             || picturesViewModel.viewTypes.value == ViewType.GRID
         ) {
             picturesViewModel.viewTypes.value = ViewType.GRID
             gridLayoutManager = GridLayoutManager(context, 2)
             /* Without this line nothing going to show up */
-            picturesRecyclerView.adapter = gridViewAdapter
-            picturesRecyclerView.layoutManager = gridLayoutManager
+            binding.picturesRecyclerView.adapter = gridViewAdapter
+            binding.picturesRecyclerView.layoutManager = gridLayoutManager
         } else if (picturesViewModel.viewTypes.value == ViewType.LINEAR) {
             gridLayoutManager = GridLayoutManager(context, 1)
             /* Without this line nothing going to show up */
-            picturesRecyclerView.adapter = listViewAdapter
-            picturesRecyclerView.layoutManager = gridLayoutManager
+            binding.picturesRecyclerView.adapter = listViewAdapter
+            binding.picturesRecyclerView.layoutManager = gridLayoutManager
         }
-        picturesRecyclerView.layoutManager = gridLayoutManager
+        binding.picturesRecyclerView.layoutManager = gridLayoutManager
     }
 }

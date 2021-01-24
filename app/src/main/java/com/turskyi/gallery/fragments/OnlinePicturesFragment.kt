@@ -1,7 +1,9 @@
 package com.turskyi.gallery.fragments
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -9,20 +11,33 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.turskyi.gallery.R.drawable.ic_view_list_white
 import com.turskyi.gallery.adapters.OnlineGridAdapter
 import com.turskyi.gallery.adapters.OnlineListAdapter
+import com.turskyi.gallery.databinding.FragmentOnlinePicturesBinding
 import com.turskyi.gallery.interfaces.OnOnlinePictureLongClickListener
 import com.turskyi.gallery.models.OnlinePictureRepo
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewmodels.OnlinePicturesViewModel
-import kotlinx.android.synthetic.main.fragment_online_pictures.*
-import kotlinx.android.synthetic.main.toolbar.*
 
 class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_online_pictures),
     OnOnlinePictureLongClickListener {
+
+    private var _binding: FragmentOnlinePicturesBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
 
     private lateinit var gridViewAdapter: OnlineGridAdapter
     private lateinit var listViewAdapter: OnlineListAdapter
     private lateinit var onlinePicturesViewModel: OnlinePicturesViewModel
     private var gridLayoutManager: GridLayoutManager? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentOnlinePicturesBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,27 +50,32 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
         updateFragment()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun updateFragment() {
         pagedListObserver()
         onlinePicturesViewModel.viewTypes.observe(viewLifecycleOwner,
-            Observer { viewType ->
+            { viewType ->
                 when (viewType) {
                     ViewType.GRID -> {
                         gridLayoutManager?.spanCount = 2
-                        btnViewChanger.setImageResource(ic_view_list_white)
+                        binding.toolbar.btnViewChanger.setImageResource(ic_view_list_white)
                     }
                     else -> {
                         gridLayoutManager?.spanCount = 1
-                        btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_grid)
+                        binding.toolbar.btnViewChanger.setImageResource(com.turskyi.gallery.R.drawable.ic_grid)
                     }
                 }
             })
 
-        btnViewChanger.setOnClickListener {
+        binding.toolbar.btnViewChanger.setOnClickListener {
             when (onlinePicturesViewModel.viewTypes.value) {
                 ViewType.GRID -> {
                     onlinePicturesViewModel.setViewType(ViewType.LINEAR)
-                    onlineRecyclerView.adapter = listViewAdapter
+                    binding.onlineRecyclerView.adapter = listViewAdapter
                     //this method cannot be in "onlinePicturesViewModel.viewTypes.observe"
                     // because then it changes layout after delete
                     gridViewAdapter.changeViewType()
@@ -63,12 +83,12 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
                 }
                 ViewType.LINEAR -> {
                     onlinePicturesViewModel.setViewType(ViewType.GRID)
-                    onlineRecyclerView.adapter = gridViewAdapter
+                    binding.onlineRecyclerView.adapter = gridViewAdapter
                     gridViewAdapter.changeViewType()
                 }
                 else -> {
                     onlinePicturesViewModel.setViewType(ViewType.LINEAR)
-                    onlineRecyclerView.adapter = listViewAdapter
+                    binding.onlineRecyclerView.adapter = listViewAdapter
                     //this method cannot be in "onlinePicturesViewModel.viewTypes.observe"
                     // because then it changes layout after delete
                     gridViewAdapter.changeViewType()
@@ -89,13 +109,13 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
 
     private fun pagedListObserver() {
         onlinePicturesViewModel.pagedListLiveData.observe(viewLifecycleOwner,
-            Observer { pagedList ->
+            { pagedList ->
                 if (onlinePicturesViewModel.viewTypes.value == ViewType.GRID) {
                     gridViewAdapter.submitList(pagedList)
-                    onlineRecyclerView.adapter = gridViewAdapter
+                    binding.onlineRecyclerView.adapter = gridViewAdapter
                 } else {
                     listViewAdapter.submitList(pagedList)
-                    onlineRecyclerView.adapter = listViewAdapter
+                    binding.onlineRecyclerView.adapter = listViewAdapter
                 }
             })
     }
@@ -116,16 +136,16 @@ class OnlinePicturesFragment : Fragment(com.turskyi.gallery.R.layout.fragment_on
     }
 
     private fun updateLayoutManager() {
-        btnArrowBack.visibility = View.INVISIBLE
+        binding.toolbar.btnArrowBack.visibility = View.INVISIBLE
         if (onlinePicturesViewModel.viewTypes.value == null || onlinePicturesViewModel.viewTypes.value == ViewType.GRID){
             onlinePicturesViewModel.viewTypes.value = ViewType.GRID
             gridLayoutManager = GridLayoutManager(context, 2)
             /* Without this line nothing going to show up */
-            onlineRecyclerView.adapter = gridViewAdapter
+            binding.onlineRecyclerView.adapter = gridViewAdapter
         } else if (onlinePicturesViewModel.viewTypes.value == ViewType.LINEAR){
             gridLayoutManager = GridLayoutManager(context, 1)
-            onlineRecyclerView.adapter = listViewAdapter
+            binding.onlineRecyclerView.adapter = listViewAdapter
         }
-        onlineRecyclerView.layoutManager = gridLayoutManager
+        binding.onlineRecyclerView.layoutManager = gridLayoutManager
     }
 }

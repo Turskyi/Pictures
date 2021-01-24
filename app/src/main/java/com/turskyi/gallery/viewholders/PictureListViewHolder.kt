@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.turskyi.gallery.R
-import kotlinx.android.synthetic.main.picture_list_item.view.*
 
 class PictureListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -18,6 +17,6 @@ class PictureListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) 
         )
     )
     
-    val pictureListPreviewIV: ImageView = itemView.pictureListPreviewIV
-    val selectedPicture: ImageView = itemView.selectedPicture
+    val ivPictureListItemPreview: ImageView = itemView.findViewById(R.id.pictureListPreviewIV)
+    val ivSelectedPicture: ImageView = itemView.findViewById(R.id.selectedPicture)
 }

@@ -4,17 +4,20 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.view.View.VISIBLE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.turskyi.gallery.data.GalleryConstants.PERMISSION_EXTERNAL_STORAGE
+import com.turskyi.gallery.databinding.ActivityHomeBinding
 import com.turskyi.gallery.fragments.BottomNavigationFragment
-import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
 
 /** Gallery with three bottom navigation tabs: pictures, folders and random online photos */
-class HomeActivity : AppCompatActivity(R.layout.activity_home) {
+class HomeActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityHomeBinding
+    private lateinit var homeFragment: BottomNavigationFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,10 +47,14 @@ class HomeActivity : AppCompatActivity(R.layout.activity_home) {
     }
 
     private fun showFragment() {
-        val homeFragment = BottomNavigationFragment()
+        binding = ActivityHomeBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+        homeFragment = BottomNavigationFragment()
         homeFragment.arguments = intent.extras
         val fragmentManager = supportFragmentManager.beginTransaction()
         fragmentManager.add(R.id.frameLayout, homeFragment).commit()
+
     }
 
     override fun onRequestPermissionsResult(
@@ -63,12 +70,12 @@ class HomeActivity : AppCompatActivity(R.layout.activity_home) {
                 if ((grantResult.isNotEmpty()
                             && grantResult[0] == PackageManager.PERMISSION_GRANTED)
                 ) {
-                    getPermissionView.visibility = View.GONE
+                    binding.getPermissionView.visibility = View.GONE
                     showFragment()
                 } else {
                     /** shows the "get permission view" */
-                    getPermissionView.visibility = View.VISIBLE
-                    getPermissionView.setOnClickListener {
+                    binding.getPermissionView.visibility = VISIBLE
+                    binding.getPermissionView.setOnClickListener {
                         requestPermission()
                     }
                 }
@@ -84,13 +91,13 @@ class HomeActivity : AppCompatActivity(R.layout.activity_home) {
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.really_exit))
                 .setMessage(getString(R.string.are_you_sure_you_want_to_exit))
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(
-                    android.R.string.yes
-                ) { _, _ -> super@HomeActivity.onBackPressed() }.create().show()
-
+                .setNegativeButton(getString(R.string.home_cancel), null)
+                .setPositiveButton(getString(R.string.home_ok)) { _, _ ->
+                    super@HomeActivity.onBackPressed()
+                }
+                .create().show()
         } else {
-            bottomNavigationView?.visibility = View.VISIBLE
+            homeFragment.setVisibility(VISIBLE)
             supportFragmentManager.popBackStack()
         }
     }

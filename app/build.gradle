@@ -2,17 +2,18 @@ apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
 
-apply plugin: 'kotlin-android-extensions'
-
 apply plugin: 'kotlin-kapt'
 
 android {
+    compileSdkVersion 30
+    buildToolsVersion "29.0.3"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    compileSdkVersion 30
-    buildToolsVersion "29.0.3"
+    buildFeatures {
+        viewBinding true
+    }
     defaultConfig {
         applicationId "com.turskyi.gallery"
         minSdkVersion 21
@@ -29,8 +30,6 @@ android {
                     'proguard-rules.pro'
         }
     }
-    productFlavors {
-    }
 }
 
 dependencies {
@@ -45,14 +44,14 @@ dependencies {
     /* These new versions add the ability to pass the layout ID to the constructor
      of the Activity or Fragment base class,
      and it will handle inflation behind-the-scenes. */
-    implementation 'androidx.activity:activity-ktx:1.2.0-beta01'
-    implementation 'androidx.fragment:fragment-ktx:1.3.0-beta01'
+    implementation 'androidx.activity:activity-ktx:1.2.0-rc01'
+    implementation 'androidx.fragment:fragment-ktx:1.3.0-rc01'
 
     /* Constraint Layout */
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     /* Material Design */
-    implementation 'com.google.android.material:material:1.3.0-alpha03'
+    implementation 'com.google.android.material:material:1.3.0-rc01'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     /* RecyclerView */
@@ -82,9 +81,7 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation 'com.squareup.retrofit2:converter-moshi:2.7.1'
 
-    /* misc */
-    implementation 'com.jakewharton:butterknife:10.0.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
+    /* for zooming the picture */
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
     testImplementation 'junit:junit:4.13.1'

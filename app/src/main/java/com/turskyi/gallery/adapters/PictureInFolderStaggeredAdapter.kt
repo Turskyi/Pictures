@@ -16,9 +16,6 @@ import com.turskyi.gallery.interfaces.OnPictureLongClickListener
 import com.turskyi.gallery.models.PictureUri
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewholders.PictureStaggeredViewHolder
-import kotlinx.android.synthetic.main.picture_item.view.selectedPicture
-import kotlinx.android.synthetic.main.picture_staggered_item.view.*
-import java.io.File
 
 class PictureInFolderStaggeredAdapter(
     private val onPictureLongClickListener: OnPictureLongClickListener
@@ -40,12 +37,12 @@ class PictureInFolderStaggeredAdapter(
 
         if (holder is PictureStaggeredViewHolder) {
 
-            holder.itemView.pictureStaggeredPreviewIV.setOnLongClickListener {
-                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.itemView.selectedPicture.visibility = View.VISIBLE
+            holder.ivPictureStaggeredPreview.setOnLongClickListener {
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -55,11 +52,11 @@ class PictureInFolderStaggeredAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
-                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.itemView.selectedPicture.visibility = View.VISIBLE
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -70,9 +67,9 @@ class PictureInFolderStaggeredAdapter(
 
             val uri: Uri = getItem(position)!!.uri
             Glide.with(holder.itemView.context).load(uri)
-                .into(holder.itemView.pictureStaggeredPreviewIV)
+                .into(holder.ivPictureStaggeredPreview)
 
-            holder.itemView.pictureStaggeredPreviewIV.setOnClickListener {
+            holder.ivPictureStaggeredPreview.setOnClickListener {
                 val fragmentManager: FragmentTransaction =
                     (holder.itemView.context as AppCompatActivity)
                         .supportFragmentManager.beginTransaction()

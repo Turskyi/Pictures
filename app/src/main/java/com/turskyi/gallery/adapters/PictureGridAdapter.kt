@@ -16,7 +16,6 @@ import com.turskyi.gallery.interfaces.OnPictureLongClickListener
 import com.turskyi.gallery.models.PictureUri
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewholders.PictureGridViewHolder
-import kotlinx.android.synthetic.main.picture_item.view.*
 
 class PictureGridAdapter(
     private val onPictureLongClickListener: OnPictureLongClickListener
@@ -37,12 +36,12 @@ class PictureGridAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is PictureGridViewHolder) {
 
-            holder.itemView.picturePreviewIV.setOnLongClickListener {
-                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.itemView.selectedPicture.visibility = View.VISIBLE
+            holder.ivPicturePreview.setOnLongClickListener {
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -52,11 +51,11 @@ class PictureGridAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
-                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.itemView.selectedPicture.visibility = View.VISIBLE
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -68,15 +67,9 @@ class PictureGridAdapter(
             val uri: Uri? = getItem(position)?.uri
             Glide.with(holder.itemView.context)
                 .load(uri)
-//            .override(600, 200) // overriding does not help with optimisation
-                .into(holder.itemView.picturePreviewIV)
+                .into(holder.ivPicturePreview)
 
-            // showing photos without glide (very slow)
-//            val options = BitmapFactory.Options()
-//            options.inSampleSize = 2
-//            holder.itemView.picturePreviewIV.setImageBitmap(BitmapFactory.decodeFile(getItem(position)?.path, options))
-
-            holder.itemView.picturePreviewIV.setOnClickListener {
+            holder.ivPicturePreview.setOnClickListener {
                 val fragmentManager: FragmentTransaction =
                     (holder.itemView.context as AppCompatActivity).supportFragmentManager.beginTransaction()
                 val detailedFragment = DetailedFragment(getItem(position)!!)

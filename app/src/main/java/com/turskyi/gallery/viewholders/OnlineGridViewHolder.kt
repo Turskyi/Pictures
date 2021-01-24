@@ -3,6 +3,7 @@ package com.turskyi.gallery.viewholders
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
@@ -11,7 +12,6 @@ import com.turskyi.gallery.R
 import com.turskyi.gallery.data.GalleryConstants
 import com.turskyi.gallery.fragments.OnlineDetailedFragment
 import com.turskyi.gallery.models.OnlinePictureRepo
-import kotlinx.android.synthetic.main.picture_item.view.*
 
 /**
  * @Description OnlinePictureRepo grid view holder.
@@ -27,10 +27,13 @@ class OnlineGridViewHolder(itemView: View) :
         )
     )
 
-    fun bindView(pictureRepo: OnlinePictureRepo) {
-        Glide.with(itemView.context).load(pictureRepo.urls?.small).into(itemView.picturePreviewIV)
+    val ivPicturePreview: ImageView = itemView.findViewById(R.id.picturePreviewIV)
+    val ivSelectedPicture: ImageView = itemView.findViewById(R.id.selectedPicture)
 
-        itemView.picturePreviewIV.setOnClickListener {
+    fun bindView(pictureRepo: OnlinePictureRepo) {
+        Glide.with(itemView.context).load(pictureRepo.urls?.small).into(ivPicturePreview)
+
+        ivPicturePreview.setOnClickListener {
             val fragmentManager: FragmentTransaction =
                 (itemView.context as AppCompatActivity).supportFragmentManager.beginTransaction()
             val detailedFragment = OnlineDetailedFragment(pictureRepo)

@@ -3,7 +3,10 @@ package com.turskyi.gallery.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -17,22 +20,34 @@ import com.turskyi.gallery.adapters.FolderGridAdapter
 import com.turskyi.gallery.adapters.FolderListAdapter
 import com.turskyi.gallery.data.FilesRepository
 import com.turskyi.gallery.data.GalleryConstants
+import com.turskyi.gallery.databinding.FragmentFoldersBinding
+import com.turskyi.gallery.databinding.FragmentPicturesBinding
 import com.turskyi.gallery.interfaces.OnFolderLongClickListener
 import com.turskyi.gallery.models.Folder
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewmodels.FoldersViewModel
-import kotlinx.android.synthetic.main.fragment_bottom_navigation.*
-import kotlinx.android.synthetic.main.fragment_folders.*
-import kotlinx.android.synthetic.main.toolbar.*
 import java.io.File
 
-class FoldersFragment : Fragment(R.layout.fragment_folders),
-    OnFolderLongClickListener {
+class FoldersFragment : Fragment(), OnFolderLongClickListener {
+
+    private var _binding: FragmentFoldersBinding? = null
+
+    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
 
     private lateinit var foldersViewModel: FoldersViewModel
     private lateinit var gridViewAdapter: FolderGridAdapter
     private lateinit var listViewAdapter: FolderListAdapter
     private var gridLayoutManager: GridLayoutManager? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFoldersBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,37 +61,42 @@ class FoldersFragment : Fragment(R.layout.fragment_folders),
         updateFragment()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun updateFragment() {
 
-        foldersViewModel.viewTypes.observe(viewLifecycleOwner, Observer { viewType ->
+        foldersViewModel.viewTypes.observe(viewLifecycleOwner, { viewType ->
             when (viewType) {
                 ViewType.DELETE -> {
-                    btnViewChanger.setImageResource(R.drawable.ic_remove32)
+                    binding.toolbar.btnViewChanger.setImageResource(R.drawable.ic_remove32)
                 }
                 ViewType.GRID -> {
                     gridLayoutManager?.spanCount = 2
-                    btnViewChanger.setImageResource(ic_view_list_white)
+                    binding.toolbar.btnViewChanger.setImageResource(ic_view_list_white)
                 }
                 else -> {
                     gridLayoutManager?.spanCount = 1
-                    btnViewChanger.setImageResource(R.drawable.ic_grid)
+                    binding.toolbar.btnViewChanger.setImageResource(R.drawable.ic_grid)
                 }
             }
         })
 
-        btnViewChanger.setOnClickListener {
+        binding.toolbar.btnViewChanger.setOnClickListener {
             when {
                 foldersViewModel.selectedFolders.size > 0 -> deleteAllSelected()
                 foldersViewModel.viewTypes.value == ViewType.GRID -> {
                     foldersViewModel.setViewType(ViewType.LINEAR)
                     listViewAdapter.submitList(foldersViewModel.pagedList)
-                    foldersRecyclerView.adapter = listViewAdapter
+                    binding.foldersRecyclerView.adapter = listViewAdapter
                     gridViewAdapter.changeViewType()
                 }
                 foldersViewModel.viewTypes.value == ViewType.LINEAR -> {
                     foldersViewModel.setViewType(ViewType.GRID)
                     gridViewAdapter.submitList(foldersViewModel.pagedList)
-                    foldersRecyclerView.adapter = gridViewAdapter
+                    binding.foldersRecyclerView.adapter = gridViewAdapter
                     gridViewAdapter.changeViewType()
                 }
             }
@@ -99,7 +119,9 @@ class FoldersFragment : Fragment(R.layout.fragment_folders),
         if (pagedList.size == 0) {
             setUpAnEmptyViewImage(fragmentActivity)
         } else {
-            fragmentActivity?.bottomNavigationView?.visibility = View.VISIBLE
+            (fragmentActivity?.supportFragmentManager
+                ?.findFragmentById(R.id.bottomNavigationView) as BottomNavigationFragment?)
+                ?.setVisibility(View.VISIBLE)
         }
     }
 
@@ -108,9 +130,7 @@ class FoldersFragment : Fragment(R.layout.fragment_folders),
         foldersViewModel.selectedFolders.add(folder)
 /* adds all images, located in the selected folder to the selected pictures list */
         for (i in activity?.applicationContext?.let {
-            repository.getSetOfImagesInFolder(
-                it
-            )
+            repository.getSetOfImagesInFolder(it)
         }!!) {
             foldersViewModel.selectedImages.add(i)
         }
@@ -126,10 +146,12 @@ class FoldersFragment : Fragment(R.layout.fragment_folders),
     }
 
     private fun setUpAnEmptyViewImage(fragmentActivity: FragmentActivity?) {
-        emptyFolders.visibility = View.VISIBLE
-        fragmentActivity?.bottomNavigationView?.visibility = View.GONE
-        btnViewChanger.visibility = View.GONE
-        emptyFolders.setOnClickListener(sendToGoogleImages)
+        binding.emptyFolders.visibility = View.VISIBLE
+        (fragmentActivity?.supportFragmentManager
+            ?.findFragmentById(R.id.bottomNavigationView) as BottomNavigationFragment?)
+            ?.setVisibility(GONE)
+        binding.toolbar.btnViewChanger.visibility = GONE
+        binding.emptyFolders.setOnClickListener(sendToGoogleImages)
     }
 
     private var sendToGoogleImages: View.OnClickListener = View.OnClickListener {
@@ -146,27 +168,7 @@ class FoldersFragment : Fragment(R.layout.fragment_folders),
                 if (folder.exists() && folder.isDirectory) {
                     // delete all pictures in folders
                     foldersViewModel.selectedImages.let {
-//                        for (selectedPicture in foldersViewModel.selectedImages) {
-//                            val file = File(selectedPicture.path)
-//                            val id = selectedPicture.id
-//                            if (file.exists()) {
-//                                val deleteUri: Uri = ContentUris
-//                                    .withAppendedId(
-//                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//                                        id
-//                                    )
-//                                activity?.contentResolver?.delete(
-//                                    deleteUri, null,
-//                                    null
-//                                )
-//                            } else {
-//                                Toast.makeText(
-//                                    context,
-//                                    getString(R.string.picture_does_not_exist),
-//                                    Toast.LENGTH_LONG
-//                                ).show()
-//                            }
-//                        }
+//TODO: delete images
                     }
                     //TODO: Delete empty folder
                     folder.delete()
@@ -183,18 +185,18 @@ class FoldersFragment : Fragment(R.layout.fragment_folders),
     }
 
     private fun updateLayoutManager() {
-        btnArrowBack.visibility = View.INVISIBLE
+        binding.toolbar.btnArrowBack.visibility = View.INVISIBLE
         if (foldersViewModel.viewTypes.value == null ||
             foldersViewModel.viewTypes.value == ViewType.GRID
         ) {
             foldersViewModel.viewTypes.value = ViewType.GRID
             gridLayoutManager = GridLayoutManager(context, 2)
             /* Without this line nothing gonna shows up */
-            foldersRecyclerView.adapter = gridViewAdapter
+            binding.foldersRecyclerView.adapter = gridViewAdapter
         } else if (foldersViewModel.viewTypes.value == ViewType.LINEAR) {
             gridLayoutManager = GridLayoutManager(context, 1)
-            foldersRecyclerView.adapter = listViewAdapter
+            binding.foldersRecyclerView.adapter = listViewAdapter
         }
-        foldersRecyclerView.layoutManager = gridLayoutManager
+        binding.foldersRecyclerView.layoutManager = gridLayoutManager
     }
 }

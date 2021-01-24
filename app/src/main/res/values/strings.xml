@@ -38,4 +38,7 @@
     <string name="photos_selected">%1$d pictures selected</string>
     <string name="photo_selected">1 photo selected</string>
     <string name="because_there_is_no_internet">Because there is no internet</string>
+
+    <string name="home_ok">OK</string>
+    <string name="home_cancel">Cancel</string>
 </resources>

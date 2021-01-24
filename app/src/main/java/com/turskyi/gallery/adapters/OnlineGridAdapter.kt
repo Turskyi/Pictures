@@ -9,7 +9,6 @@ import com.turskyi.gallery.interfaces.OnOnlinePictureLongClickListener
 import com.turskyi.gallery.models.OnlinePictureRepo
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewholders.OnlineGridViewHolder
-import kotlinx.android.synthetic.main.picture_item.view.*
 
 class OnlineGridAdapter constructor(
     private val onPictureLongClickListener: OnOnlinePictureLongClickListener
@@ -27,12 +26,12 @@ class OnlineGridAdapter constructor(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is OnlineGridViewHolder) {
 
-            holder.itemView.picturePreviewIV.setOnLongClickListener {
-                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.itemView.selectedPicture.visibility = View.VISIBLE
+            holder.ivPicturePreview.setOnLongClickListener {
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -41,11 +40,11 @@ class OnlineGridAdapter constructor(
                 true
             }
             holder.itemView.setOnLongClickListener {
-                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.itemView.selectedPicture.visibility = View.VISIBLE
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType

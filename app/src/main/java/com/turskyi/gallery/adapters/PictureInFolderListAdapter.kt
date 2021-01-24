@@ -16,9 +16,6 @@ import com.turskyi.gallery.interfaces.OnPictureLongClickListener
 import com.turskyi.gallery.models.PictureUri
 import com.turskyi.gallery.models.ViewType
 import com.turskyi.gallery.viewholders.PictureListViewHolder
-import kotlinx.android.synthetic.main.picture_item.view.selectedPicture
-import kotlinx.android.synthetic.main.picture_list_item.view.*
-import java.io.File
 
 class PictureInFolderListAdapter(
     private val onPictureLongClickListener: OnPictureLongClickListener
@@ -38,12 +35,12 @@ class PictureInFolderListAdapter(
      * */
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is PictureListViewHolder) {
-            holder.itemView.pictureListPreviewIV.setOnLongClickListener {
-                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.itemView.selectedPicture.visibility = View.VISIBLE
+            holder.ivPictureListItemPreview.setOnLongClickListener {
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -53,11 +50,11 @@ class PictureInFolderListAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
-                if (holder.itemView.selectedPicture.visibility == View.INVISIBLE) {
-                    holder.itemView.selectedPicture.visibility = View.VISIBLE
+                if (holder.ivSelectedPicture.visibility == View.INVISIBLE) {
+                    holder.ivSelectedPicture.visibility = View.VISIBLE
                     onPictureLongClickListener.addOnLongClick(getItem(position)!!)
                 } else {
-                    holder.itemView.selectedPicture.visibility = View.INVISIBLE
+                    holder.ivSelectedPicture.visibility = View.INVISIBLE
                     onPictureLongClickListener.removeOnLongClick(
                         getItem(position)!!,
                         viewType
@@ -66,13 +63,10 @@ class PictureInFolderListAdapter(
                 true
             }
 
-//            val file = File(getItem(position)!!.path)
-//            holder.itemView.pictureListName.text = file.name
-//            val uri: Uri = Uri.fromFile(file)
             val uri: Uri = getItem(position)!!.uri
-            Glide.with(holder.itemView.context).load(uri).into(holder.itemView.pictureListPreviewIV)
+            Glide.with(holder.itemView.context).load(uri).into(holder.ivPictureListItemPreview)
 
-            holder.itemView.pictureListPreviewIV.setOnClickListener {
+            holder.ivSelectedPicture.setOnClickListener {
                 val fragmentManager: FragmentTransaction =
                     (holder.itemView.context as AppCompatActivity).supportFragmentManager.beginTransaction()
                 val detailedFragment = DetailedFragment(getItem(position)!!)

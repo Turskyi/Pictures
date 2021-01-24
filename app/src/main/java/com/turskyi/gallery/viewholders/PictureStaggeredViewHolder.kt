@@ -3,6 +3,7 @@ package com.turskyi.gallery.viewholders
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.turskyi.gallery.R
 
@@ -16,4 +17,7 @@ class PictureStaggeredViewHolder(itemView: View) :
             false
         )
     )
+
+    val ivPictureStaggeredPreview: ImageView = itemView.findViewById(R.id.pictureStaggeredPreviewIV)
+    val ivSelectedPicture: ImageView = itemView.findViewById(R.id.selectedPicture)
 }
