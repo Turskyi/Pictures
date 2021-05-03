@@ -44,23 +44,23 @@ dependencies {
     /* These new versions add the ability to pass the layout ID to the constructor
      of the Activity or Fragment base class,
      and it will handle inflation behind-the-scenes. */
-    implementation 'androidx.activity:activity-ktx:1.2.0-rc01'
-    implementation 'androidx.fragment:fragment-ktx:1.3.0-rc01'
+    implementation 'androidx.activity:activity-ktx:1.2.2'
+    implementation 'androidx.fragment:fragment-ktx:1.3.3'
 
     /* Constraint Layout */
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     /* Material Design */
-    implementation 'com.google.android.material:material:1.3.0-rc01'
+    implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     /* RecyclerView */
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0'
 
     /* ViewModel and LiveData */
     def lifecycle_version = "2.2.0"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.3.1"
 
     /* Core */
     implementation 'androidx.core:core-ktx:1.3.2'
@@ -79,12 +79,12 @@ dependencies {
     def retrofit_version = "2.9.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
-    implementation 'com.squareup.retrofit2:converter-moshi:2.7.1'
+    implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
 
     /* for zooming the picture */
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

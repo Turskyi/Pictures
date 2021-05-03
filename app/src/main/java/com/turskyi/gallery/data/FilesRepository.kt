@@ -30,9 +30,7 @@ class FilesRepository {
             for (i in from until to + from) {
                 while (fileCursor.moveToNext() && i < fileCursor.columnCount) {
                 val id = fileCursor.getLong(columnIndexID)
-                    val uriImage =
-                        Uri.withAppendedPath(
-                            Images.Media.EXTERNAL_CONTENT_URI,
+                    val uriImage = Uri.withAppendedPath(Images.Media.EXTERNAL_CONTENT_URI,
                     "" + id)
                 val galleryPicture = PictureUri(uriImage)
                         listOfImages.add(galleryPicture)

@@ -16,10 +16,6 @@ class PicturesPositionalDataSource(private val context: Context) :
         params: LoadInitialParams,
         callback: LoadInitialCallback<PictureUri>
     ) {
-        Log.d(
-            GalleryConstants.TAG_DATA_SOURCE, "start = ${params.requestedStartPosition}, " +
-                    "load size =  ${params.requestedLoadSize}"
-        )
         val list = repository.getDataOfImageList(
             params.requestedStartPosition,
             params.requestedLoadSize,
@@ -32,10 +28,6 @@ class PicturesPositionalDataSource(private val context: Context) :
         params: LoadRangeParams,
         callback: LoadRangeCallback<PictureUri>
     ) {
-        Log.d(
-            GalleryConstants.TAG_DATA_SOURCE, "start = ${params.startPosition}," +
-                    " load size =  ${params.loadSize}"
-        )
         val list = repository.getDataOfImageList(
             params.startPosition,
             params.loadSize,

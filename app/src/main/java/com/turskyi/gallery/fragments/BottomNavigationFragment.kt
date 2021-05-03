@@ -21,7 +21,7 @@ class BottomNavigationFragment : Fragment(){
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
-    private var fragmentId = 0
+    private var fragmentId: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +38,7 @@ class BottomNavigationFragment : Fragment(){
         binding.bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             initFragment(item.itemId)
         }
+        binding.bottomNavigationView.selectedItemId = R.id.onlineMenu
         savedInstanceState?.let {
             fragmentId = it.getInt(GalleryConstants.KEY_WORD_FRAGMENT_ID)
         }
